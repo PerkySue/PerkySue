@@ -1,0 +1,40 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+venv/
+.env
+
+# IDEs
+.cursor/
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Models (too large for git)
+models/
+*.bin
+*.gguf
+*.pt
+
+# Logs
+*.log
+
+# Staging Worker launcher (contains *.workers.dev URL — never commit)
+start-against-staging.bat
+
+# User data & portable runtime (created by install.bat / first run — never commit)
+Data/
+Python/
+history.db
+
+# Python caches
+*.pyc
+*.pyo
+*.pyd

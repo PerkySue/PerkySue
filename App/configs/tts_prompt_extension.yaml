@@ -1,0 +1,94 @@
+# TTS — LLM appendix (Answer / Help) when Pro TTS is on. Keep short: small context windows (2k–4k).
+
+version: 1
+
+# One line of tags only (no bullet descriptions) — minimal tokens.
+appendix_compact_tags: true
+
+header_title: "Text-to-speech"
+
+intro: |
+  Replies may be read aloud. Use inline tags from the active engine list below (not markdown/XML).
+  Include 1–3 tags where natural (emotion + paralinguistic); place at phrase boundaries, never inside words.
+
+default_personality:
+  id: default
+  prompt: |
+    Warm, conversational; match user language. For speech, add light tags ([happy], [chuckle], [sigh]) when they fit — avoid flat neutral only.
+
+skin_personality_filename: tts_personality.yaml
+
+engines:
+  chatterbox:
+    summary: "Chatterbox — en=Turbo; other langs=MTL."
+    turbo_path: "English: Turbo tokenizer tags only."
+    mtl_path: "Non-English: MTL tags only ([laughter] not [laugh]; underscores e.g. [clear_throat])."
+
+    tags_turbo:
+      - { tag: "[angry]", desc: "" }
+      - { tag: "[fear]", desc: "" }
+      - { tag: "[surprised]", desc: "" }
+      - { tag: "[whispering]", desc: "" }
+      - { tag: "[advertisement]", desc: "" }
+      - { tag: "[dramatic]", desc: "" }
+      - { tag: "[narration]", desc: "" }
+      - { tag: "[crying]", desc: "" }
+      - { tag: "[happy]", desc: "" }
+      - { tag: "[sarcastic]", desc: "" }
+      - { tag: "[clear throat]", desc: "" }
+      - { tag: "[sigh]", desc: "" }
+      - { tag: "[shush]", desc: "" }
+      - { tag: "[cough]", desc: "" }
+      - { tag: "[groan]", desc: "" }
+      - { tag: "[sniff]", desc: "" }
+      - { tag: "[gasp]", desc: "" }
+      - { tag: "[chuckle]", desc: "" }
+      - { tag: "[laugh]", desc: "" }
+
+    tags_mtl_paralinguistic:
+      - { tag: "[laughter]", desc: "" }
+      - { tag: "[giggle]", desc: "" }
+      - { tag: "[guffaw]", desc: "" }
+      - { tag: "[inhale]", desc: "" }
+      - { tag: "[exhale]", desc: "" }
+      - { tag: "[sigh]", desc: "" }
+      - { tag: "[cry]", desc: "" }
+      - { tag: "[gasp]", desc: "" }
+      - { tag: "[groan]", desc: "" }
+      - { tag: "[whisper]", desc: "" }
+      - { tag: "[mumble]", desc: "" }
+      - { tag: "[sniff]", desc: "" }
+      - { tag: "[sneeze]", desc: "" }
+      - { tag: "[cough]", desc: "" }
+      - { tag: "[snore]", desc: "" }
+      - { tag: "[chew]", desc: "" }
+      - { tag: "[sip]", desc: "" }
+      - { tag: "[clear_throat]", desc: "" }
+      - { tag: "[kiss]", desc: "" }
+      - { tag: "[shhh]", desc: "" }
+      - { tag: "[humming]", desc: "" }
+      - { tag: "[whistle]", desc: "" }
+      - { tag: "[singing]", desc: "" }
+      - { tag: "[music]", desc: "" }
+      - { tag: "[bark]", desc: "" }
+      - { tag: "[howl]", desc: "" }
+      - { tag: "[meow]", desc: "" }
+
+  omnivoice:
+    summary: "OmniVoice — multilingual; non-verbal tags below."
+    extra: "Optional: English CMU phones / Chinese pinyin only if sure; else omit."
+
+    tags:
+      - { tag: "[laughter]", desc: "" }
+      - { tag: "[sigh]", desc: "" }
+      - { tag: "[confirmation-en]", desc: "" }
+      - { tag: "[question-en]", desc: "" }
+      - { tag: "[question-ah]", desc: "" }
+      - { tag: "[question-oh]", desc: "" }
+      - { tag: "[question-ei]", desc: "" }
+      - { tag: "[question-yi]", desc: "" }
+      - { tag: "[surprise-ah]", desc: "" }
+      - { tag: "[surprise-oh]", desc: "" }
+      - { tag: "[surprise-wa]", desc: "" }
+      - { tag: "[surprise-yo]", desc: "" }
+      - { tag: "[dissatisfaction-hnn]", desc: "" }

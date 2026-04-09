@@ -1,0 +1,636 @@
+﻿about:
+  support_patreon_label: ❤ Dukung di Patreon
+  updates:
+    title: Pembaruan
+    body_idle: Cek GitHub untuk versi terbaru.
+    body_checking: Mengecek rilis GitHub…
+    body_check_failed: Tidak bisa mengecek pembaruan.
+    body_available: 'Update tersedia: {v}'
+    body_uptodate: 'Kamu sudah versi terbaru ({v}).'
+    body_downloading: Mengunduh pembaruan…
+    body_ready_restart: Update terpasang. Restart untuk menerapkan.
+    body_failed: Update gagal.
+    wizard_title: Update
+    btn_check: Cek pembaruan
+    btn_retry: Coba lagi
+    btn_update: Update
+    btn_restart: Restart untuk menerapkan
+    btn_close: Tutup
+    btn_cancel: Batal
+    footer_link: 'Update tersedia {v}'
+  quick_use_cases:
+    section_title: Use cases (cepat)
+    voice_layer: 'Voice layer untuk AI: di input chat AI mana pun, Alt+T → ngomong → Enter.'
+    custom_prompts: 'Prompt kustom: Alt+V/B/N = 3 slot — workflow reusable dengan aturan dan gaya kamu.'
+    footer: Jalan lokal — teks kamu tetap di mesinmu.
+  hero:
+    title: PerkySue
+    tagline: Dikte suara + AI. 100% lokal. 100% privat.
+    subtitle: Tekan pintasan, ngomong, teks langsung muncul di kursormu — di app mana pun, jendela mana pun, kolom mana pun. Tanpa cloud. Tanpa akun. Datamu nggak kemana-mana.
+  why_exists:
+    section_title: Kenapa PerkySue ada
+    line_1: Semua alat dikte lain cuma setengah-setengah.
+    line_2: Mereka ubah suaramu jadi teks — tapi nggak ikut mikir bareng kamu.
+    line_3: Kamu masih harus copy teks ke chatbot, tunggu, terus copy balik jawabannya. Banyak langkah untuk sesuatu yang harusnya satu — dan kata-katamu baru aja pergi ke server yang bukan milikmu.
+    line_4: PerkySue itu semua pipeline dalam satu pintasan.
+    line_5: Pengenalan suara, transformasi LLM lokal, injeksi teks — satu aksi, di app mana pun, tanpa kirim apa pun keluar.
+    line_6: Suara bukan data biasa — itu data biometrik.
+    line_7: Ada aksenmu, ritme bicaramu, kondisi emosimu. Alat dikte cloud merekamnya, mentransmisikannya, dan menyimpannya dengan syarat yang jarang dibaca orang. Dipakai untuk melatih model dan dibagi ke mitra infrastruktur.
+    line_8: PerkySue rekam audio di RAM, proses secara lokal, langsung buang. Nggak ada yang disimpan, dicatat, atau dikirim.
+    line_9: Suaramu tetap milikmu!
+  how_it_works:
+    section_title: Cara kerjanya
+    step1_title: Tekan pintasan
+    step1_description: 'Taruh kursormu di app mana pun yang biasa kamu ketik (Word, Gmail, Slack, VS Code…) terus tekan:'
+    step2_title: Ngomong aja
+    step2_description: PerkySue rekam sampai kamu berhenti bicara. Kebisingan bisa cegah auto-stop — tekan Alt+Q (global default) atau Esc saat app aktif, atau klik foto profil.
+    step3_title: Teks muncul di tempat kamu mulai
+    step3_description: PerkySue kunci posisi kursormu dan jendela aktif saat kamu tekan pintasan.
+    step4_title: Kerja terus saat diproses
+    step4_description: Ganti tab, ketik di tempat lain. Smart Focus injeksi hasilnya di tempat kamu mulai.
+  features:
+    section_title: Buat apa aja sih
+    transcribe:
+      card_title: 🎙️ Transkripsi — gratis, selamanya
+      badge: Alt+T
+      description: Ngomong, transkrip langsung muncul di kursormu. Jalan di mesin apa pun — pilih model Whisper dari tiny (hardware lama, 4 GB RAM) sampai large-v3 (kualitas studio di GPU modern). Tanpa LLM, tanpa langganan, tanpa batas kata.
+    improve:
+      card_title: ✏️ Perbaiki — tulis ulang yang kamu pilih
+      badge: Alt+I
+      description: Lagi nulis dokumen dan satu paragraf terasa hambar — idenya ada tapi tulisannya nggak nyambung. Pilih teksnya, tekan Alt+I, bilang "bikin ini lebih tajam dan potong setengahnya". PerkySue baca pilihanmu dan instruksimu sekaligus. Paragraf baru langsung ganti yang lama, di tempat yang sama, tanpa keluar app.
+      prompt: 🎤  "bikin ini lebih menarik, versi sekarang terlalu kering"
+      result: ✅  Pilihanmu diganti dengan versi yang sudah diperbaiki.
+    professional:
+      card_title: 💼 Profesional — perbaiki gaya dan kesalahan sekaligus
+      badge: Alt+P
+      description: Kamu nulis dua paragraf yang campur gaya santai sama beberapa typo. Pilih semuanya, tekan Alt+P, bilang "beresin ini, buat presentasi ke bos". LLM tulis ulang dengan formal dan benerin kesalahan — pilihanmu langsung terganti, tanpa ribet clipboard.
+      prompt: 🎤  "harus kedengarannya rapi, benerin juga gramatikanya"
+      result: ✅  Pilihanmu diganti dengan versi formal yang sudah dikoreksi.
+  use_cases:
+    section_title: Mode suara lainnya
+    intro: Setiap mode bekerja seperti perintah suara — nggak perlu pilih teks dulu. Tekan pintasan, ngomong, hasilnya langsung muncul di kursormu.
+    footer: Semua mode jalan sepenuhnya di komputermu. Tanpa panggilan API, tanpa internet, tanpa data yang keluar.
+    items:
+    - badge: Alt+M
+      name: Email — bilang aja, langsung jadi
+      prompt: 🎤  "tulis email ke John bilang PerkySue siap diluncurkan — sebut juga kita targetkan rilis pekan depan"
+      result: ✅  Email profesional yang rapi langsung muncul di kursormu. PerkySue nulis dalam bahasa yang kamu pakai.
+    - badge: Alt+D
+      name: Pesan Langsung — santai, siap kirim
+      prompt: 🎤  "bilang ke kakek jangan lupa kecap asin"
+      result: ✅  Kek! Ingetin ya — jangan lupa kecap asinnya! Semoga hari kakek menyenangkan!
+    - badge: Alt+X
+      name: Post Sosial — posting atau balas di mana aja
+      prompt: 🎤  "balas komentar YouTube ini — bilang makasih dan video berikutnya keluar minggu depan tentang sistem plugin"
+      result: ✅  Makasih banyak! Seneng banget kamu suka. Video berikutnya minggu depan — bahas sistem plugin. Stay tuned!
+    - badge: Alt+C
+      name: Console — deskripsikan, dapatkan perintahnya
+      prompt: 🎤  "cari semua file Python yang diubah dalam 7 hari terakhir"
+      result: ✅  find . -name "*.py" -mtime -7 — siap di-paste ke terminalmu.
+    - badge: Alt+A
+      name: Ask — tanya jawab dengan memori percakapan
+      prompt: 🎤  "apa bedanya mutex sama semaphore?"
+      result: ✅  Jawaban langsung muncul di kursormu. Tanya lanjutan — model ingat riwayat obrolanmu.
+    - badge: Alt+V/B/N
+      name: Prompts Kustom — aturanmu, workflowmu
+      prompt: 🎤  Tiga slot prompt yang bisa kamu edit di Prompt Modes.
+      result: ✅  Ubah suaramu jadi catatan rapat, gaya tulisan tertentu, output terstruktur — sesuka kamu.
+  smart_focus:
+    section_title: Smart Focus
+    card_title: 🎯 Smart Focus — tekan, lanjut kerja
+    description: PerkySue kunci posisi kursormu saat kamu tekan pintasan. Selagi Whisper transkripsi dan LLM generate, kamu bebas ganti app, lanjut ngetik, apa pun. Hasilnya mendarat di tempat kamu mulai — bukan di mana kursormu sekarang.
+  voice_modes:
+    section_title: Mode Suara
+    modes:
+    - hotkey: Alt+T
+      name: Transkripsi
+      description: Transkripsi cepat (tanpa LLM)
+      needs_llm: false
+    - hotkey: Alt+I
+      name: Perbaiki
+      description: Rapikan dan format teks
+      needs_llm: true
+    - hotkey: Alt+P
+      name: Profesional
+      description: Tulis ulang gaya formal bisnis
+      needs_llm: true
+    - hotkey: Alt+L
+      name: Terjemahkan
+      description: Terjemahkan ke bahasa target
+      needs_llm: true
+    - hotkey: Alt+C
+      name: Console
+      description: Ekstrak perintah shell
+      needs_llm: true
+    - hotkey: Alt+M
+      name: Email
+      description: Format sebagai email profesional
+      needs_llm: true
+    - hotkey: Alt+D
+      name: Pesan Langsung
+      description: WhatsApp/Slack/Discord/SMS — gaya sesuai hubungan
+      needs_llm: true
+    - hotkey: Alt+X
+      name: Post Sosial
+      description: LinkedIn/X/YouTube/Reddit — posting atau balas
+      needs_llm: true
+    - hotkey: Alt+S
+      name: Ringkas
+      description: Padatkan jadi poin-poin utama
+      needs_llm: true
+    - hotkey: Alt+A
+      name: Ask
+      description: Tanya sesuatu — LLM jawab di kursormu
+      needs_llm: true
+    - hotkey: Alt+H
+      name: Bantuan
+      description: Tanya soal PerkySue — KB app + pengaturanmu
+      needs_llm: true
+    - hotkey: Alt+G
+      name: GenZ
+      description: Tulis ulang gaya santai kekinian
+      needs_llm: true
+  competition:
+    section_title: PerkySue vs. Pesaing
+    items:
+    - title: vs. dikte bawaan
+      examples: Windows, macOS, Google
+      description: Mereka cuma transkripsi. PerkySue transkripsi sekaligus mikir — 11 mode ubah suaramu jadi email, perintah, terjemahan, ringkasan.
+    - title: vs. dikte cloud
+      examples: Wispr Flow, Typeless
+      description: Audiomu nggak kemana-mana. Tanpa akun, tanpa internet, tanpa batas kata. Jalan di mode pesawat atau dari USB.
+    - title: vs. tools open source
+      examples: Amical, OpenWhispr
+      description: Mereka cuma STT + paste. PerkySue tambah pipeline LLM lokal, seleksi teks + instruksi suara, Smart Focus, dan widget GUI.
+  privacy:
+    section_title: Privasi
+    items:
+    - icon: 🔒
+      title: Tanpa internet
+      description: Semua jalan di komputermu
+    - icon: 🔇
+      title: Audio nggak disimpan
+      description: Direkam di RAM, ditranskripsi, langsung dihapus
+    - icon: 👤
+      title: Tanpa akun
+      description: Tanpa daftar, tanpa tracking, tanpa cookies
+    - icon: 📂
+      title: Open source
+      description: Cek sendiri setiap baris kodenya
+  why_i_built_it:
+    section_title: Kenapa saya bikin PerkySue?
+    paragraph_1: 'PerkySue mulai sebagai alat produktivitas pribadi — sesuatu yang saya butuhkan tiap hari, bukan buat pitch deck. Setelah bertahun-tahun desain arsitektur software dan platform percakapan, saya mau satukan semuanya: suara → STT lokal → LLM lokal → teks diinjeksi di tempat saya kerja.'
+    paragraph_2: 'Kodenya dikembangkan bareng AI: proyek ini melibatkan kolaborasi intensif dengan asisten coding AI. Pipeline lokalnya kompleks. Lucunya, PerkySue sekarang bantu saya coding kodenya sendiri, tanpa kirim suara atau data saya ke cloud.'
+  links:
+    section_title: Tautan
+    items:
+    - label: Repositori GitHub
+      url: https://github.com/PerkySue/PerkySue
+    - label: Komunitas Discord
+      url: https://discord.gg/UaJHEzFgXy
+    - label: Dukung di Patreon ❤
+      url: https://patreon.com/PerkySue
+    - label: Kebijakan Privasi
+      url: ''
+    - label: Dokumentasi Arsitektur
+      url: ''
+    credit: Dibuat oleh Jérôme Corbiau  ·  Lisensi Apache 2.0
+common:
+  window_title: PerkySue — Beta 0.28.8
+  header_banner:
+    free_invite: PerkySue Beta — Gratis · Coba Pro (30 hari, tanpa kartu)
+    free_after_trial: PerkySue Beta — Gratis
+    pro_trial: PerkySue Beta — Trial Pro · sisa {days} hari
+    pro: PerkySue Beta — Pro
+    enterprise: PerkySue Beta — Enterprise
+  'yes': Ya
+  'no': Tidak
+  nav:
+    console: '>_   Console'
+    shortcuts: ⌨   Pintasan
+    settings: ⚙   Pengaturan
+    modes: 💬   Prompts
+    chat: 💭   Chat
+    help: ❓   Bantuan
+    voice: 🔊   Suara
+    user: 👤   Pengguna
+    about: 💡   Tentang
+  statuses:
+    listening: Mendengarkan
+    processing: Memproses
+    injecting: Menginjeksi
+    ready: Siap
+    error: Error
+    crash: App crash
+    no_speech: Nggak ada suara
+    tts_loading: Menyiapkan suara…
+    generating: Membuat
+    speaking: Berbicara
+  footer:
+    github: GitHub
+    discord: Discord
+    alpha_banner: Transkripsi gratis selamanya. Mode Pro menjaga proyek tetap hidup.
+user:
+  settings:
+    title: Pengaturan Pengguna
+  billing:
+    label: Email penagihan Stripe
+    hint: Email untuk menautkan langganan ke PC ini (hanya baca).
+    empty: —
+  section:
+    language_title: Bahasa antarmuka
+    language_hint: Klik bendera untuk ganti bahasa.
+voice:
+  page_title: Suara
+  locked:
+    section_title: Teks ke ucapan
+    body: PerkySue bisa membacakan jawaban dengan suara natural. Mau kloning? Taruh voice_ref.wav pendek di tiap folder skin. Butuh Pro.
+    pro_note: Khusus Pro
+    upgrade: Upgrade ke Pro
+  install:
+    section_title: Kasih suara buat PerkySue
+    model_label: Pilih model
+    body: Nyalakan teks-ke-ucapan. Balasan mode Answer dan Help bisa dibacakan. Pak suara Patreon bisa sertakan voice_ref.wav untuk kloning.
+    button: Pasang mesin
+    button_working: Memasang…
+    retry: Coba lagi
+  engine:
+    recommended_suffix: " (disarankan)"
+  output:
+    section_title: Keluaran
+    enabled: Aktif
+    engine_label: Mesin
+  playback:
+    section_title: Pemutaran
+    volume: Volume
+    speed: Kecepatan
+    auto_speak: Bicara otomatis
+    auto_speak_hint: Setelah mode Answer & Help
+  packs:
+    section_title: Pak suara
+    default_body: Suara Pro bawaan. Tambah voice_ref.wav di skin untuk kloning, atau ambil pak karakter di Patreon.
+    installed_lead: "Pak suara terpasang:"
+    more_patreon: Suara lain di Patreon.
+  test:
+    section_title: Tes
+    field_label: Contoh kalimat
+    sample_text: |
+      Hei! Aku PerkySue — dan iya, aku punya suara.
+      Kamu mungkin nggak percaya, tapi aku jalan sepenuhnya di komputermu. Nggak ada cloud, nggak ada akun, nggak ada data yang terbang entah ke mana. Cuma kamu, aku, dan mikrofon kamu.
+    speak: ▶  Baca
+    stop: ■  Stop
+console:
+  pipeline_status: Status Pipeline
+  whisper_stt: 'Whisper STT:'
+  local_llm: 'LLM Lokal:'
+  no_stt: Tanpa STT
+  no_llm: LLM tidak ditemukan
+  help_only_suffix: — Bantuan saja
+  transcription_controls: Kontrol Transkripsi
+  start: Mulai
+  abort: Batalkan
+  copy_log: 📋  Salin log
+  finalized_logs: Log Final - Sementara
+  full_console: Console
+  copy: Salin
+shortcuts:
+  title: Manajer Pintasan
+  col_mode: Mode
+  col_hotkey_alt: Pintasan (Alt)
+  col_hotkey_altgr: Pintasan (AltGr)
+  edit: Edit
+  stop_task: Hentikan Tugas
+  restore_defaults: Pulihkan Pintasan Default
+  restart_note: Perubahan butuh restart
+settings:
+  save_sidebar_note: Restart untuk terapkan
+  update_button: Perbarui
+  update_note: Terapkan sekarang (tanpa restart)
+  appearance:
+    title: Tampilan
+    default_skin: Default
+    patreon_cta: Unlock skin supporter di Patreon 💛
+    filter_all: Semua
+    select: Pilih
+    import_skin: Impor Skin
+  recommended_models:
+    title: Model yang Disarankan
+    more_models: + Model lainnya
+    current_model: Model Saat Ini
+    get: ↓ Unduh
+    filter_favorites_hint: Hanya tampilkan favorit (model berbintang)
+    search_placeholder: Cari model…
+    tooltip_labels:
+      name: Nama
+      author: Penulis
+      family: Keluarga
+      params: Parameter
+      quant: Kuantisasi
+      thinking: Penalaran
+      uncensored: Tanpa sensor
+      languages: Bahasa
+      size: Ukuran
+      speed: Kecepatan
+      favorite: Favorit
+      comment: Komentar
+      alt_a_qa: Alt+A QA
+      popularity: Popularitas
+  performance:
+    title: Pengaturan Performa
+    stt_model: Model STT
+    stt_device: Perangkat STT
+    silence_timeout: Timeout Senyap (dtk)
+    max_duration: Durasi rekam maks (dtk)
+    first_language: Bahasa Utamamu
+    llm_model: Model LLM
+    max_input: Input maks (konteks)
+    max_output: Output maks (token)
+    llm_request_timeout: Timeout permintaan LLM (dtk)
+    no_gguf: Tidak ada .gguf di Data/Models/LLM
+    auto: Auto
+  save_restart: Simpan & Restart
+  plan_management:
+    section_title: Manajemen Paket
+    badge_current: Aktif
+    status_valid_until: '⟳ Sampai: {date}'
+    status_valid_until_unknown: '⟳ Sampai: —'
+    status_pro_trial_days: 'Uji coba · sisa {days} hari'
+    status_access_until_cancelled: 'Berakhir: {date}'
+    status_pro_active_short: Pro
+    status_active_plan: Paket aktif
+    portal_title: Kelola langganan
+    portal_manage_unavailable: Membuka penagihan dari aplikasi belum tersedia. Gunakan tautan di email Stripe atau hubungi hello@perkysue.com.
+    buttons:
+      active: Aktif
+      free_tier: Gratis
+      manage: Kelola
+      start_free_trial: Coba Gratis
+      get_pro: Ambil Pro 9,90 €/bln
+      contact_sales: Hubungi kami
+    free:
+      name: Gratis
+      price: 0 €
+      features:
+      - text: Transkripsi Alt+T
+        locked: false
+      - text: Whisper STT lokal
+        locked: false
+      - text: Smart Focus
+        locked: false
+      - text: Alt+A Ask
+        locked: false
+      - text: LLM lokal
+        locked: false
+    pro:
+      name: Pro
+      price: 9,90 €
+      price_sub: /bln
+      trial_sub: 30 hari · tanpa kartu
+      features:
+      - text: 14 mode LLM
+        locked: false
+      - text: Prompt kustommu
+        locked: false
+      - text: Update prioritas
+        locked: false
+      - text: Suara-ke-suara
+        locked: false
+    enterprise:
+      name: Enterprise
+      price: Harga khusus
+      features:
+      - text: Basis Data Perusahaan
+        locked: false
+      - text: Deployment / Tim
+        locked: false
+      - text: Dukungan khusus
+        locked: false
+    link_subscription:
+      wizard_title: Hubungkan langgananmu
+      cta: Aku sudah berlangganan
+      otp_headline: Cek email
+      email_intro: Masukkan email untuk mulai — kami kirim kode 6 digit biar pasti ini kamu.
+      step_email_title: Email penagihan
+      step_email_hint: Sama seperti di kuitansi atau invoice Stripe.
+      email_placeholder: kamu@email.com
+      send_code: Kirim kode
+      step_otp_title: Kode verifikasi
+      otp_placeholder: Kode 6 digit
+      otp_hint: Masukkan kode 6 digit dari email kami.
+      verify: Verifikasi dan hubungkan
+      resend: Kirim ulang kode
+      resend_wait: Kirim ulang ({s} dtk)
+      success_title: Siap! 🎉
+      success_body: Langganan sudah terhubung. Pro aktif di PC ini.
+      resent_ok: Kode baru sudah dikirim.
+      close: Lanjut
+      busy_sending: Mengirim…
+      busy_verify: Memverifikasi…
+      errors:
+        network: Tidak bisa menghubungi perkysue.com — cek koneksi dan coba lagi.
+        invalid_email: Emailnya sepertinya belum tepat — bisa dicek lagi?
+        inactive: Tidak ada langganan aktif untuk email ini.
+        wrong_code: Kodenya tidak cocok.
+        invalid_code: Masukkan kode dari emailmu.
+        attempts: Terlalu banyak percobaan — tunggu sebentar ya.
+        cooldown: Tunggu sebentar sebelum minta kode lagi.
+        generic: Ada masalah kecil. Coba lagi dalam beberapa detik.
+      success_cta: Pakai PerkySue
+    trial_request:
+      wizard_title: Mulai uji coba gratis
+      email_intro: Masukkan email untuk mulai — kami kirim kode 6 digit biar pasti ini kamu.
+      email_placeholder: kamu@email.com
+      send_code: Kirim kode
+      otp_headline: Verifikasi email
+      otp_hint: Masukkan kode 6 digit, lalu pilih preferensi newsletter.
+      newsletter_title: Newsletter
+      newsletter_question: Kabar penting, bukan spam. Kami email hanya kalau ada yang worth it.
+      'yes': Ya
+      'no': Tidak
+      resend: Kirim ulang kode
+      resend_wait: Kirim ulang ({s}s)
+      resent_ok: Kode baru terkirim.
+      busy_sending: Mengirim…
+      busy_verify: Mengaktifkan…
+      success_title: Siap! 🎉
+      success_body: Uji coba Pro 30 hari dimulai sekarang. Semua fitur Pro — tanpa batas, tanpa kartu.
+      success_cta: Pakai PerkySue
+      errors:
+        network: Tidak bisa menghubungi perkysue.com — cek koneksi dan coba lagi.
+        invalid_email: Emailnya sepertinya belum tepat — bisa dicek lagi?
+        invalid_code: Masukkan kode 6 digit dari emailmu.
+        wrong_code: Kodenya tidak cocok.
+        attempts: Terlalu banyak percobaan — tunggu sebentar ya.
+        cooldown: Tunggu sebentar sebelum minta kode lagi.
+        rate_limited: Terlalu banyak percobaan — tunggu sebentar dan coba lagi.
+        trial_already_used: Email ini sudah pernah pakai uji coba gratis.
+        trial_ineligible_paid: Email ini sebelumnya pernah terhubung ke langganan Pro. Uji coba cuma untuk pengguna baru — tapi kamu bisa berlangganan lagi kapan saja.
+        generic: Ada masalah kecil. Coba lagi dalam beberapa detik.
+modes:
+  stt_keywords:
+    title_unlimited: Kata Kunci Whisper STT (tak terbatas)
+    title_limit: 'Kata Kunci Whisper STT (batas: {limit})'
+    placeholder: Ketik kata dan tekan Enter (mis. PerkySue, STT)...
+    tags_counter: '{count} / {limit} tag'
+  identity:
+    section_title: Identitas & Preferensi
+    title: Namamu
+    placeholder: 'Opsional: nama panggilan untuk LLM (mis. Budi)...'
+    help: Dipakai di beberapa prompt LLM (mis. mode email)
+  prompt_modes:
+    title: Prompts
+    edit_hint: Edit prompt sistem untuk setiap pintasan LLM
+    system_prompt_help: Prompt sistem ke LLM = Pengaturan saat ini + Basis Pengetahuan + instruksi (kotak di atas). Taruh pertanyaanmu di input tes di bawah.
+    test_input_label: 'Input tes (contoh):'
+    test_response_label: 'Respons LLM (pratinjau):'
+    test_hint: Tes selalu pakai teks terkini di atas, meski belum disimpan.
+    paste: Tempel
+    copy: Salin
+    run_test: Jalankan Tes
+    save: Simpan
+    cancel: Batal
+    edit: Edit
+    test: Tes
+  registry:
+    transcribe:
+      name: Transkripsi
+      description: Transkripsi biasa — suara ke teks, tanpa proses tambahan
+    improve:
+      name: Perbaiki
+      description: Rapikan dan tambah tanda baca pada dikte suara
+    professional:
+      name: Profesional
+      description: Tulis ulang dengan gaya profesional dan jelas
+    translate:
+      name: Terjemahkan
+      description: Terjemahkan ke bahasa target yang dikonfigurasi
+    console:
+      name: Console
+      description: Ubah suara menjadi perintah shell
+    email:
+      name: Email
+      description: Format sebagai email profesional
+    message:
+      name: Pesan Langsung
+      description: Pesan santai untuk WhatsApp, Slack, Discord, SMS
+    social:
+      name: Post Sosial
+      description: Balas atau posting di YouTube, X/Twitter, LinkedIn, Reddit
+    summarize:
+      name: Ringkas
+      description: Ringkas teks yang didiktekan
+    genz:
+      name: Gen Z
+      description: Tulis ulang gaya santai dengan emoji
+    answer:
+      name: Ask
+      description: Ajukan pertanyaan dari teks yang didiktekan atau pertanyaan di dalamnya
+    help:
+      name: Bantuan
+      description: Tanya soal PerkySue — pakai basis pengetahuan app
+    custom1:
+      name: Prompt kustom 1
+      description: Prompt kustommu — edit di Prompt Modes
+    custom2:
+      name: Prompt kustom 2
+      description: Prompt kustommu — edit di Prompt Modes
+    custom3:
+      name: Prompt kustom 3
+      description: Prompt kustommu — edit di Prompt Modes
+chat:
+  title: Chat
+  new_chat: Obrolan baru
+  save_log: Simpan log
+  token_counter: '{current} / {max}'
+  placeholder: Ketik pesan... atau tekan mikrofon
+  hint: 'Alt+A: aktif/nonaktif mikrofon · Alt+Q: hentikan'
+  help_redirect: Ada pertanyaan soal PerkySue? Pakai tab Bantuan.
+  sender_name: PerkySue
+  user_fallback: Kamu
+  free_answer_notice: Pada paket gratis, setiap pertanyaan diproses secara terpisah — asisten tidak mengingat pesan-pesan Anda sebelumnya. Konteks multi-turn, yang memungkinkan asisten mengingat percakapan yang sedang berlangsung, serta injeksi ke kursor (Smart Focus), hanya tersedia di paket Pro — upgrade kapan saja saat Anda mau.
+help:
+  title: Bantuan
+  new_chat: Obrolan baru
+  save_log: Simpan log
+  token_counter: '{current} / {max}'
+  placeholder: Tanya soal PerkySue... atau tekan mikrofon
+  hint: 'Alt+H: aktif/nonaktif mikrofon · Alt+Q: hentikan'
+  sender_name: PerkySue
+header_tips:
+  startup_message: Tips · Taruh kursor di Word, Gmail, Slack… terus tekan Alt+T
+  tips:
+  - Tips · Tekan Alt+Q atau klik avatar untuk hentikan rekaman
+  - Tips · Alt+T gratis selamanya — transkripsi cepat, tanpa LLM
+  - Tips · Pilih teks apa pun, tekan Alt+I, bilang mau diubah apa
+  - Tips · Tekan Alt+M di mana pun untuk dikte email lengkap
+  - 'Alt+A Pro: lanjut obrolan di chat — Alt+A Gratis: satu pertanyaan per kali'
+  - Tips · Kebisingan cegah auto-stop? Tekan Alt+Q untuk hentikan
+  - Tips · Pilih paragraf → Alt+P — gaya dan tata bahasa beres sekaligus
+  - 'Tips · Alt+C di terminal: deskripsikan kebutuhanmu pakai bahasa biasa'
+  - 'Tips · Alt+L: pilih teks dan minta terjemahkan ke bahasa apa pun'
+  - 'Tips · Alt+D: dikte pesan langsung untuk WhatsApp, Slack, Discord, SMS'
+  - 'Tips · Alt+X: buat posting atau balasan untuk LinkedIn, X, YouTube, Reddit'
+  - Tips · Paste catatan rapat, pilih semua, Alt+S untuk ringkasan singkat
+  - Tips · Pilih teks berantakan, tekan Alt+I, bilang 'persingkat ini' — beres
+  - Tips · Alt+V sampai Alt+N = prompt kustommu. Edit di Prompt Modes
+  - Tips · Buat prompt kustom untuk balas komentar dengan tone brandmu
+  - Tips · Bosan tulis ulang prompt AI yang sama? Buat generator prompt kustom
+  - 'Tips · Ide prompt kustom: ubah catatan jadi post LinkedIn yang engaging'
+  - Tips · Pakai prompt kustom untuk generate prompt video Kling/Runway terformat
+  - 'Tips · Ide prompt kustom: ekstrak action item dan deadline dari teks'
+  - 'Tips · Alt+H: tanya apa pun soal PerkySue di tab Bantuan'
+  - Pro · Smart Focus nggak paste? Salin output dari tab Console
+  - 'Tips · Hentikan tahap Mendengarkan: klik avatar atau tekan Alt+Q'
+  - Tips · Ganti app saat PerkySue proses — hasilnya tetap di tempat kamu mulai
+  - 'Tips · Smart Focus: tekan, kerja terus, teks muncul di tempat kamu mulai'
+  - Tips · CPU? Pakai Whisper small (cepat) atau medium (akurat). ⚙️ → Model STT
+  - Tips · Bising? Rekaman nggak auto-stop — Alt+Q atau klik avatar
+  - Tips · Edit prompt tiap mode di Prompt Modes — jadikan PerkySue milikmu
+  - Tips · Whisper salah tangkap kata? Tambahkan ke Kata Kunci STT di Prompt Modes
+  delay_before_first_ms: 3500
+  display_ms: 7500
+  delay_between_ms: 15000
+header_alerts:
+  critical:
+    no_llm: LLM tidak ditemukan. Unduh dulu di Pengaturan.
+    save_restart: Kamu perlu Simpan & Restart PerkySue
+    shortcut_in_use: Pintasan ini sudah dipakai ({other_name}). Pilih yang lain.
+    llm_error_400: Error LLM (400) — konteks terlalu besar? Naikkan Input maks di Pengaturan.
+    llm_error_generic: Error LLM — cek console. Naikkan Input maks (konteks) di Pengaturan jika pakai Alt+A.
+    max_input_reached: Batas token input maks tercapai — riwayat dikurangi.
+    max_input_context_reached: Batas input maks (konteks) ({max_input}) tercapai. Coba naikkan ke {suggested} → Pengaturan → Performa.
+    max_output_tokens_reached: Batas output maks ({max_output}) tercapai. Naikkan ke {suggested} di Pengaturan → Performa.
+    llm_request_timeout: Permintaan LLM timeout — coba timeout 180 atau 240 dtk di Pengaturan → Performa.
+  regular:
+    recording_stopped: 🛑 Rekaman dihentikan
+    processing_stopped: 🛑 Pemrosesan dihentikan
+    tts_stopped: 🛑 Output suara dihentikan
+    tts_loading: Menyiapkan suara — penyiapan awal sedang berlangsung...
+    omnivoice_requires_nvidia: OmniVoice requires NVIDIA/CUDA (not available on CPU/Vulkan).
+    tts_install_in_progress: Installation already in progress — please wait.
+    ai_disclaimer: ⚠️ Jawaban AI bisa tidak akurat. Periksa faktanya.
+    recording_no_audio: Audio tidak tertangkap — rekaman dihentikan atau cek mikrofon.
+    recording_too_short: Rekaman terlalu singkat — tidak ada teks. Cek mikrofon atau bicara lebih lama.
+    copied_to_clipboard: Disalin ke clipboard
+    llm_not_available: Orkestrator LLM tidak tersedia.
+    pro_plan_required_mode: Mode ini terkunci di paket Free — perlu paket Pro.
+    no_logs_to_save: Tidak ada log untuk disimpan
+    all_logs_copied: Semua log disalin ke clipboard
+    download_success: ✓ Berhasil diunduh.
+    download_progress: ⏳ Mengunduh {name}… {pct}%
+  run_test_400_hint: → 400 Bad Request biasanya berarti konteks melebihi batas model. Naikkan Input maks di Pengaturan → Performa.
+  run_test_timeout_hint: → Model tidak selesai tepat waktu. Di Pengaturan → Performa, atur timeout permintaan LLM ke 180 atau 240 detik (tergantung kesabaranmu dengan hardware yang lebih lambat).
+  document_injection:
+    llm_error_400: Error LLM (400) — konteks terlalu besar? Naikkan Input maks (konteks) di Pengaturan.
+    llm_error_generic: Error LLM — cek console. Naikkan Input maks (konteks) di Pengaturan.
+    max_input_reached: '⚠️ Batas token input maks tercapai — riwayat dikurangi. Pertimbangkan Pengaturan → Input maks dan kapasitas sistemmu.
+
+
+      '
+    chat_max_input_reached: ⚠️ Kamu sudah capai batas input maks (konteks) ({max_input}). Coba naikkan ''Input maks'' di Pengaturan → Performa ke {suggested} atau lebih.
+    chat_context_limit_reached: ⚠️ Batas konteks ({max_input}) tercapai — input dan output berbagi anggaran yang sama. Naikkan ''Input maks'' di Pengaturan → Performa ke {suggested} atau lebih.
+    chat_max_output_reached: '⚠️ Balasan terpotong: batas output maks ({max_output}) tercapai. Naikkan ''Output maks'' di Pengaturan → Performa ke {suggested} atau lebih.'
+    chat_empty_reply: — Balasan kosong. Coba ulangi pertanyaan atau cek console.
+    trial_request:
+      newsletter_title: Newsletter preference
+      newsletter_question: Get updates, not spam. We'll only email you when something worth knowing happens — new features, tips & tricks, that's it.

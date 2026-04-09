@@ -1,0 +1,636 @@
+﻿about:
+  support_patreon_label: ❤ Patreon-এ সাপোর্ট করো
+  updates:
+    title: আপডেট
+    body_idle: সর্বশেষ ভার্সনের জন্য GitHub চেক করো।
+    body_checking: GitHub রিলিজ চেক করা হচ্ছে…
+    body_check_failed: আপডেট চেক করা যায়নি।
+    body_available: 'আপডেট উপলব্ধ: {v}'
+    body_uptodate: 'তুমি আপ-টু-ডেট ({v}).'
+    body_downloading: আপডেট ডাউনলোড হচ্ছে…
+    body_ready_restart: আপডেট ইনস্টল হয়েছে। প্রয়োগ করতে রিস্টার্ট করো।
+    body_failed: আপডেট ব্যর্থ হয়েছে।
+    wizard_title: আপডেট
+    btn_check: আপডেট চেক করো
+    btn_retry: আবার চেষ্টা করো
+    btn_update: আপডেট করো
+    btn_restart: রিস্টার্ট করে প্রয়োগ করো
+    btn_close: বন্ধ করো
+    btn_cancel: বাতিল
+    footer_link: 'আপডেট উপলব্ধ {v}'
+  quick_use_cases:
+    section_title: Use cases (quick)
+    voice_layer: 'AI-এর জন্য voice layer: যেকোনো AI chat input-এ Alt+T → বলো → Enter.'
+    custom_prompts: 'Custom prompts: Alt+V/B/N = 3 slots — তোমার rules আর tone দিয়ে reusable workflows.'
+    footer: লোকালেই চলে — তোমার টেক্সট তোমার মেশিনেই থাকে।
+  hero:
+    title: PerkySue
+    tagline: AI-পাওয়ার্ড ভয়েস-টু-টেক্সট। ১০০% লোকাল। ১০০% প্রাইভেট।
+    subtitle: শর্টকাট চাপো, বলো, আর টেক্সট সরাসরি কার্সারে আসে — যেকোনো অ্যাপে, যেকোনো উইন্ডোতে। কোনো ক্লাউড নেই। কোনো অ্যাকাউন্ট নেই। তোমার ডেটা মেশিন থেকে বের হয় না।
+  why_exists:
+    section_title: কেন PerkySue?
+    line_1: বাকি সব ডিকটেশন টুল সমস্যার অর্ধেকটাই সমাধান করে।
+    line_2: তারা তোমার কণ্ঠ লেখায় বদলায় — কিন্তু তোমার হয়ে ভাবে না।
+    line_3: তোমাকে এখনও টেক্সট কপি করে chatbot-এ পেস্ট করতে হয়, অপেক্ষা করতে হয়, আবার কপি করতে হয়। এটা কয়েকটা স্টেপ — অথচ একটাতেই হওয়া উচিত। আর সেই সময় তোমার কথা একটা সার্ভারে চলে যাচ্ছে।
+    line_4: PerkySue পুরো পাইপলাইন একটাই শর্টকাটে।
+    line_5: ভয়েস রিকগনিশন, লোকাল LLM ট্রান্সফরমেশন, টেক্সট ইনজেকশন — এক শটে, যেকোনো অ্যাপে, কিছুই বাইরে যায় না।
+    line_6: ভয়েস কোনো সাধারণ ডেটা না — এটা বায়োমেট্রিক।
+    line_7: এতে তোমার উচ্চারণ, ছন্দ, আবেগ থাকে। ক্লাউড ডিকটেশন টুলগুলো এটা ক্যাপচার করে, পাঠায়, রেখে দেয় — এমন শর্তে যা বেশিরভাগ মানুষ পড়ে না।
+    line_8: PerkySue অডিও RAM-এ ধরে, লোকালি প্রসেস করে, সাথে সাথে মুছে দেয়। কিছুই স্টোর, লগ বা ট্রান্সমিট হয় না।
+    line_9: তোমার কণ্ঠ তোমারই থাকে!
+  how_it_works:
+    section_title: কীভাবে কাজ করে
+    step1_title: শর্টকাট চাপো
+    step1_description: 'কার্সার রাখো যেকোনো অ্যাপে (Word, Gmail, Slack, VS Code…) আর চাপো:'
+    step2_title: স্বাভাবিকভাবে বলো
+    step2_description: PerkySue রেকর্ড করে যতক্ষণ তুমি কথা বলো। আশেপাশে আওয়াজ থাকলে অটো-স্টপ নাও হতে পারে — Alt+Q চাপো বা প্রোফাইল পিকচারে ক্লিক করো।
+    step3_title: টেক্সট সেখানেই আসে যেখানে শুরু করেছিলে
+    step3_description: PerkySue শর্টকাট চাপার মুহূর্তে কার্সার আর অ্যাক্টিভ উইন্ডো লক করে নেয়।
+    step4_title: প্রসেসিং চলার সময় কাজ চালিয়ে যাও
+    step4_description: ট্যাব বদলাও, অন্যখানে টাইপ করো। Smart Focus রেজাল্ট সেখানেই পাঠায় যেখানে ট্রিগার করেছিলে।
+  features:
+    section_title: কীসে কাজে লাগে
+    transcribe:
+      card_title: 🎙️ ট্রান্সক্রাইব — ফ্রি, সবসময়
+      badge: Alt+T
+      description: বলো, আর রাও ট্রান্সক্রিপ্ট কার্সারে আসে। যেকোনো মেশিনে কাজ করে — Whisper মডেল বেছে নাও tiny (পুরনো হার্ডওয়্যার, ৪ GB RAM) থেকে large-v3 (আধুনিক GPU-তে স্টুডিও কোয়ালিটি) পর্যন্ত। কোনো LLM লাগে না, সাবস্ক্রিপশন নেই, শব্দসীমা নেই।
+    improve:
+      card_title: ✏️ উন্নত করো — সিলেক্ট করা টেক্সট রিরাইট করো
+      badge: Alt+I
+      description: একটা প্যারাগ্রাফ ঠিকমতো হচ্ছে না? সিলেক্ট করো, Alt+I চাপো আর বলো "এটা আরও জোরালো করো, অর্ধেক ছোট করো"। PerkySue একসাথে সিলেকশন আর তোমার ইন্সট্রাকশন দুটোই পড়ে। রিরাইটেড প্যারাগ্রাফ সরাসরি রিপ্লেস হয়, অ্যাপ না বদলেই।
+      prompt: 🎤  "এটা আরও এনগেজিং করো, এখন যেটা আছে সেটা একটু শুকনো"
+      result: ✅  তোমার সিলেকশন উন্নত ভার্সনে রিপ্লেস হয়ে যাবে।
+    professional:
+      card_title: 💼 প্রফেশনাল — টোন আর ভুল এক ধাপেই ঠিক করো
+      badge: Alt+P
+      description: দুটো প্যারাগ্রাফ আছে যেটায় ক্যাজুয়াল ভাষা আর কিছু ভুল মিশে গেছে? সিলেক্ট করো, Alt+P চাপো আর বলো "এটা বোর্ড মিটিংয়ের জন্য গুছিয়ে দাও"। LLM ফর্মালভাবে রিরাইট করে আর ভুল ঠিক করে — সিলেকশন রিপ্লেস হয়, কোনো ক্লিপবোর্ড ঝামেলা নেই।
+      prompt: 🎤  "পরিষ্কার আর পালিশড করো, গ্রামারও ঠিক করো"
+      result: ✅  তোমার সিলেকশন ফর্মাল, সংশোধিত ভার্সনে রিপ্লেস হবে।
+  use_cases:
+    section_title: আরও ভয়েস মোড দেখো
+    intro: প্রতিটা মোড একটা ভয়েস কমান্ড — কোনো টেক্সট সিলেকশন লাগে না। শর্টকাট চাপো, বলো, রেজাল্ট কার্সারে আসে।
+    footer: সব মোড পুরোপুরি তোমার মেশিনেই চলে। কোনো API কল নেই, ইন্টারনেট নেই, ডেটা বাইরে যায় না।
+    items:
+    - badge: Alt+M
+      name: ইমেইল — বলো, পাঠাও
+      prompt: 🎤  "John-কে একটা ইমেইল লেখো যে PerkySue লঞ্চের জন্য রেডি — আগামী সপ্তাহে সফট রিলিজের কথা বলো"
+      result: ✅  একটা গোছানো প্রফেশনাল ইমেইল কার্সারে আসে। PerkySue তুমি যে ভাষায় বলো সেই ভাষায় লেখে।
+    - badge: Alt+D
+      name: ডাইরেক্ট মেসেজ — বন্ধুত্বপূর্ণ, পেস্টের জন্য রেডি
+      prompt: 🎤  "দাদুকে বলো সয়া সস আনতে ভুলো না"
+      result: ✅  দাদু! একটু মনে করিয়ে দিচ্ছি — সয়া সস কিন্তু আনতে ভুলো না! ভালো থেকো!
+    - badge: Alt+X
+      name: সোশ্যাল পোস্ট — পোস্ট বা রিপ্লাই
+      prompt: 🎤  "এই YouTube কমেন্টের জবাব দাও — ধন্যবাদ বলো আর জানাও পরের ভিডিও আসছে সপ্তাহে plugin system নিয়ে"
+      result: ✅  অনেক ধন্যবাদ! এটা ভালো লাগলো শুনে খুশি হলাম। পরের ভিডিও আসছে সপ্তাহে — plugin system নিয়ে। চোখ রেখো!
+    - badge: Alt+C
+      name: কনসোল — বলো, কমান্ড পাও
+      prompt: 🎤  "গত ৭ দিনে পরিবর্তিত সব Python ফাইল খুঁজে বের করো"
+      result: ✅  find . -name "*.py" -mtime -7 — টার্মিনালে পেস্টের জন্য রেডি।
+    - badge: Alt+A
+      name: Ask — কথোপকথনের মেমরি সহ Q&A
+      prompt: 🎤  "mutex আর semaphore-এর পার্থক্য কী?"
+      result: ✅  উত্তর কার্সারে আসে। ফলো-আপ প্রশ্ন করো — মডেল কথোপকথনের ইতিহাস মনে রাখে।
+    - badge: Alt+V/B/N
+      name: কাস্টম Prompts — তোমার নিয়ম, তোমার ওয়ার্কফ্লো
+      prompt: 🎤  Prompt Modes-এ এডিট করা যায় এমন তিনটা কাস্টম স্লট।
+      result: ✅  কথাকে মিটিং নোট, নির্দিষ্ট রাইটিং স্টাইল বা স্ট্রাকচার্ড আউটপুটে বদলাও।
+  smart_focus:
+    section_title: Smart Focus
+    card_title: 🎯 Smart Focus — ট্রিগার করো, ভুলে যাও
+    description: PerkySue শর্টকাট চাপার মুহূর্তেই কার্সার পজিশন লক করে নেয়। Whisper ট্রান্সক্রাইব করার আর LLM জেনারেট করার সময় তুমি ফ্রি — অ্যাপ বদলাও, অন্যখানে টাইপ করো। রেজাল্ট সেখানেই আসে যেখানে ট্রিগার করেছিলে।
+  voice_modes:
+    section_title: ভয়েস মোড
+    modes:
+    - hotkey: Alt+T
+      name: ট্রান্সক্রাইব
+      description: দ্রুত ট্রান্সক্রিপশন (LLM ছাড়া)
+      needs_llm: false
+    - hotkey: Alt+I
+      name: উন্নত করো
+      description: টেক্সট পরিষ্কার আর ফরম্যাট করো
+      needs_llm: true
+    - hotkey: Alt+P
+      name: প্রফেশনাল
+      description: ফর্মাল বিজনেস রিরাইট
+      needs_llm: true
+    - hotkey: Alt+L
+      name: অনুবাদ
+      description: টার্গেট ভাষায় অনুবাদ করো
+      needs_llm: true
+    - hotkey: Alt+C
+      name: কনসোল
+      description: শেল কমান্ড বের করো
+      needs_llm: true
+    - hotkey: Alt+M
+      name: ইমেইল
+      description: প্রফেশনাল ইমেইল ফরম্যাটে লেখো
+      needs_llm: true
+    - hotkey: Alt+D
+      name: ডাইরেক্ট মেসেজ
+      description: WhatsApp/Slack/Discord/SMS — সম্পর্ক অনুযায়ী টোন
+      needs_llm: true
+    - hotkey: Alt+X
+      name: সোশ্যাল পোস্ট
+      description: LinkedIn/X/YouTube/Reddit — পোস্ট বা রিপ্লাই
+      needs_llm: true
+    - hotkey: Alt+S
+      name: সারাংশ
+      description: মূল পয়েন্টে সংক্ষেপ করো
+      needs_llm: true
+    - hotkey: Alt+A
+      name: Ask
+      description: প্রশ্ন করো — LLM কার্সারে জবাব দেয়
+      needs_llm: true
+    - hotkey: Alt+H
+      name: সাহায্য
+      description: PerkySue সম্পর্কে জানো — অ্যাপ KB + তোমার সেটিংস
+      needs_llm: true
+    - hotkey: Alt+G
+      name: GenZ
+      description: ক্যাজুয়াল, আধুনিক রিরাইট
+      needs_llm: true
+  competition:
+    section_title: PerkySue বনাম প্রতিযোগী
+    items:
+    - title: vs. বিল্ট-ইন ডিকটেশন
+      examples: Windows, macOS, Google
+      description: ওরা শুধু শব্দ ট্রান্সক্রাইব করে। PerkySue ট্রান্সক্রাইব করে আর ভাবেও — ১১টা মোড তোমার কথাকে ইমেইল, কমান্ড, অনুবাদ, সারাংশে বদলায়।
+    - title: vs. ক্লাউড ডিকটেশন
+      examples: Wispr Flow, Typeless
+      description: তোমার অডিও মেশিন থেকে বের হয় না। কোনো অ্যাকাউন্ট নেই, ইন্টারনেট নেই, শব্দসীমা নেই। প্লেনেও চলে, USB-তেও।
+    - title: vs. ওপেন সোর্স টুল
+      examples: Amical, OpenWhispr
+      description: ওরা STT + পেস্ট করে। PerkySue-তে আছে লোকাল LLM পাইপলাইন, টেক্সট সিলেকশন + ভয়েস ইন্সট্রাকশন, Smart Focus আর GUI widget।
+  privacy:
+    section_title: প্রাইভেসি
+    items:
+    - icon: 🔒
+      title: ইন্টারনেট লাগে না
+      description: সব তোমার মেশিনেই চলে
+    - icon: 🔇
+      title: অডিও কখনো স্টোর হয় না
+      description: RAM-এ ধরা, ট্রান্সক্রাইব, সাথে সাথে মুছে যায়
+    - icon: 👤
+      title: অ্যাকাউন্ট লাগে না
+      description: সাইনআপ নেই, ট্র্যাকিং নেই, কুকি নেই
+    - icon: 📂
+      title: ওপেন সোর্স
+      description: প্রতিটা লাইন কোড নিজে দেখতে পারো
+  why_i_built_it:
+    section_title: কেন বানিয়েছি PerkySue?
+    paragraph_1: 'PerkySue শুরু হয়েছিল একটা পার্সোনাল প্রোডাক্টিভিটি টুল হিসেবে — কোনো পিচ ডেক নয়, প্রতিদিনের ঘর্ষণ থেকে জন্ম। বছরের পর বছর সফটওয়্যার আর্কিটেকচার আর কনভার্সেশনাল প্ল্যাটফর্ম ডিজাইন করার পর একটাই পাইপলাইন চাইছিলাম: voice → local STT → local LLM → টেক্সট যেখানে কাজ করি সেখানেই।'
+    paragraph_2: কোডটা AI-এর সাথে মিলে বানানো। মজার বিষয় হলো, PerkySue আজ নিজেই আমাকে নিজের কোড লিখতে সাহায্য করছে — ভয়েস বা ডেটা ক্লাউডে না পাঠিয়েই।
+  links:
+    section_title: লিংক
+    items:
+    - label: GitHub রিপোজিটরি
+      url: https://github.com/PerkySue/PerkySue
+    - label: Discord কমিউনিটি
+      url: https://discord.gg/UaJHEzFgXy
+    - label: Patreon-এ সাপোর্ট করো ❤
+      url: https://patreon.com/PerkySue
+    - label: প্রাইভেসি পলিসি
+      url: ''
+    - label: আর্কিটেকচার ডকুমেন্টেশন
+      url: ''
+    credit: তৈরি করেছেন Jérôme Corbiau  ·  Apache 2.0 লাইসেন্স
+common:
+  window_title: PerkySue — Beta 0.28.8
+  header_banner:
+    free_invite: PerkySue Beta — ফ্রি · Pro ৩০ দিন, কার্ড ছাড়া
+    free_after_trial: PerkySue Beta — ফ্রি
+    pro_trial: PerkySue Beta — Pro ট্রায়াল · আর {days} দিন
+    pro: PerkySue Beta — Pro
+    enterprise: PerkySue Beta — এন্টারপ্রাইজ
+  'yes': হ্যাঁ
+  'no': না
+  nav:
+    console: '>_   কনসোল'
+    shortcuts: ⌨   শর্টকাট
+    settings: ⚙   সেটিংস
+    modes: 💬   Prompts
+    chat: 💭   চ্যাট
+    help: ❓   সাহায্য
+    voice: 🔊   ভয়েস
+    user: 👤   ইউজার
+    about: 💡   পরিচিতি
+  statuses:
+    listening: শুনছে
+    processing: প্রসেস হচ্ছে
+    injecting: ইনজেক্ট হচ্ছে
+    ready: রেডি
+    error: ত্রুটি
+    crash: অ্যাপ ক্র্যাশ
+    no_speech: কোনো শব্দ ধরা যায়নি
+    tts_loading: কণ্ঠস্বর প্রস্তুত করা হচ্ছে…
+    generating: তৈরি হচ্ছে
+    speaking: বলছে
+  footer:
+    github: GitHub
+    discord: Discord
+    alpha_banner: ট্রান্সক্রিপশন চিরকাল ফ্রি। প্রো মোড প্রজেক্টটিকে জীবিত রাখে।
+user:
+  settings:
+    title: ইউজার সেটিংস
+  billing:
+    label: Stripe বিলিং ইমেইল
+    hint: এই PC-তে সাবস্ক্রিপশন লিঙ্ক করার ইমেইল (শুধু দেখার জন্য)।
+    empty: —
+  section:
+    language_title: ইন্টারফেস ভাষা
+    language_hint: ভাষা বদলাতে একটা পতাকায় ক্লিক করো।
+voice:
+  page_title: ভয়েস
+  locked:
+    section_title: টেক্সট-টু-স্পিচ
+    body: PerkySue উত্তর জোরে পড়তে পারে। ভয়েস ক্লোন চাইলে প্রতিটা স্কিন ফোল্ডারে ছোট voice_ref.wav বসাও। Pro লাগবে।
+    pro_note: শুধু Pro-তে
+    upgrade: Pro নাও
+  install:
+    section_title: PerkySue-কে ভয়েস দাও
+    model_label: মডেল বাছো
+    body: টেক্সট-টু-স্পিচ চালু করো। Answer আর Help মোডের উত্তর শোনানো যাবে। Patreon ভয়েস প্যাকে ক্লোনের জন্য voice_ref.wav থাকতে পারে।
+    button: ইঞ্জিন ইনস্টল করো
+    button_working: ইনস্টল হচ্ছে…
+    retry: আবার চেষ্টা করো
+  engine:
+    recommended_suffix: " (সুপারিশকৃত)"
+  output:
+    section_title: আউটপুট
+    enabled: চালু
+    engine_label: ইঞ্জিন
+  playback:
+    section_title: প্লেব্যাক
+    volume: ভলিউম
+    speed: গতি
+    auto_speak: অটো-বলা
+    auto_speak_hint: Answer আর Help মোডের পরে
+  packs:
+    section_title: ভয়েস প্যাক
+    default_body: এখন ডিফল্ট Pro ভয়েস। ক্লোনের জন্য স্কিনে voice_ref.wav যোগ করো বা Patreon থেকে ক্যারেক্টার প্যাক নাও।
+    installed_lead: "ইনস্টল ভয়েস প্যাক:"
+    more_patreon: Patreon-এ আরও ভয়েস।
+  test:
+    section_title: টেস্ট
+    field_label: নমুনা বাক্য
+    sample_text: |
+      হ্যালো! আমি PerkySue — আর হ্যাঁ, আমার একটা গলা আছে।
+      বিশ্বাস হবে না, কিন্তু আমি পুরোপুরি তোমার কম্পিউটারেই চলি। কোনো ক্লাউড নেই, কোনো অ্যাকাউন্ট নেই, কোনো ডেটা কোথাও উড়ে যায় না। শুধু তুমি, আমি আর তোমার মাইক।
+    speak: ▶  পড়ো
+    stop: ■  থামো
+console:
+  pipeline_status: পাইপলাইন স্ট্যাটাস
+  whisper_stt: 'Whisper STT:'
+  local_llm: 'লোকাল LLM:'
+  no_stt: কোনো STT নেই
+  no_llm: কোনো LLM পাওয়া যায়নি
+  help_only_suffix: — শুধু সাহায্য
+  transcription_controls: ট্রান্সক্রিপশন কন্ট্রোল
+  start: শুরু করো
+  abort: বাতিল
+  copy_log: 📋  লগ কপি করো
+  finalized_logs: ফাইনালাইজড - অস্থায়ী লগ
+  full_console: কনসোল
+  copy: কপি
+shortcuts:
+  title: শর্টকাট ম্যানেজার
+  col_mode: মোড
+  col_hotkey_alt: শর্টকাট (Alt)
+  col_hotkey_altgr: শর্টকাট (AltGr)
+  edit: এডিট
+  stop_task: টাস্ক থামাও
+  restore_defaults: ডিফল্ট শর্টকাট ফিরিয়ে আনো
+  restart_note: পরিবর্তনের জন্য রিস্টার্ট দরকার
+settings:
+  save_sidebar_note: রিস্টার্ট দিলে চালু হবে
+  update_button: আপডেট
+  update_note: এখনই প্রয়োগ করুন (রিস্টার্ট ছাড়া)
+  appearance:
+    title: চেহারা
+    default_skin: ডিফল্ট
+    patreon_cta: Patreon-এ সাপোর্টার স্কিন আনলক করো ❤
+    filter_all: সব
+    select: সিলেক্ট
+    import_skin: স্কিন ইম্পোর্ট
+  recommended_models:
+    title: সুপারিশকৃত মডেল
+    more_models: + আরও মডেল
+    current_model: বর্তমান মডেল
+    get: ↓ ডাউনলোড
+    filter_favorites_hint: শুধু পছন্দের মডেল দেখান (তারকাযুক্ত)
+    search_placeholder: মডেল খুঁজুন…
+    tooltip_labels:
+      name: নাম
+      author: লেখক
+      family: ফ্যামিলি
+      params: প্যারামিটার
+      quant: কোয়ান্ট
+      thinking: থিংকিং
+      uncensored: আনসেন্সরড
+      languages: ভাষা
+      size: সাইজ
+      speed: গতি
+      favorite: পছন্দের
+      comment: মন্তব্য
+      alt_a_qa: Alt+A QA
+      popularity: জনপ্রিয়তা
+  performance:
+    title: পারফরম্যান্স সেটিংস
+    stt_model: STT মডেল
+    stt_device: STT ডিভাইস
+    silence_timeout: নীরবতার সময়সীমা (সে)
+    max_duration: সর্বোচ্চ রেকর্ডিং সময় (সে)
+    first_language: তোমার মূল ভাষা
+    llm_model: LLM মডেল
+    max_input: সর্বোচ্চ ইনপুট (কনটেক্সট)
+    max_output: সর্বোচ্চ আউটপুট (টোকেন)
+    llm_request_timeout: LLM রিকোয়েস্ট টাইমআউট (সে)
+    no_gguf: Data/Models/LLM-এ কোনো .gguf নেই
+    auto: অটো
+  save_restart: সেভ ও রিস্টার্ট
+  plan_management:
+    section_title: প্ল্যান ম্যানেজমেন্ট
+    badge_current: বর্তমান
+    status_valid_until: ⟳ {date} পর্যন্ত
+    status_valid_until_unknown: ⟳ — পর্যন্ত
+    status_pro_trial_days: 'Trial · আরও {days} দিন'
+    status_access_until_cancelled: '{date} পর্যন্ত'
+    status_pro_active_short: Pro
+    status_active_plan: সক্রিয় প্ল্যান
+    portal_title: সাবস্ক্রিপশন ম্যানেজ
+    portal_manage_unavailable: অ্যাপ থেকে বিলিং এখনো খোলা যায় না। Stripe ইমেইলের লিঙ্ক ব্যবহার করো বা hello@perkysue.com এ লিখো।
+    buttons:
+      active: সক্রিয়
+      free_tier: ফ্রি
+      manage: ম্যানেজ
+      start_free_trial: ফ্রি ট্রায়াল শুরু করো
+      get_pro: Pro নাও ৯.৯০ €/মাস
+      contact_sales: যোগাযোগ করো →
+    free:
+      name: ফ্রি
+      price: ০ €
+      features:
+      - text: Alt+T ট্রান্সক্রিপশন
+        locked: false
+      - text: লোকাল Whisper STT
+        locked: false
+      - text: Smart Focus
+        locked: false
+      - text: Alt+A Ask
+        locked: false
+      - text: লোকাল LLM
+        locked: false
+    pro:
+      name: Pro
+      price: ৯.৯০ €
+      price_sub: /মাস
+      trial_sub: ৩০ দিন · কার্ড ছাড়া
+      features:
+      - text: সব ১৪টা LLM মোড
+        locked: false
+      - text: কাস্টম Prompts
+        locked: false
+      - text: প্রায়রিটি আপডেট
+        locked: false
+      - text: ভয়েস-টু-ভয়েস
+        locked: false
+    enterprise:
+      name: এন্টারপ্রাইজ
+      price: কাস্টম
+      features:
+      - text: নলেজ বেস
+        locked: false
+      - text: টিম ডেপ্লয়মেন্ট
+        locked: false
+      - text: ডেডিকেটেড সাপোর্ট
+        locked: false
+    link_subscription:
+      wizard_title: সাবস্ক্রিপশন সংযুক্ত করুন
+      cta: আমার আগেই সাবস্ক্রিপশন আছে
+      otp_headline: ইমেইল দেখো
+      email_intro: শুরু করতে ইমেইল দাও — আমরা ৬ সংখ্যার কোড পাঠাব, যাতে নিশ্চিত হতে পারি এটা তুমি।
+      step_email_title: বিলিং ইমেইল
+      step_email_hint: Stripe রসিদ বা ইনভয়েসের একই ইমেইল।
+      email_placeholder: tumi@email.com
+      send_code: কোড পাঠাও
+      step_otp_title: যাচাইকরণ কোড
+      otp_placeholder: ৬ সংখ্যার কোড
+      otp_hint: আমরা যে ৬ সংখ্যার কোড ইমেইল করেছি, সেটা লিখো।
+      verify: যাচাই করে সংযুক্ত করুন
+      resend: কোড আবার পাঠান
+      resend_wait: আবার পাঠান ({s}সে)
+      success_title: হয়ে গেছে! 🎉
+      success_body: সাবস্ক্রিপশন লিংক হয়েছে। এই পিসিতে Pro চালু।
+      resent_ok: নতুন কোড পাঠানো হয়েছে।
+      close: চালিয়ে যান
+      busy_sending: পাঠানো হচ্ছে…
+      busy_verify: যাচাই হচ্ছে…
+      errors:
+        network: perkysue.com-এ যোগাযোগ করা যায়নি — ইন্টারনেট দেখে আবার চেষ্টা করুন।
+        invalid_email: ইমেইলটি ঠিক মনে হচ্ছে না — একবার দেখে নেবেন?
+        inactive: এই ইমেইলে কোনো সক্রিয় সাবস্ক্রিপশন নেই।
+        wrong_code: কোড মিলছে না।
+        invalid_code: ইমেইলে পাওয়া কোড লিখুন।
+        attempts: অনেক বেশি চেষ্টা — একটু অপেক্ষা করুন।
+        cooldown: সামান্য পরে আবার কোড চাইতে পারবেন।
+        generic: কিছু সমস্যা হয়েছে। কয়েক সেকেন্ড পরে আবার চেষ্টা করুন।
+      success_cta: PerkySue চালাও
+    trial_request:
+      wizard_title: ফ্রি ট্রায়াল শুরু করো
+      email_intro: শুরু করতে ইমেইল দাও — আমরা ৬ সংখ্যার কোড পাঠাব, যাতে নিশ্চিত হতে পারি এটা তুমি।
+      email_placeholder: tumi@email.com
+      send_code: কোড পাঠাও
+      otp_headline: ইমেইল নিশ্চিত করো
+      otp_hint: ৬ সংখ্যার কোড লিখে নিউজলেটার পছন্দ বাছো।
+      newsletter_title: নিউজলেটার
+      newsletter_question: স্প্যাম নয় — শুধু দরকারি আপডেট।
+      'yes': হ্যাঁ
+      'no': না
+      resend: কোড আবার পাঠাও
+      resend_wait: আবার ({s}s)
+      resent_ok: নতুন কোড পাঠানো হয়েছে।
+      busy_sending: পাঠাচ্ছি…
+      busy_verify: চালু করছি…
+      success_title: হয়ে গেছে! 🎉
+      success_body: ৩০ দিনের Pro ট্রায়াল এখন শুরু। সব Pro ফিচার — লিমিট নেই, কার্ড লাগবে না।
+      success_cta: PerkySue চালাও
+      errors:
+        network: perkysue.com-এ যোগাযোগ করা যায়নি — ইন্টারনেট দেখে আবার চেষ্টা করুন।
+        invalid_email: ইমেইলটি ঠিক মনে হচ্ছে না — একবার দেখে নেবেন?
+        invalid_code: ইমেইলে পাওয়া ৬ সংখ্যার কোড লিখুন।
+        wrong_code: কোড মিলছে না।
+        attempts: অনেক বেশি চেষ্টা — একটু অপেক্ষা করুন।
+        cooldown: সামান্য পরে আবার কোড চাইতে পারবেন।
+        rate_limited: অনেক বেশি চেষ্টা — একটু পরে আবার চেষ্টা করুন।
+        trial_already_used: এই ইমেইল দিয়ে ফ্রি ট্রায়াল আগেই নেওয়া হয়েছে।
+        trial_ineligible_paid: এই ইমেইল আগে Pro সাবস্ক্রিপশনের সঙ্গে যুক্ত ছিল। ফ্রি ট্রায়াল শুধু নতুনদের জন্য — যেকোনো সময় আবার সাবস্ক্রাইব করতে পারো।
+        generic: কিছু সমস্যা হয়েছে। কয়েক সেকেন্ড পরে আবার চেষ্টা করুন।
+modes:
+  stt_keywords:
+    title_unlimited: Whisper STT কীওয়ার্ড (সীমাহীন)
+    title_limit: 'Whisper STT কীওয়ার্ড (সীমা: {limit})'
+    placeholder: একটা শব্দ লিখে Enter চাপো (যেমন PerkySue, STT)...
+    tags_counter: '{count} / {limit} ট্যাগ'
+  identity:
+    section_title: পরিচয় ও পছন্দ
+    title: তোমার নাম
+    placeholder: 'ঐচ্ছিক: LLM তোমাকে কী নামে ডাকবে (যেমন Rahim)...'
+    help: কিছু LLM প্রম্পটে ব্যবহৃত হয় (যেমন ইমেইল মোড)
+  prompt_modes:
+    title: Prompt মোড
+    edit_hint: প্রতিটা LLM শর্টকাটের সিস্টেম প্রম্পট এডিট করতে দেয়
+    system_prompt_help: LLM-এ পাঠানো সিস্টেম প্রম্পট = বর্তমান সেটিংস + নলেজ বেস + ইন্সট্রাকশন (উপরের বক্স)। নিচের টেস্ট ইনপুটে প্রশ্ন দাও।
+    test_input_label: 'টেস্ট ইনপুট (নমুনা):'
+    test_response_label: 'LLM রেসপন্স (প্রিভিউ):'
+    test_hint: টেস্ট সবসময় উপরের বর্তমান টেক্সট ব্যবহার করে, সেভ করা না হলেও।
+    paste: পেস্ট
+    copy: কপি
+    run_test: টেস্ট চালাও
+    save: সেভ
+    cancel: বাতিল
+    edit: এডিট
+    test: টেস্ট
+  registry:
+    transcribe:
+      name: ট্রান্সক্রাইব
+      description: সরল ট্রান্সক্রিপশন — কথা থেকে লেখা, কোনো প্রসেসিং নেই
+    improve:
+      name: উন্নত করো
+      description: ভয়েস ডিকটেশন পরিষ্কার আর পাংচুয়েট করো
+    professional:
+      name: প্রফেশনাল
+      description: প্রফেশনাল, পরিষ্কার টোনে রিরাইট করো
+    translate:
+      name: অনুবাদ
+      description: কনফিগার করা টার্গেট ভাষায় অনুবাদ
+    console:
+      name: কনসোল
+      description: কথাকে শেল কমান্ডে রূপান্তর
+    email:
+      name: ইমেইল
+      description: প্রফেশনাল ইমেইল হিসেবে ফরম্যাট করো
+    message:
+      name: ডাইরেক্ট মেসেজ
+      description: WhatsApp, Slack, Discord, SMS-এর জন্য বন্ধুত্বপূর্ণ মেসেজ
+    social:
+      name: সোশ্যাল পোস্ট
+      description: YouTube, X/Twitter, LinkedIn, Reddit-এ রিপ্লাই বা পোস্ট
+    summarize:
+      name: সারাংশ
+      description: ডিকটেট করা টেক্সট সংক্ষেপ করো
+    genz:
+      name: Gen Z
+      description: ইমোজি সহ ক্যাজুয়াল রিরাইট
+    answer:
+      name: Ask
+      description: ডিকটেট করা টেক্সট বা প্রশ্ন থেকে প্রশ্ন করো
+    help:
+      name: সাহায্য
+      description: PerkySue সম্পর্কে জিজ্ঞেস করো — অ্যাপ নলেজ বেস
+    custom1:
+      name: কাস্টম প্রম্পট ১
+      description: তোমার নিজের প্রম্পট — Prompts-এ এডিট করো
+    custom2:
+      name: কাস্টম প্রম্পট ২
+      description: তোমার নিজের প্রম্পট — Prompts-এ এডিট করো
+    custom3:
+      name: কাস্টম প্রম্পট ৩
+      description: তোমার নিজের প্রম্পট — Prompts-এ এডিট করো
+chat:
+  title: চ্যাট
+  new_chat: নতুন চ্যাট
+  save_log: লগ সেভ করো
+  token_counter: '{current} / {max}'
+  placeholder: মেসেজ লেখো... বা মাইক চাপো
+  hint: 'Alt+A: মাইক চালু/বন্ধ · Enter: টেক্সট পাঠাও · Alt+Q: শোনা বন্ধ'
+  help_redirect: PerkySue সম্পর্কে প্রশ্ন? সাহায্য ট্যাব ব্যবহার করো।
+  sender_name: PerkySue
+  user_fallback: তুমি
+  free_answer_notice: ফ্রি প্ল্যানে প্রতিটি প্রশ্ন আলাদাভাবে প্রক্রিয়া করা হয় — সহকারী আপনার আগের বার্তাগুলো মনে রাখে না। মাল্টি-টার্ন কনটেক্সট, যা সহকারীকে চলমান কথোপকথন মনে রাখতে সাহায্য করে, এবং কার্সর ইনজেকশন (Smart Focus) শুধুমাত্র Pro প্ল্যানে উপলভ্য — চাইলে যেকোনো সময় আপগ্রেড করুন।
+help:
+  title: সাহায্য
+  new_chat: নতুন চ্যাট
+  save_log: লগ সেভ করো
+  token_counter: '{current} / {max}'
+  placeholder: PerkySue সম্পর্কে জিজ্ঞেস করো... বা মাইক চাপো
+  hint: 'Alt+H: মাইক চালু/বন্ধ · Enter: পাঠাও · Alt+Q: শোনা বন্ধ'
+  sender_name: PerkySue
+header_tips:
+  startup_message: টিপ · Word, Gmail, Slack-এ কার্সার রাখো… তারপর Alt+T চাপো
+  tips:
+  - টিপ · রেকর্ডিং থামাতে Alt+Q চাপো বা সাইডবার আভাটারে ক্লিক করো
+  - টিপ · Alt+T সবসময় ফ্রি — দ্রুত ট্রান্সক্রিপশন, কোনো LLM লাগে না
+  - টিপ · যেকোনো টেক্সট সিলেক্ট করো, Alt+I চাপো, বলো কী বদলাতে চাও
+  - টিপ · যেকোনো জায়গায় Alt+M চাপো — পুরো ইমেইল ডিকটেট করো
+  - 'Alt+A Pro: চ্যাটে ধারাবাহিকতা — Alt+A ফ্রি: একবারে একটি প্রশ্ন'
+  - টিপ · আশেপাশে আওয়াজ? অটো-স্টপ হচ্ছে না? Alt+Q চাপো
+  - টিপ · একটা প্যারাগ্রাফ সিলেক্ট করো → Alt+P — টোন আর গ্রামার এক ধাপে
+  - 'টিপ · টার্মিনালে Alt+C: সাধারণ ভাষায় বলো কী দরকার'
+  - 'টিপ · Alt+L: যেকোনো টেক্সট সিলেক্ট করো, অনুবাদের ভাষা বলো'
+  - 'টিপ · Alt+D: WhatsApp, Slack, Discord, SMS-এর জন্য মেসেজ ডিকটেট করো'
+  - 'টিপ · Alt+X: LinkedIn, X, YouTube, Reddit-এর জন্য পোস্ট বা রিপ্লাই'
+  - টিপ · মিটিং নোট পেস্ট করো, সিলেক্ট করো, Alt+S — সংক্ষিপ্ত সারাংশ
+  - টিপ · অগোছালো টেক্সট সিলেক্ট করো, Alt+I, বলো "ছোট করো" — হয়ে গেল
+  - টিপ · Alt+V থেকে Alt+N = তোমার নিজের প্রম্পট। Prompts-এ এডিট করো
+  - টিপ · তোমার ব্র্যান্ডের টোনে কমেন্টের জবাব দিতে কাস্টম প্রম্পট বানাও
+  - টিপ · একই AI প্রম্পট বারবার টাইপ করতে বিরক্ত? কাস্টম প্রম্পট বানাও
+  - 'টিপ · কাস্টম প্রম্পট আইডিয়া: নোটকে LinkedIn পোস্টে বদলাও'
+  - টিপ · Kling/Runway ভিডিও প্রম্পট ফরম্যাট করতে কাস্টম প্রম্পট ব্যবহার করো
+  - 'টিপ · কাস্টম প্রম্পট আইডিয়া: টেক্সট থেকে অ্যাকশন আইটেম বের করো'
+  - 'টিপ · Alt+H: সাহায্য ট্যাবে PerkySue সম্পর্কে যেকোনো প্রশ্ন করো'
+  - Pro · Smart Focus পেস্ট না করলে কনসোল ট্যাব থেকে আউটপুট কপি করো
+  - টিপ · শোনা বন্ধ করতে আভাটারে ক্লিক করো বা Alt+Q চাপো
+  - টিপ · PerkySue ভাবার সময় অন্য কাজ করো — রেজাল্ট ঠিক জায়গায় আসে
+  - 'Smart Focus: ট্রিগার করো, সরে যাও, টেক্সট সেখানেই আসে'
+  - টিপ · CPU? Whisper small (দ্রুত) বা medium (নির্ভুল)। ⚙️ → STT মডেল
+  - টিপ · আশেপাশে আওয়াজ? রেকর্ডিং থামছে না? — Alt+Q বা আভাটারে ক্লিক
+  - টিপ · Prompts-এ যেকোনো মোডের প্রম্পট এডিট করো — PerkySue-কে নিজের মতো করো
+  - টিপ · Whisper একটা শব্দ ভুল বলছে? STT কীওয়ার্ডে যোগ করো
+  delay_before_first_ms: 3500
+  display_ms: 7500
+  delay_between_ms: 15000
+header_alerts:
+  critical:
+    no_llm: কোনো LLM পাওয়া যায়নি। Settings-এ একটা নামাও।
+    save_restart: PerkySue সেভ ও রিস্টার্ট দিতে হবে
+    shortcut_in_use: এই শর্টকাট আগেই ব্যবহৃত ({other_name})। অন্যটা বেছে নাও।
+    llm_error_400: LLM ত্রুটি (400) — কনটেক্সট অনেক বড়? Settings-এ Max input বাড়াও।
+    llm_error_generic: LLM ত্রুটি — কনসোল দেখো। Alt+A ব্যবহার করলে Settings-এ Max input বাড়াও।
+    max_input_reached: সর্বোচ্চ ইনপুট সীমা পৌঁছেছে — ইতিহাস কমানো হয়েছে।
+    max_input_context_reached: Max input ({max_input}) সীমা পৌঁছেছে। Settings → Performance-এ {suggested}-এ বাড়াও।
+    max_output_tokens_reached: Max output ({max_output}) সীমা পৌঁছেছে। Settings → Performance-এ {suggested}-এ বাড়াও।
+    llm_request_timeout: LLM রিকোয়েস্ট টাইমআউট — Settings → Performance-এ ১৮০ বা ২৪০ সেকেন্ড ট্রাই করো।
+  regular:
+    recording_stopped: 🛑 রেকর্ডিং বন্ধ
+    processing_stopped: 🛑 প্রসেসিং বন্ধ
+    tts_stopped: 🛑 ভয়েস আউটপুট বন্ধ
+    tts_loading: কণ্ঠস্বর প্রস্তুত করা হচ্ছে — প্রাথমিক সেটআপ চলছে...
+    omnivoice_requires_nvidia: OmniVoice requires NVIDIA/CUDA (not available on CPU/Vulkan).
+    tts_install_in_progress: Installation already in progress — please wait.
+    ai_disclaimer: ⚠️ AI-এর উত্তর ভুল হতে পারে। তথ্য যাচাই করুন।
+    recording_no_audio: কোনো অডিও ধরা যায়নি — রেকর্ডিং বন্ধ। মাইক চেক করো।
+    recording_too_short: রেকর্ডিং অনেক ছোট — কোনো টেক্সট নেই। মাইক চেক করো বা বেশিক্ষণ বলো।
+    copied_to_clipboard: ক্লিপবোর্ডে কপি হয়েছে
+    llm_not_available: LLM অর্কেস্ট্রেটর পাওয়া যাচ্ছে না।
+    pro_plan_required_mode: এই মোডটি Free প্ল্যানে লক করা — Pro প্ল্যান দরকার।
+    no_logs_to_save: সেভ করার কোনো লগ নেই
+    all_logs_copied: সব লগ ক্লিপবোর্ডে কপি হয়েছে
+    download_success: ✓ সফলভাবে ডাউনলোড হয়েছে।
+    download_progress: ⏳ ডাউনলোড হচ্ছে "{name}"… {pct}%
+  run_test_400_hint: → ৪০০ Bad Request মানে সাধারণত কনটেক্সট মডেলের সীমার চেয়ে বড়। Settings → Performance-এ Max input বাড়াও।
+  run_test_timeout_hint: → মডেল সময়মতো শেষ করেনি। Settings → Performance-এ LLM request timeout ১৮০ বা ২৪০ সেকেন্ড করো।
+  document_injection:
+    llm_error_400: LLM ত্রুটি (400) — কনটেক্সট অনেক বড়? Settings-এ Max input বাড়াও।
+    llm_error_generic: LLM ত্রুটি — কনসোল দেখো। Settings-এ Max input বাড়াও।
+    max_input_reached: '⚠️ সর্বোচ্চ ইনপুট সীমা পৌঁছেছে — ইতিহাস কমানো হয়েছে। Settings → Max input দেখো।
+
+
+      '
+    chat_max_input_reached: ⚠️ Max input ({max_input}) সীমা পৌঁছেছে। Settings → Performance-এ {suggested} বা বেশিতে বাড়াও।
+    chat_context_limit_reached: ⚠️ কনটেক্সট সীমা ({max_input}) পৌঁছেছে — ইনপুট আর আউটপুট একই বাজেট শেয়ার করে। Settings → Performance-এ {suggested}-এ বাড়াও।
+    chat_max_output_reached: '⚠️ রিপ্লাই কাটা গেছে: max output ({max_output}) সীমা পৌঁছেছে। Settings → Performance-এ {suggested}-এ বাড়াও।'
+    chat_empty_reply: — রিপ্লাই খালি। অন্যভাবে জিজ্ঞেস করো বা কনসোল দেখো।
+    trial_request:
+      newsletter_title: Newsletter preference
+      newsletter_question: Get updates, not spam. We'll only email you when something worth knowing happens — new features, tips & tricks, that's it.

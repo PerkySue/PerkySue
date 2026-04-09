@@ -1,0 +1,636 @@
+﻿about:
+  support_patreon_label: ❤ Patreon पर सपोर्ट करो
+  updates:
+    title: अपडेट
+    body_idle: नवीनतम वर्ज़न के लिए GitHub जाँचें।
+    body_checking: GitHub रिलीज़ जाँचे जा रहे हैं…
+    body_check_failed: अपडेट जाँच नहीं हो सकी।
+    body_available: 'अपडेट उपलब्ध: {v}'
+    body_uptodate: 'आप अप-टू-डेट हैं ({v}).'
+    body_downloading: अपडेट डाउनलोड हो रहा है…
+    body_ready_restart: अपडेट इंस्टॉल हो गया। लागू करने के लिए रीस्टार्ट करें।
+    body_failed: अपडेट विफल।
+    wizard_title: अपडेट
+    btn_check: अपडेट जाँचें
+    btn_retry: फिर से कोशिश करें
+    btn_update: अपडेट करें
+    btn_restart: रीस्टार्ट करके लागू करें
+    btn_close: बंद करें
+    btn_cancel: रद्द करें
+    footer_link: 'अपडेट उपलब्ध {v}'
+  quick_use_cases:
+    section_title: Use cases (quick)
+    voice_layer: 'AI के लिए voice layer: किसी भी AI chat input में Alt+T → बोलो → Enter.'
+    custom_prompts: 'Custom prompts: Alt+V/B/N = 3 slots — अपने rules और tone के साथ reusable workflows.'
+    footer: लोकल चलता है — तुम्हारा टेक्स्ट तुम्हारी मशीन पर रहता है।
+  hero:
+    title: PerkySue
+    tagline: AI के साथ voice-to-text। 100% लोकल। 100% प्राइवेट।
+    subtitle: हॉटकी दबाओ, बोलो, और टेक्स्ट कर्सर की जगह पहुँच जाता है — किसी भी ऐप में, किसी भी विंडो में, किसी भी फ़ील्ड में। कोई क्लाउड नहीं। कोई अकाउंट नहीं। डेटा कभी बाहर नहीं जाता।
+  why_exists:
+    section_title: PerkySue क्यों बना
+    line_1: बाकी सभी dictation टूल्स आधी समस्या ही सुलझाते हैं।
+    line_2: वो आवाज़ को शब्दों में बदलते हैं — लेकिन तुम्हारे साथ सोचते नहीं।
+    line_3: अभी भी टेक्स्ट chatbot में कॉपी करो, इंतज़ार करो, फिर जवाब वापस पेस्ट करो। एक काम के लिए कई स्टेप्स — और तुम्हारे शब्द एक ऐसे सर्वर पर चले गए जो तुम्हारे कंट्रोल में नहीं।
+    line_4: PerkySue पूरा पाइपलाइन एक ही हॉटकी में समेट देता है।
+    line_5: Speech recognition, लोकल LLM ट्रांसफ़ॉर्मेशन, और टेक्स्ट इंजेक्शन — एक बार में, किसी भी ऐप में, कुछ भी बाहर भेजे बिना।
+    line_6: आवाज़ सिर्फ़ डेटा नहीं है — ये बायोमेट्रिक डेटा है।
+    line_7: इसमें तुम्हारा accent, rhythm, emotional state सब है। क्लाउड dictation टूल इसे कैप्चर करते हैं, भेजते हैं, और ऐसी शर्तों पर रखते हैं जो ज़्यादातर लोग कभी पढ़ते नहीं। इसे मॉडल ट्रेनिंग में इस्तेमाल किया जाता है और इंफ्रास्ट्रक्चर पार्टनर्स के साथ शेयर किया जाता है।
+    line_8: PerkySue RAM में ऑडियो कैप्चर करता है, लोकल प्रोसेस करता है और तुरंत डिलीट कर देता है। कुछ भी स्टोर, लॉग या ट्रांसमिट नहीं होता।
+    line_9: तुम्हारी आवाज़ तुम्हारी ही रहती है!
+  how_it_works:
+    section_title: कैसे काम करता है
+    step1_title: हॉटकी दबाओ
+    step1_description: 'जहाँ भी टाइप करते हो (Word, Gmail, Slack, VS Code…) वहाँ कर्सर रखो और दबाओ:'
+    step2_title: नैचुरली बोलो
+    step2_description: PerkySue तब तक रिकॉर्ड करता है जब तक तुम बोलते हो। आस-पास की आवाज़ से ऑटो-स्टॉप न हो तो Alt+Q (डिफ़ॉल्ट) या Esc दबाओ, या प्रोफ़ाइल पिक्चर क्लिक करो।
+    step3_title: टेक्स्ट वहीं पहुँचता है जहाँ ट्रिगर किया
+    step3_description: हॉटकी दबाने के पल का कर्सर पोज़िशन और विंडो PerkySue लॉक कर लेता है।
+    step4_title: प्रोसेसिंग के दौरान काम जारी रखो
+    step4_description: टैब बदलो, कहीं और टाइप करो। Smart Focus रिज़ल्ट वहीं इंजेक्ट करेगा जहाँ से शुरू किया था।
+  features:
+    section_title: लोग इसे कैसे इस्तेमाल करते हैं
+    transcribe:
+      card_title: 🎙️ Transcribe — फ्री, हमेशा के लिए
+      badge: Alt+T
+      description: बोलो, और raw ट्रांसक्रिप्ट कर्सर पर आ जाती है। किसी भी मशीन पर काम करता है — Whisper मॉडल tiny (पुराना PC, 4GB RAM) से large-v3 (नए GPU पर स्टूडियो क्वालिटी) तक चुनो। LLM नहीं चाहिए, सब्सक्रिप्शन नहीं, वर्ड लिमिट नहीं।
+    improve:
+      card_title: ✏️ Improve — सेलेक्ट किया हुआ फिर से लिखो
+      badge: Alt+I
+      description: डॉक्युमेंट में एक पैराग्राफ ढंग का नहीं लग रहा — आइडिया सही है पर लिखावट नहीं जम रही। सेलेक्ट करो, Alt+I दबाओ और बोलो 'इसे और पंची बनाओ, आधा काट दो'। PerkySue सेलेक्शन और तुम्हारी instruction एक साथ पढ़ता है। दोबारा लिखा हुआ पैराग्राफ उसी जगह रिप्लेस हो जाता है।
+      prompt: 🎤  "इसे ज़्यादा engaging बनाओ, अभी बहुत dry है"
+      result: ✅  सेलेक्शन improved version से रिप्लेस हो जाती है।
+    professional:
+      card_title: 💼 Professional — टोन और errors एक साथ ठीक करो
+      badge: Alt+P
+      description: दो पैराग्राफ लिखे जिसमें casual और typos दोनों हैं। बोर्ड रिपोर्ट में जाना है। सेलेक्ट करो, Alt+P दबाओ और बोलो 'इसे साफ़ करो, board presentation के लिए चाहिए'। LLM फ़ॉर्मल लिखेगा और errors भी ठीक करेगा — clipboard को हाथ लगाए बिना।
+      prompt: 🎤  "इसे polished बनाओ, grammar भी ठीक करो"
+      result: ✅  सेलेक्शन formal, corrected version से रिप्लेस हो जाती है।
+  use_cases:
+    section_title: और भी voice modes देखो
+    intro: हर mode एक voice command की तरह काम करता है — टेक्स्ट सेलेक्ट करने की ज़रूरत नहीं। हॉटकी दबाओ, बोलो, रिज़ल्ट कर्सर पर आ जाएगा।
+    footer: सभी modes पूरी तरह तुम्हारे PC पर चलते हैं। कोई API call नहीं, कोई internet नहीं, डेटा बाहर नहीं जाता।
+    items:
+    - badge: Alt+M
+      name: Email — बोलो और भेजो
+      prompt: 🎤  "John को email लिखो कि PerkySue launch के लिए तैयार है — अगले हफ़्ते soft release का mention करो"
+      result: ✅  एक properly formatted professional email कर्सर पर आ जाता है। PerkySue उसी भाषा में लिखता है जिसमें तुम बोलते हो।
+    - badge: Alt+D
+      name: Direct Message — फ्रेंडली, ready to paste
+      prompt: 🎤  "दादाजी को बताओ सोया सॉस मत भूलना"
+      result: ✅  दादाजी! बस एक reminder — सोया सॉस मत भूलना! अच्छा दिन रहे!
+    - badge: Alt+X
+      name: Social Post — किसी भी platform के लिए
+      prompt: 🎤  "इस YouTube comment का जवाब दो — thanks बोलो और अगला video अगले हफ़्ते plugin system पर आएगा"
+      result: ✅  बहुत शुक्रिया! खुशी हुई कि पसंद आया। अगला video अगले हफ़्ते — plugin system पर deep dive। देखते रहना!
+    - badge: Alt+C
+      name: Console — describe करो, command मिलेगी
+      prompt: 🎤  "पिछले 7 दिनों में बदले सभी Python files ढूंढो"
+      result: ✅  find . -name "*.py" -mtime -7 — terminal में paste करने के लिए ready।
+    - badge: Alt+A
+      name: Ask — conversation memory के साथ Q&A
+      prompt: 🎤  "mutex और semaphore में क्या फ़र्क़ है?"
+      result: ✅  जवाब कर्सर पर inject होता है। follow-up question पूछो — model conversation history याद रखता है।
+    - badge: Alt+V/B/N
+      name: Custom Prompts — अपने rules, अपना workflow
+      prompt: 🎤  Prompt Modes में edit करने के लिए तीन custom prompt slots।
+      result: ✅  speech को meeting notes, writing style, structured output — जो चाहो वो बनाओ।
+  smart_focus:
+    section_title: Smart Focus
+    card_title: 🎯 Smart Focus — दबाओ और भूल जाओ
+    description: हॉटकी दबाने के पल का कर्सर पोज़िशन PerkySue याद कर लेता है। Whisper transcribe करे और LLM generate करे — तुम apps switch करो, कहीं और टाइप करो, जो मर्ज़ी करो। रिज़ल्ट वहीं पहुँचता है जहाँ trigger किया था — अभी कर्सर जहाँ है वहाँ नहीं।
+  voice_modes:
+    section_title: Voice Modes
+    modes:
+    - hotkey: Alt+T
+      name: Transcribe
+      description: फ़ास्ट transcription (LLM नहीं चाहिए)
+      needs_llm: false
+    - hotkey: Alt+I
+      name: Improve
+      description: टेक्स्ट को clean और format करो
+      needs_llm: true
+    - hotkey: Alt+P
+      name: Professional
+      description: Formal business rewrite
+      needs_llm: true
+    - hotkey: Alt+L
+      name: Translate
+      description: टार्गेट language में translate करो
+      needs_llm: true
+    - hotkey: Alt+C
+      name: Console
+      description: Shell command निकालो
+      needs_llm: true
+    - hotkey: Alt+M
+      name: Email
+      description: Professional email format करो
+      needs_llm: true
+    - hotkey: Alt+D
+      name: Direct Message
+      description: WhatsApp/Slack/Discord/SMS — रिश्ते के हिसाब से टोन
+      needs_llm: true
+    - hotkey: Alt+X
+      name: Social Post
+      description: LinkedIn/X/YouTube/Reddit — post या reply
+      needs_llm: true
+    - hotkey: Alt+S
+      name: Summarize
+      description: Key points में condense करो
+      needs_llm: true
+    - hotkey: Alt+A
+      name: Ask
+      description: सवाल पूछो — LLM कर्सर पर जवाब देता है
+      needs_llm: true
+    - hotkey: Alt+H
+      name: Help
+      description: PerkySue के बारे में पूछो — app KB + settings
+      needs_llm: true
+    - hotkey: Alt+G
+      name: GenZ
+      description: Casual, modern rewrite
+      needs_llm: true
+  competition:
+    section_title: PerkySue vs. Competition
+    items:
+    - title: vs. built-in dictation
+      examples: Windows, macOS, Google
+      description: वो सिर्फ़ transcribe करते हैं। PerkySue transcribe भी करता है और सोचता भी है — 11 modes speech को emails, commands, translations, summaries में बदलते हैं।
+    - title: vs. cloud dictation
+      examples: Wispr Flow, Typeless
+      description: तुम्हारी आवाज़ कभी machine से बाहर नहीं जाती। कोई account नहीं, internet नहीं, word limit नहीं। Airplane mode पर भी USB stick पर भी चलता है।
+    - title: vs. open-source tools
+      examples: Amical, OpenWhispr
+      description: वो STT + paste करते हैं। PerkySue में local LLM pipeline, text selection + voice instructions, Smart Focus और GUI widget भी है।
+  privacy:
+    section_title: Privacy
+    items:
+    - icon: 🔒
+      title: Internet नहीं चाहिए
+      description: सब कुछ तुम्हारी machine पर चलता है
+    - icon: 🔇
+      title: Audio कभी store नहीं होता
+      description: RAM में capture, transcribe, तुरंत delete
+    - icon: 👤
+      title: Account नहीं चाहिए
+      description: कोई sign-up नहीं, tracking नहीं, cookies नहीं
+    - icon: 📂
+      title: Open source
+      description: हर line of code खुद देख सकते हो
+  why_i_built_it:
+    section_title: PerkySue क्यों बनाया
+    paragraph_1: 'PerkySue एक personal productivity tool के रूप में शुरू हुआ — pitch deck के लिए नहीं, रोज़ ज़रूरत थी इसलिए बनाया। सालों तक software architecture और conversational platforms design करने के बाद एक pipeline में सब समेटना था: voice → local STT → local LLM → text inject जहाँ काम चल रहा हो।'
+    paragraph_2: 'Code AI के साथ मिलकर बनाया: इस project में AI programming assistants के साथ लगातार collaboration था। Local pipeline complex है। मज़ेदार बात — आज PerkySue मुझे खुद अपना code लिखने में help करता है, बिना मेरी आवाज़ या data cloud पर भेजे।'
+  links:
+    section_title: Links
+    items:
+    - label: GitHub Repository
+      url: https://github.com/PerkySue/PerkySue
+    - label: Discord Community
+      url: https://discord.gg/UaJHEzFgXy
+    - label: Patreon पर सपोर्ट करो ❤
+      url: https://patreon.com/PerkySue
+    - label: Privacy Policy
+      url: ''
+    - label: Architecture Documentation
+      url: ''
+    credit: Jérôme Corbiau द्वारा बनाया  ·  Apache 2.0 License
+common:
+  window_title: PerkySue — Beta 0.28.8
+  header_banner:
+    free_invite: PerkySue Beta — मुफ़्त · Pro आज़माएँ (30 दिन, बिना कार्ड)
+    free_after_trial: PerkySue Beta — मुफ़्त
+    pro_trial: PerkySue Beta — Pro ट्रायल · {days} दिन बाकी
+    pro: PerkySue Beta — Pro
+    enterprise: PerkySue Beta — एंटरप्राइज़
+  'yes': हाँ
+  'no': नहीं
+  nav:
+    console: '>_   Console'
+    shortcuts: ⌨   Shortcuts
+    settings: ⚙   Settings
+    modes: 💬   Prompts
+    chat: 💭   Chat
+    help: ❓   Help
+    voice: 🔊   आवाज़
+    user: 👤   User
+    about: 💡   About
+  statuses:
+    listening: सुन रहा हूँ
+    processing: Processing
+    injecting: Injecting
+    ready: तैयार है
+    error: Error
+    crash: App crash
+    no_speech: आवाज़ नहीं मिली
+    tts_loading: आवाज़ तैयार की जा रही है…
+    generating: तैयारी
+    speaking: बोल रहा
+  footer:
+    github: GitHub
+    discord: Discord
+    alpha_banner: ट्रांसक्रिप्शन हमेशा मुफ्त। प्रो मोड प्रोजेक्ट को जीवित रखता है।
+user:
+  settings:
+    title: तुम्हारी सेटिंग्स
+  billing:
+    label: Stripe बिलिंग ईमेल
+    hint: इस PC पर सब्सक्रिप्शन लिंक करने वाला ईमेल (केवल देखने के लिए)।
+    empty: —
+  section:
+    language_title: Interface की भाषा
+    language_hint: भाषा बदलने के लिए flag पर क्लिक करो।
+voice:
+  page_title: आवाज़
+  locked:
+    section_title: टेक्स्ट-टू-स्पीच
+    body: PerkySue जवाब ज़ोर से पढ़ सकता है। वॉइस क्लोन चाहिए तो हर स्किन फोल्डर में छोटा voice_ref.wav डाल दो। Pro प्लान चाहिए।
+    pro_note: सिर्फ Pro पर
+    upgrade: Pro ले लो
+  install:
+    section_title: PerkySue को आवाज़ दो
+    model_label: मॉडल चुनो
+    body: टेक्स्ट-टू-स्पीच ऑन करो। Answer और Help मोड के जवाब भी सुनाए जा सकते हैं। Patreon वॉइस पैक में क्लोनिंग के लिए voice_ref.wav हो सकता है।
+    button: इंजन इंस्टॉल करो
+    button_working: इंस्टॉल हो रहा है…
+    retry: फिर कोशिश करो
+  engine:
+    recommended_suffix: " (अनुशंसित)"
+  output:
+    section_title: आउटपुट
+    enabled: चालू
+    engine_label: इंजन
+  playback:
+    section_title: प्लेबैक
+    volume: वॉल्यूम
+    speed: स्पीड
+    auto_speak: ऑटो-बोल
+    auto_speak_hint: Answer और Help मोड के बाद
+  packs:
+    section_title: वॉइस पैक
+    default_body: अभी डिफ़ॉल्ट Pro आवाज़ है। क्लोनिंग के लिए स्किन में voice_ref.wav लगाओ या Patreon पर कैरेक्टर पैक देखो।
+    installed_lead: "इंस्टॉल वॉइस पैक:"
+    more_patreon: Patreon पर और आवाज़ें।
+  test:
+    section_title: टेस्ट
+    field_label: सैंपल वाक्य
+    sample_text: |
+      नमस्ते! मैं हूँ PerkySue — और हाँ, मेरी एक आवाज़ है।
+      यकीन नहीं होगा, लेकिन मैं पूरी तरह तुम्हारे कंप्यूटर पर चलती हूँ। कोई क्लाउड नहीं, कोई अकाउंट नहीं, कोई डेटा कहीं उड़कर नहीं जाता। बस तुम, मैं, और तुम्हारा माइक।
+    speak: ▶  बोलो
+    stop: ■  रोको
+console:
+  pipeline_status: Pipeline Status
+  whisper_stt: 'Whisper STT:'
+  local_llm: 'Local LLM:'
+  no_stt: कोई STT नहीं
+  no_llm: कोई LLM नहीं मिला
+  help_only_suffix: — सिर्फ़ Help
+  transcription_controls: Transcription Controls
+  start: शुरू करो
+  abort: रोको
+  copy_log: 📋  Log copy करो
+  finalized_logs: Finalized - Temporary Logs
+  full_console: Console
+  copy: Copy
+shortcuts:
+  title: Shortcuts Manager
+  col_mode: Mode
+  col_hotkey_alt: Hotkey (Alt)
+  col_hotkey_altgr: Hotkey (AltGr)
+  edit: Edit
+  stop_task: Task रोको
+  restore_defaults: Default shortcuts वापस लाओ
+  restart_note: Changes के लिए restart ज़रूरी है
+settings:
+  save_sidebar_note: Restart करो apply करने के लिए
+  update_button: Update
+  update_note: अभी लागू करें (रीस्टार्ट नहीं)
+  appearance:
+    title: Appearance
+    default_skin: Default
+    patreon_cta: Patreon पर supporter skins unlock करो 💛
+    filter_all: सभी
+    select: Select
+    import_skin: Skin import करो
+  recommended_models:
+    title: Recommended Models
+    more_models: + और models
+    current_model: Current Model
+    get: ↓ डाउनलोड
+    filter_favorites_hint: केवल पसंदीदा दिखाएँ (सितारों वाले मॉडल)
+    search_placeholder: मॉडल खोजें…
+    tooltip_labels:
+      name: नाम
+      author: लेखक
+      family: परिवार
+      params: पैरामीटर
+      quant: क्वांट
+      thinking: विचार
+      uncensored: बिना सेंसर
+      languages: भाषाएँ
+      size: आकार
+      speed: गति
+      favorite: पसंदीदा
+      comment: टिप्पणी
+      alt_a_qa: Alt+A QA
+      popularity: लोकप्रियता
+  performance:
+    title: Performance Settings
+    stt_model: STT Model
+    stt_device: STT Device
+    silence_timeout: Silence Timeout (s)
+    max_duration: Max सुनने का समय (s)
+    first_language: तुम्हारी मुख्य भाषा
+    llm_model: LLM Model
+    max_input: Max input (context)
+    max_output: Max output (tokens)
+    llm_request_timeout: LLM request timeout (s)
+    no_gguf: Data/Models/LLM में कोई .gguf नहीं
+    auto: Auto
+  save_restart: Save & Restart
+  plan_management:
+    section_title: Plan Management
+    badge_current: Current
+    status_valid_until: ⟳ {date} तक
+    status_valid_until_unknown: ⟳ — तक
+    status_pro_trial_days: 'Trial · {days} दिन बाकी'
+    status_access_until_cancelled: '{date} तक'
+    status_pro_active_short: Pro
+    status_active_plan: Active plan
+    portal_title: सब्सक्रिप्शन प्रबंधन
+    portal_manage_unavailable: ऐप से बिलिंग अभी नहीं खुलती। Stripe ईमेल के लिंक इस्तेमाल करो या hello@perkysue.com पर लिखो।
+    buttons:
+      active: Active
+      free_tier: Free
+      manage: Manage
+      start_free_trial: Free trial शुरू करो
+      get_pro: Pro लो 9.90€/महीना
+      contact_sales: Contact करो →
+    free:
+      name: Free
+      price: 0€
+      features:
+      - text: Alt+T transcription
+        locked: false
+      - text: Local Whisper STT
+        locked: false
+      - text: Smart Focus
+        locked: false
+      - text: Alt+A Ask
+        locked: false
+      - text: लोकल LLM
+        locked: false
+    pro:
+      name: Pro
+      price: 9.90€
+      price_sub: /महीना
+      trial_sub: 30 दिन · card नहीं चाहिए
+      features:
+      - text: सभी 14 LLM modes
+        locked: false
+      - text: Custom Prompts
+        locked: false
+      - text: Priority updates
+        locked: false
+      - text: Voice-to-Voice
+        locked: false
+    enterprise:
+      name: Enterprise
+      price: Custom
+      features:
+      - text: Knowledge Bases
+        locked: false
+      - text: Team deployment
+        locked: false
+      - text: Dedicated support
+        locked: false
+    link_subscription:
+      wizard_title: अपनी सदस्यता जोड़ें
+      cta: मेरे पास पहले से सदस्यता है
+      otp_headline: ईमेल देखो
+      email_intro: शुरू करने के लिए अपना ईमेल डालो — हम 6 अंकों का कोड भेजेंगे ताकि पक्का हो सके कि यह तुम ही हो।
+      step_email_title: बिलिंग ईमेल
+      step_email_hint: Stripe रसीद या इनवॉइस वाला ही ईमेल।
+      email_placeholder: aap@email.com
+      send_code: कोड भेजें
+      step_otp_title: सत्यापन कोड
+      otp_placeholder: 6 अंकों का कोड
+      otp_hint: हमने जो 6 अंकों का कोड ईमेल किया है, वह डालो।
+      verify: सत्यापित करें और जोड़ें
+      resend: कोड फिर भेजें
+      resend_wait: फिर भेजें ({s}से)
+      success_title: हो गया! 🎉
+      success_body: सब्सक्रिप्शन लिंक हो गई। इस PC पर Pro चालू है।
+      resent_ok: नया कोड भेज दिया गया।
+      close: आगे बढ़ें
+      busy_sending: भेजा जा रहा है…
+      busy_verify: जाँच हो रही है…
+      errors:
+        network: perkysue.com तक पहुँच नहीं हो सकी — इंटरनेट जाँचकर फिर कोशिश करें।
+        invalid_email: ईमेल ठीक नहीं लगता — एक बार देख लें?
+        inactive: इस ईमेल पर कोई सक्रिय सदस्यता नहीं है।
+        wrong_code: कोड मेल नहीं खाता।
+        invalid_code: ईमेल में मिला कोड लिखें।
+        attempts: बहुत कोशिशें हो चुकीं — थोड़ा इंतज़ार करें।
+        cooldown: थोड़ी देर बाद कोड फिर माँग सकते हैं।
+        generic: कुछ गड़बड़ हो गई। कुछ सेकंड बाद फिर कोशिश करें।
+      success_cta: PerkySue चलाओ
+    trial_request:
+      wizard_title: फ्री ट्रायल शुरू करें
+      email_intro: शुरू करने के लिए अपना ईमेल डालो — हम 6 अंकों का कोड भेजेंगे ताकि पक्का हो सके कि यह तुम ही हो।
+      email_placeholder: aap@email.com
+      send_code: कोड भेजें
+      otp_headline: ईमेल कन्फर्म करो
+      otp_hint: 6 अंकों का कोड डालो, फिर न्यूज़लेटर चुनो।
+      newsletter_title: न्यूज़लेटर
+      newsletter_question: स्पैम नहीं, सिर्फ ज़रूरी अपडेट।
+      'yes': हाँ
+      'no': नहीं
+      resend: कोड दोबारा भेजें
+      resend_wait: दोबारा ({s}s)
+      resent_ok: नया कोड भेज दिया।
+      busy_sending: भेज रहे हैं…
+      busy_verify: चालू कर रहे हैं…
+      success_title: हो गया! 🎉
+      success_body: 30 दिन का Pro ट्रायल अभी शुरू। सारे Pro फीचर्स — कोई लिमिट नहीं, कार्ड नहीं।
+      success_cta: PerkySue चलाओ
+      errors:
+        network: perkysue.com तक पहुँच नहीं हो सकी — इंटरनेट जाँचकर फिर कोशिश करें।
+        invalid_email: ईमेल ठीक नहीं लगता — एक बार देख लें?
+        invalid_code: ईमेल में मिला 6 अंकों का कोड लिखें।
+        wrong_code: कोड मेल नहीं खाता।
+        attempts: बहुत कोशिशें हो चुकीं — थोड़ा इंतज़ार करें।
+        cooldown: थोड़ी देर बाद कोड फिर माँग सकते हैं।
+        rate_limited: बहुत सारी कोशिशें — थोड़ा इंतज़ार करके फिर कोशिश करें।
+        trial_already_used: इस ईमेल से फ्री ट्रायल पहले ही ले चुके हो।
+        trial_ineligible_paid: यह ईमेल पहले Pro सदस्यता से जुड़ा हुआ था। फ्री ट्रायल सिर्फ नए लोगों के लिए — दोबारा सब्सक्राइब कभी भी कर सकते हो।
+        generic: कुछ गड़बड़ हो गई। कुछ सेकंड बाद फिर कोशिश करें।
+modes:
+  stt_keywords:
+    title_unlimited: Whisper STT Keywords (unlimited)
+    title_limit: 'Whisper STT Keywords (limit: {limit})'
+    placeholder: कोई word लिखो और Enter दबाओ (जैसे PerkySue, STT)...
+    tags_counter: '{count} / {limit} tags'
+  identity:
+    section_title: Identity & Preferences
+    title: तुम्हारा नाम
+    placeholder: 'Optional: LLM तुम्हें क्या बुलाए (जैसे Rahul)...'
+    help: कुछ LLM prompts में इस्तेमाल होता है (जैसे email mode)
+  prompt_modes:
+    title: Prompt Modes
+    edit_hint: हर LLM shortcut का system prompt edit कर सकते हो
+    system_prompt_help: LLM को भेजा जाने वाला system prompt = Current settings + Knowledge Base + ऊपर की instructions। नीचे Test input में सवाल डालो।
+    test_input_label: 'Test input (samples):'
+    test_response_label: 'LLM response (preview):'
+    test_hint: Tests हमेशा ऊपर का current text इस्तेमाल करते हैं, save न हो तब भी।
+    paste: Paste
+    copy: Copy
+    run_test: Test चलाओ
+    save: Save
+    cancel: Cancel
+    edit: Edit
+    test: Test
+  registry:
+    transcribe:
+      name: Transcribe
+      description: Simple transcription — speech to text, कोई processing नहीं
+    improve:
+      name: Improve
+      description: Voice dictation clean करो और punctuation लगाओ
+    professional:
+      name: Professional
+      description: Professional, clear tone में rewrite करो
+    translate:
+      name: Translate
+      description: Configured target language में translate करो
+    console:
+      name: Console
+      description: Speech को shell commands में convert करो
+    email:
+      name: Email
+      description: Professional email format में लिखो
+    message:
+      name: Direct Message
+      description: WhatsApp, Slack, Discord, SMS के लिए friendly message
+    social:
+      name: Social Post
+      description: YouTube, X/Twitter, LinkedIn, Reddit पर reply या post
+    summarize:
+      name: Summarize
+      description: Dictated text को summarize करो
+    genz:
+      name: Gen Z
+      description: Emojis के साथ casual rewrite
+    answer:
+      name: Ask
+      description: Dictated text या उसमें दिए सवालों के साथ प्रश्न पूछो
+    help:
+      name: Help
+      description: PerkySue के बारे में पूछो — app knowledge base
+    custom1:
+      name: Custom prompt 1
+      description: तुम्हारा custom prompt — Prompt Modes में edit करो
+    custom2:
+      name: Custom prompt 2
+      description: तुम्हारा custom prompt — Prompt Modes में edit करो
+    custom3:
+      name: Custom prompt 3
+      description: तुम्हारा custom prompt — Prompt Modes में edit करो
+chat:
+  title: Chat
+  new_chat: नया chat
+  save_log: Log save करो
+  token_counter: '{current} / {max}'
+  placeholder: Message लिखो… या mic दबाकर बोलो
+  hint: 'Alt+A: mic on/off · Alt+Q: recording रोको'
+  help_redirect: PerkySue के बारे में सवाल हैं? Help tab इस्तेमाल करो।
+  sender_name: PerkySue
+  user_fallback: आप
+  free_answer_notice: फ्री प्लान में हर सवाल अलग-अलग तरीके से संभाला जाता है — असिस्टेंट आपके पिछले संदेश याद नहीं रखता। मल्टी-टर्न कॉन्टेक्स्ट, जिससे असिस्टेंट चल रही बातचीत याद रख सके, और कर्सर इंजेक्शन (Smart Focus) केवल Pro प्लान में उपलब्ध हैं — जब चाहें अपग्रेड करें।
+help:
+  title: Help
+  new_chat: नया chat
+  save_log: Log save करो
+  token_counter: '{current} / {max}'
+  placeholder: PerkySue के बारे में पूछो...
+  hint: 'Alt+H: mic on/off Alt+Q: recording रोको'
+  sender_name: PerkySue
+header_tips:
+  startup_message: Tip · Word, Gmail, Slack… में cursor रखो फिर Alt+T दबाओ
+  tips:
+  - Tip · Recording manually रोकने के लिए Alt+Q दबाओ या sidebar avatar click करो
+  - Tip · Alt+T हमेशा free है — fast transcription, कोई LLM नहीं चाहिए
+  - Tip · कोई भी text select करो, Alt+I दबाओ, और बताओ क्या बदलना है
+  - Tip · कहीं भी Alt+M दबाओ और पूरा email dictate करो
+  - 'Alt+A Pro: चैट में सिलसिला — Alt+A फ्री: एक बार में एक सवाल'
+  - Tip · Ambient noise से auto-stop नहीं हो रहा? Alt+Q दबाओ
+  - Tip · Paragraph select करो → Alt+P — tone और grammar एक साथ fix
+  - 'Tip · Alt+C: terminal में plain words में बताओ क्या चाहिए'
+  - 'Tip · Alt+L: कोई text select करो और किसी भी language में translate करवाओ'
+  - 'Tip · Alt+D: WhatsApp, Slack, Discord, SMS के लिए message dictate करो'
+  - 'Tip · Alt+X: LinkedIn, X, YouTube के लिए post या reply बनाओ'
+  - Tip · Meeting notes paste करो, select करो, Alt+S से short summary बनाओ
+  - Tip · Rough text select करो, Alt+I दबाओ, 'छोटा करो' बोलो — done
+  - Tip · Alt+V से Alt+N = तुम्हारे custom prompts। Prompt Modes में edit करो
+  - Tip · Brand के tone में comments का reply करने के लिए custom prompt बनाओ
+  - Tip · बार-बार same AI prompts लिखते हो? Custom prompt बना लो
+  - 'Tip · Custom prompt idea: Notes को LinkedIn post में बदलो'
+  - Tip · Custom prompts से Kling/Runway video prompts format करो
+  - 'Tip · Custom prompt idea: Text से action items और deadlines निकालो'
+  - 'Tip · Alt+H: Help Tab पर PerkySue से कुछ भी पूछो'
+  - Pro · Smart Focus ने paste नहीं किया? Console tab से output copy करो
+  - Tip · Recording रोकने के लिए avatar click करो या Alt+Q दबाओ
+  - Tip · PerkySue सोच रहा हो तो दूसरा काम करो — इंतज़ार मत करो
+  - 'Smart Focus: trigger करो, आगे बढ़ो — result वहीं पहुँचेगा जहाँ से शुरू किया'
+  - Tip · CPU only? Whisper small (fast) या medium (accurate) try करो। ⚙️ → STT Model
+  - Tip · Ambient noise से recording नहीं रुक रही? Alt+Q या avatar click करो
+  - Tip · Prompt Modes में हर mode का prompt edit करो — PerkySue को अपना बनाओ
+  - Tip · Whisper कोई word गलत लिखता है? Prompt Modes के STT Keywords में add करो
+  delay_before_first_ms: 3500
+  display_ms: 7500
+  delay_between_ms: 15000
+header_alerts:
+  critical:
+    no_llm: कोई LLM नहीं मिला। Settings में से download करो।
+    save_restart: PerkySue को Save & Restart करना होगा
+    shortcut_in_use: यह shortcut पहले से use में है ({other_name})। कोई दूसरा चुनो।
+    llm_error_400: LLM error (400) — context बहुत बड़ा है? Settings में Max input बढ़ाओ।
+    llm_error_generic: LLM error — console देखो। Alt+A use करते हो तो Settings में Max input (context) बढ़ाओ।
+    max_input_reached: Max input token limit आ गई — history कम की गई।
+    max_input_context_reached: Max input (context) limit ({max_input}) आ गई। {suggested} try करो → Settings → Performance।
+    max_output_tokens_reached: Max output limit ({max_output}) आ गई। Settings → Performance में {suggested} करो।
+    llm_request_timeout: LLM request timeout हो गई — Settings → Performance में 180s या 240s try करो।
+  regular:
+    recording_stopped: 🛑 Recording रोकी गई
+    processing_stopped: 🛑 Processing रोकी गई
+    tts_stopped: 🛑 आवाज़ बंद
+    tts_loading: आवाज़ तैयार की जा रही है — प्रारंभिक सेटअप चल रहा है...
+    omnivoice_requires_nvidia: OmniVoice requires NVIDIA/CUDA (not available on CPU/Vulkan).
+    tts_install_in_progress: Installation already in progress — please wait.
+    ai_disclaimer: ⚠️ AI के जवाब गलत हो सकते हैं। कृपया तथ्य जाँचें।
+    recording_no_audio: कोई audio capture नहीं हुई — recording रुकी या microphone check करो।
+    recording_too_short: Recording बहुत छोटी थी — कोई text नहीं मिला। Microphone check करो या ज़्यादा देर बोलो।
+    copied_to_clipboard: Clipboard में copy हो गया
+    llm_not_available: LLM orchestrator available नहीं है।
+    pro_plan_required_mode: यह मोड Free प्लान में लॉक है — Pro प्लान आवश्यक है।
+    no_logs_to_save: Save करने के लिए कोई log नहीं
+    all_logs_copied: सभी logs clipboard में copy हो गए
+    download_success: ✓ Download हो गया।
+    download_progress: ⏳ "{name}" download हो रहा है… {pct}%
+  run_test_400_hint: → 400 Bad Request का मतलब है context model की limit से बड़ा है। Settings → Performance में Max input बढ़ाओ।
+  run_test_timeout_hint: → Model time पर finish नहीं हुआ। Settings → Performance में LLM request timeout 180 या 240 seconds करो।
+  document_injection:
+    llm_error_400: LLM error (400) — context बहुत बड़ा है? Settings में Max input (context) बढ़ाओ।
+    llm_error_generic: LLM error — console देखो। Settings में Max input (context) बढ़ाओ।
+    max_input_reached: '⚠️ Max input token limit आ गई — history कम की गई। Settings → Max input और machine की capacity देखो।
+
+
+      '
+    chat_max_input_reached: ⚠️ Max input (context) limit ({max_input}) आ गई। Settings → Performance में ''Max input'' को {suggested} या उससे ज़्यादा करो।
+    chat_context_limit_reached: ⚠️ Context limit ({max_input}) आ गई — input और output दोनों यही budget share करते हैं। Settings → Performance में ''Max input'' को {suggested} या उससे ज़्यादा करो।
+    chat_max_output_reached: '⚠️ Reply बीच में कट गई: max output limit ({max_output}) आ गई। Settings → Performance में ''Max output'' को {suggested} या उससे ज़्यादा करो।'
+    chat_empty_reply: — Reply खाली थी। दूसरे तरीके से पूछो या console check करो।
+    trial_request:
+      newsletter_title: Newsletter preference
+      newsletter_question: Get updates, not spam. We'll only email you when something worth knowing happens — new features, tips & tricks, that's it.

@@ -1,0 +1,636 @@
+﻿about:
+  support_patreon_label: ❤ Steunen op Patreon
+  updates:
+    title: Updates
+    body_idle: Check GitHub voor de nieuwste versie.
+    body_checking: GitHub-releases controleren…
+    body_check_failed: Updates controleren is mislukt.
+    body_available: 'Update beschikbaar: {v}'
+    body_uptodate: 'Je bent up-to-date ({v}).'
+    body_downloading: Update downloaden…
+    body_ready_restart: Update geïnstalleerd. Herstart om toe te passen.
+    body_failed: Update mislukt.
+    wizard_title: Update
+    btn_check: Controleren op updates
+    btn_retry: Opnieuw proberen
+    btn_update: Updaten
+    btn_restart: Herstart om toe te passen
+    btn_close: Sluiten
+    btn_cancel: Annuleren
+    footer_link: 'Update beschikbaar {v}'
+  quick_use_cases:
+    section_title: Use cases (kort)
+    voice_layer: 'Voice layer voor AI: in elk AI-chatveld, Alt+T → spreken → Enter.'
+    custom_prompts: 'Custom prompts: Alt+V/B/N = 3 slots — herbruikbare workflows met jouw regels en tone of voice.'
+    footer: Draait lokaal — je tekst blijft op je machine.
+  hero:
+    title: PerkySue
+    tagline: Spraak naar tekst met AI. 100% lokaal. 100% privé.
+    subtitle: Druk op een sneltoets, spreek, en de tekst verschijnt waar je cursor staat — in elke app, elk venster, elk tekstveld. Geen cloud. Geen account. Je data verlaat je machine nooit.
+  why_exists:
+    section_title: Waarom PerkySue bestaat
+    line_1: Alle andere dicteerprogramma's lossen maar de helft van het probleem op.
+    line_2: Ze zetten je stem om in woorden — maar ze denken niet met je mee.
+    line_3: Je kopieert tekst naar een chatbot, wacht, en plakt het antwoord terug. Dat zijn meerdere stappen voor iets wat er maar één zou moeten zijn — en je woorden zijn net naar een server gereisd die jij niet beheert.
+    line_4: PerkySue is de hele pipeline in één sneltoets.
+    line_5: Spraakherkenning, lokale LLM-verwerking en tekstinjectie — in één keer, in elke app, zonder dat er iets je machine verlaat.
+    line_6: Stem is geen neutrale data — het is biometrisch.
+    line_7: Het draagt je accent, je ritme, je emotionele staat. Cloud-dicteerprogramma's leggen het vast, sturen het door en bewaren het onder voorwaarden die de meeste mensen nooit lezen. Het wordt gebruikt om modellen te trainen en gedeeld met infrastructuurpartners.
+    line_8: PerkySue legt audio vast in RAM, verwerkt het lokaal en verwijdert het meteen. Niets wordt opgeslagen, gelogd of verstuurd.
+    line_9: Jouw stem blijft van jou.
+  how_it_works:
+    section_title: Hoe het werkt
+    step1_title: Druk op een sneltoets
+    step1_description: 'Zet je cursor in elke app waar je normaal typt (Word, Gmail, Slack, VS Code…) en druk op:'
+    step2_title: Spreek gewoon
+    step2_description: PerkySue neemt op tot je stopt met praten. Omgevingsgeluid kan automatisch stoppen verhinderen — druk op Alt+Q (globale standaard) of Esc als de app op de voorgrond staat, of klik op de profielfoto.
+    step3_title: Tekst verschijnt waar je begon
+    step3_description: PerkySue vergrendelt je cursor en actieve venster op het moment dat je de sneltoets indrukt.
+    step4_title: Werk door terwijl het verwerkt
+    step4_description: Wissel van tab, typ ergens anders. Smart Focus injecteert het resultaat waar je begon.
+  features:
+    section_title: Wat mensen ermee doen
+    transcribe:
+      card_title: 🎙️ Transcriberen — gratis, voor altijd
+      badge: Alt+T
+      description: Spreek, en de ruwe transcriptie verschijnt bij je cursor. Werkt op elke machine — kies Whisper-modellen van tiny (oude hardware, 4 GB RAM) tot large-v3 (studiokwaliteit op moderne GPU's). Geen LLM nodig, geen abonnement, geen woordlimiet.
+    improve:
+      card_title: ✏️ Verbeteren — herschrijf wat je selecteert
+      badge: Alt+I
+      description: Je werkt aan een doc en één alinea klopt niet — het idee is er maar de tekst loopt niet lekker. Selecteer het, druk op Alt+I en zeg "maak dit scherper en halveer het". PerkySue leest je selectie en je instructie tegelijk. De herschreven alinea vervangt het origineel, ter plekke, zonder de app te verlaten.
+      prompt: 🎤  "maak dit dynamischer, de huidige versie is te saai"
+      result: ✅  Je selectie wordt vervangen door de verbeterde versie.
+    professional:
+      card_title: 💼 Professioneel — toon en fouten in één keer fixen
+      badge: Alt+P
+      description: Je hebt twee alinea's geschreven met een mix van informele toon en typfouten. Selecteer ze, druk op Alt+P en zeg "maak dit netjes, het moet in een boardpresentatie". De LLM herschrijft formeel en corrigeert fouten — je selectie wordt vervangen, zonder gedoe met het klembord.
+      prompt: 🎤  "het moet er verzorgd uitzien, fix ook de grammatica"
+      result: ✅  Je selectie wordt vervangen door een formele, gecorrigeerde versie.
+  use_cases:
+    section_title: Meer spraakmodi in actie
+    intro: Elke modus werkt als een spraakopdracht — geen tekstselectie nodig. Druk op de sneltoets, spreek, en het resultaat verschijnt bij je cursor.
+    footer: Alle modi draaien volledig op jouw machine. Geen API-call, geen internet, geen data die je apparaat verlaat.
+    items:
+    - badge: Alt+M
+      name: E-mail — zeg het, stuur het
+      prompt: 🎤  "schrijf een e-mail aan John om hem te laten weten dat PerkySue klaar is voor lancering — vermeld dat we volgende week een zachte release plannen"
+      result: ✅  Een goed opgemaakte, professionele e-mail verschijnt bij je cursor. PerkySue schrijft in de taal die je spreekt.
+    - badge: Alt+D
+      name: Direct bericht — vriendelijk, klaar om te plakken
+      prompt: 🎤  "zeg tegen opa dat hij de sojasaus niet moet vergeten"
+      result: ✅  Opa! Kleine herinnering — vergeet de sojasaus niet! Fijne dag nog!
+    - badge: Alt+X
+      name: Sociale post — posten of reageren
+      prompt: 🎤  "reageer op dit YouTube-commentaar — bedank ze en zeg dat de volgende video volgende week uitkomt over het pluginsysteem"
+      result: ✅  Heel erg bedankt! Blij dat je het leuk vond. Volgende video komt volgende week — we duiken in het pluginsysteem. Tot dan!
+    - badge: Alt+C
+      name: Console — beschrijf het, krijg de opdracht
+      prompt: 🎤  "vind alle Python-bestanden die in de afgelopen 7 dagen zijn gewijzigd"
+      result: ✅  find . -name "*.py" -mtime -7 — klaar om in je terminal te plakken.
+    - badge: Alt+A
+      name: Ask — Q&A met gespreksgeheugen
+      prompt: 🎤  "wat is het verschil tussen een mutex en een semafoor?"
+      result: ✅  Het antwoord wordt bij je cursor ingevoegd. Stel een vervolgvraag — het model onthoudt het gesprek.
+    - badge: Alt+V/B/N
+      name: Eigen prompts — jouw regels, jouw workflows
+      prompt: 🎤  Drie bewerkbare promptslots in Prompts.
+      result: ✅  Zet spraak om in vergadernotities, een schrijfstijl, gestructureerde output — wat je maar nodig hebt.
+  smart_focus:
+    section_title: Smart Focus
+    card_title: 🎯 Smart Focus — starten en vergeten
+    description: PerkySue onthoudt de positie van je cursor op het moment dat je de sneltoets indrukt. Terwijl Whisper transcribeert en de LLM genereert, kun je van app wisselen, ergens anders typen, gewoon doorgaan. Het resultaat landt waar je begon — niet waar je cursor nu staat.
+  voice_modes:
+    section_title: Spraakmodi
+    modes:
+    - hotkey: Alt+T
+      name: Transcriberen
+      description: Snelle transcriptie (geen LLM)
+      needs_llm: false
+    - hotkey: Alt+I
+      name: Verbeteren
+      description: Tekst opschonen en opmaken
+      needs_llm: true
+    - hotkey: Alt+P
+      name: Professioneel
+      description: Formele zakelijke herschrijving
+      needs_llm: true
+    - hotkey: Alt+L
+      name: Vertalen
+      description: Vertalen naar doeltaal
+      needs_llm: true
+    - hotkey: Alt+C
+      name: Console
+      description: Shell-opdracht extraheren
+      needs_llm: true
+    - hotkey: Alt+M
+      name: E-mail
+      description: Opmaken als professionele e-mail
+      needs_llm: true
+    - hotkey: Alt+D
+      name: Direct bericht
+      description: WhatsApp/Slack/Discord/SMS — toon past zich aan
+      needs_llm: true
+    - hotkey: Alt+X
+      name: Sociale post
+      description: LinkedIn/X/YouTube/Reddit — posten of reageren
+      needs_llm: true
+    - hotkey: Alt+S
+      name: Samenvatten
+      description: Condenseren tot kernpunten
+      needs_llm: true
+    - hotkey: Alt+A
+      name: Ask
+      description: Stel een vraag — LLM antwoordt bij je cursor
+      needs_llm: true
+    - hotkey: Alt+H
+      name: Help
+      description: Vragen over PerkySue — app-KB + jouw instellingen
+      needs_llm: true
+    - hotkey: Alt+G
+      name: GenZ
+      description: Casual herschrijving, moderne stijl
+      needs_llm: true
+  competition:
+    section_title: PerkySue vs. de concurrentie
+    items:
+    - title: vs. ingebouwde dictatie
+      examples: Windows, macOS, Google
+      description: Die transcriberen woorden. PerkySue transcribeert én denkt — 11 modi zetten je stem om in e-mails, opdrachten, vertalingen, samenvattingen.
+    - title: vs. cloud-dictatie
+      examples: Wispr Flow, Typeless
+      description: Je audio verlaat je machine nooit. Geen account, geen internet, geen woordlimiet. Werkt in vliegtuigmodus en vanaf een USB-stick.
+    - title: vs. open-source tools
+      examples: Amical, OpenWhispr
+      description: Die doen STT + plakken. PerkySue voegt een lokale LLM-pipeline toe, tekstselectie + spraakinstructies, Smart Focus en een GUI-widget.
+  privacy:
+    section_title: Privacy
+    items:
+    - icon: 🔒
+      title: Geen internet nodig
+      description: Alles draait op jouw machine
+    - icon: 🔇
+      title: Audio nooit opgeslagen
+      description: Vastgelegd in RAM, getranscribeerd, meteen verwijderd
+    - icon: 👤
+      title: Geen account nodig
+      description: Geen aanmelding, geen tracking, geen cookies
+    - icon: 📂
+      title: Open source
+      description: Bekijk zelf elke regel code
+  why_i_built_it:
+    section_title: Waarom ik dit bouwde
+    paragraph_1: 'PerkySue begon als een persoonlijk productiviteitshulpmiddel — iets wat ik zelf elke dag nodig had, geen pitch deck. Na jaren softwarearchitectuur en conversatieplatforms ontwerpen, wilde ik één pipeline: stem → lokale STT → lokale LLM → tekst ingevoegd waar ik al werk.'
+    paragraph_2: 'De code is mede-ontwikkeld met AI: dit project omvatte intensieve samenwerking met AI-programmeerassistenten. De lokale pipeline is complex. Grappig genoeg helpt PerkySue me vandaag bij het coderen van haar eigen code, zonder mijn stem of data naar de cloud te sturen.'
+  links:
+    section_title: Links
+    items:
+    - label: GitHub-repository
+      url: https://github.com/PerkySue/PerkySue
+    - label: Discord-community
+      url: https://discord.gg/UaJHEzFgXy
+    - label: Steunen op Patreon ❤
+      url: https://patreon.com/PerkySue
+    - label: Privacybeleid
+      url: ''
+    - label: Architectuurdocumentatie
+      url: ''
+    credit: Gemaakt door Jérôme Corbiau  ·  Apache 2.0-licentie
+common:
+  window_title: PerkySue — Beta 0.28.8
+  header_banner:
+    free_invite: PerkySue Beta — Gratis · Pro proberen (30 dgn · geen kaart)
+    free_after_trial: PerkySue Beta — Gratis
+    pro_trial: PerkySue Beta — Pro-proef · nog {days} dgn
+    pro: PerkySue Beta — Pro
+    enterprise: PerkySue Beta — Enterprise
+  'yes': Ja
+  'no': Nee
+  nav:
+    console: '>_   Console'
+    shortcuts: ⌨   Sneltoetsen
+    settings: ⚙   Instellingen
+    modes: 💬   Prompts
+    chat: 💭   Chat
+    help: ❓   Help
+    voice: 🔊   Stem
+    user: 👤   Gebruiker
+    about: 💡   Over
+  statuses:
+    listening: Luisteren
+    processing: Verwerken
+    injecting: Invoegen
+    ready: Klaar
+    error: Fout
+    crash: App-crash
+    no_speech: Geen geluid gedetecteerd
+    tts_loading: Stem wordt voorbereid…
+    generating: Genereren
+    speaking: Spreekt
+  footer:
+    github: GitHub
+    discord: Discord
+    alpha_banner: Transcriptie blijft voor altijd gratis. Pro-modus houdt het project levend.
+user:
+  settings:
+    title: Jouw instellingen
+  billing:
+    label: Stripe-facturatie
+    hint: E-mail om dit abonnement aan deze PC te koppelen (alleen-lezen).
+    empty: —
+  section:
+    language_title: Interfacetaal
+    language_hint: Klik op een vlag om toe te passen.
+voice:
+  page_title: Stem
+  locked:
+    section_title: Tekst-naar-spraak
+    body: PerkySue kan antwoorden hardop voorlezen. Stem klonen? Zet een kort voice_ref.wav in elke skin-map. Alleen met Pro.
+    pro_note: Alleen met Pro
+    upgrade: Ga Pro
+  install:
+    section_title: Geef PerkySue een stem
+    model_label: Kies een model
+    body: Zet tekst-naar-spraak aan. Antwoorden in Answer- en Help-modus kunnen worden voorgelezen. Patreon-packs kunnen een voice_ref.wav voor klonen bevatten.
+    button: Engine installeren
+    button_working: Bezig met installeren…
+    retry: Opnieuw proberen
+  engine:
+    recommended_suffix: " (aanbevolen)"
+  output:
+    section_title: Uitvoer
+    enabled: Aan
+    engine_label: Engine
+  playback:
+    section_title: Afspelen
+    volume: Volume
+    speed: Snelheid
+    auto_speak: Automatisch voorlezen
+    auto_speak_hint: Na Answer- en Help-modus
+  packs:
+    section_title: Stempacks
+    default_body: Standaard Pro-stem. Zet voice_ref.wav in een skin-map om te klonen, of pak character packs op Patreon.
+    installed_lead: "Geïnstalleerde stempacks:"
+    more_patreon: Meer stemmen op Patreon.
+  test:
+    section_title: Test
+    field_label: Voorbeeldzin
+    sample_text: |
+      Hey! Ik ben PerkySue — en ja, ik heb een stem.
+      Je gelooft het haast niet, maar ik draai volledig op jouw computer. Geen cloud, geen account, geen data die ergens naartoe vliegt. Alleen jij, ik en jouw microfoon.
+    speak: ▶  Voorlezen
+    stop: ■  Stop
+console:
+  pipeline_status: Pipelinestatus
+  whisper_stt: 'Whisper STT:'
+  local_llm: 'Lokale LLM:'
+  no_stt: Geen STT
+  no_llm: Geen LLM gevonden
+  help_only_suffix: — Alleen help
+  transcription_controls: Transcriptiebesturing
+  start: Starten
+  abort: Afbreken
+  copy_log: 📋  Log kopiëren
+  finalized_logs: Afgeronde logs - Tijdelijk
+  full_console: Console
+  copy: Kopiëren
+shortcuts:
+  title: Sneltoetsbeheer
+  col_mode: Modus
+  col_hotkey_alt: Sneltoets (Alt)
+  col_hotkey_altgr: Sneltoets (AltGr)
+  edit: Bewerk.
+  stop_task: Taak stoppen
+  restore_defaults: Standaard sneltoetsen herstellen
+  restart_note: Wijzigingen vereisen Opslaan en herstarten (zijbalk).
+settings:
+  save_sidebar_note: Herstarten om toe te passen
+  update_button: Bijwerken
+  update_note: Nu toepassen (zonder herstart)
+  appearance:
+    title: Uiterlijk
+    default_skin: Standaard
+    patreon_cta: Unlock supporter-skins op Patreon ❤
+    filter_all: Alle
+    select: Selecteren
+    import_skin: Skin importeren
+  recommended_models:
+    title: Aanbevolen modellen
+    more_models: + Meer modellen
+    current_model: Huidig model
+    get: ↓ Downloaden
+    filter_favorites_hint: Alleen favorieten tonen (met sterren)
+    search_placeholder: Modellen zoeken…
+    tooltip_labels:
+      name: Naam
+      author: Auteur
+      family: Familie
+      params: Parameters
+      quant: Kwantisatie
+      thinking: Redenering
+      uncensored: Ongecensureerd
+      languages: Talen
+      size: Grootte
+      speed: Snelheid
+      favorite: Favoriet
+      comment: Commentaar
+      alt_a_qa: Alt+A QA
+      popularity: Populariteit
+  performance:
+    title: Prestatie-instellingen
+    stt_model: STT-model
+    stt_device: STT-apparaat
+    silence_timeout: Stiltetime-out (s)
+    max_duration: Max. luisterduur (s)
+    first_language: Jouw hoofdtaal
+    llm_model: LLM-model
+    max_input: Max. invoer (context)
+    max_output: Max. uitvoer (tokens)
+    llm_request_timeout: LLM-verzoektime-out (s)
+    no_gguf: Geen .gguf in Data/Models/LLM
+    auto: Auto
+  save_restart: Opslaan en herstarten
+  plan_management:
+    section_title: Abonnementen
+    badge_current: Huidig
+    status_valid_until: '⟳ Tot: {date}'
+    status_valid_until_unknown: '⟳ Tot: —'
+    status_pro_trial_days: 'Proef · nog {days} dagen'
+    status_access_until_cancelled: 'Verloopt: {date}'
+    status_pro_active_short: Pro actief
+    status_active_plan: Actief abonnement
+    portal_title: Abonnement beheren
+    portal_manage_unavailable: Facturatie openen vanuit de app kan nog niet. Gebruik de links in e-mails van Stripe of mail hello@perkysue.com.
+    buttons:
+      active: Actief
+      free_tier: Gratis
+      manage: Beheren
+      start_free_trial: Gratis proberen
+      get_pro: Pro worden 9,90 €/mnd
+      contact_sales: Verkoop →
+    free:
+      name: Gratis
+      price: 0 €
+      features:
+      - text: Alt+T transcriptie
+        locked: false
+      - text: Lokale Whisper STT
+        locked: false
+      - text: Smart Focus
+        locked: false
+      - text: Alt+A Ask
+        locked: false
+      - text: Lokaal LLM
+        locked: false
+    pro:
+      name: Pro
+      price: 9,90 €
+      price_sub: /mnd
+      trial_sub: 30 dagen · geen kaart
+      features:
+      - text: Alle 14 LLM-modi
+        locked: false
+      - text: Eigen prompts
+        locked: false
+      - text: Prioriteitsupdates
+        locked: false
+      - text: Stem-tot-stem
+        locked: false
+    enterprise:
+      name: Enterprise
+      price: Op maat
+      features:
+      - text: Kennisbanken
+        locked: false
+      - text: Team-deployment
+        locked: false
+      - text: Dedicated support
+        locked: false
+    link_subscription:
+      wizard_title: Abonnement koppelen
+      cta: Ik heb al een abonnement
+      otp_headline: Check je mail
+      email_intro: Vul je e-mail in om te starten — we sturen een code van 6 cijfers om te bevestigen dat jij het bent.
+      step_email_title: Factuur-e-mail
+      step_email_hint: Hetzelfde als op je Stripe-factuur of bon.
+      email_placeholder: jouw@email.com
+      send_code: Code sturen
+      step_otp_title: Verificatiecode
+      otp_placeholder: Code van 6 cijfers
+      otp_hint: Vul de code van 6 cijfers in die we je hebben gemaild.
+      verify: Controleren en koppelen
+      resend: Code opnieuw sturen
+      resend_wait: Opnieuw sturen ({s}s)
+      success_title: Helemaal goed! 🎉
+      success_body: Je abonnement is gekoppeld. Pro staat aan op deze pc.
+      resent_ok: Nieuwe code is verstuurd.
+      close: Doorgaan
+      busy_sending: Verzenden…
+      busy_verify: Controleren…
+      errors:
+        network: We kunnen perkysue.com niet bereiken — check je verbinding en probeer opnieuw.
+        invalid_email: Dit lijkt geen geldig e-mailadres — even controleren?
+        inactive: Geen actief abonnement voor dit adres.
+        wrong_code: Die code klopt niet.
+        invalid_code: Vul de code uit je e-mail in.
+        attempts: Te veel pogingen — even wachten en opnieuw proberen.
+        cooldown: Nog even geduld — je kunt de code zo weer opvragen.
+        generic: Er ging iets mis. Probeer het over een paar seconden opnieuw.
+      success_cta: PerkySue openen
+    trial_request:
+      wizard_title: Gratis proberen
+      email_intro: Vul je e-mail in om te starten — we sturen een code van 6 cijfers om te bevestigen dat jij het bent.
+      email_placeholder: jouw@email.com
+      send_code: Code sturen
+      otp_headline: Bevestig je e-mail
+      otp_hint: Vul de code van 6 cijfers in en kies daarna je nieuwsbriefvoorkeur.
+      newsletter_title: Nieuwsbrief
+      newsletter_question: Updates, geen spam. We mailen alleen als er echt iets is — nieuwe features, tips & tricks.
+      'yes': Ja
+      'no': Nee
+      resend: Code opnieuw sturen
+      resend_wait: Opnieuw ({s}s)
+      resent_ok: Nieuwe code verstuurd.
+      busy_sending: Bezig met versturen…
+      busy_verify: Bezig met activeren…
+      success_title: Helemaal goed! 🎉
+      success_body: Je 30-daagse Pro-proefperiode start nu. Alle Pro-functies — geen limiet, geen creditcard.
+      success_cta: PerkySue openen
+      errors:
+        network: We kunnen perkysue.com niet bereiken — check je verbinding en probeer opnieuw.
+        invalid_email: Dit lijkt geen geldig e-mailadres — even controleren?
+        invalid_code: Vul de code van 6 cijfers uit je e-mail in.
+        wrong_code: Die code klopt niet.
+        attempts: Te veel pogingen — even wachten en opnieuw proberen.
+        cooldown: Nog even geduld — je kunt de code zo weer opvragen.
+        rate_limited: Te veel pogingen — wacht even en probeer het opnieuw.
+        trial_already_used: Voor dit adres is de gratis proefperiode al gebruikt.
+        trial_ineligible_paid: Dit e-mailadres was eerder gekoppeld aan een Pro-abonnement. Gratis proefperiodes zijn alleen voor nieuwe gebruikers — opnieuw abonneren kan altijd.
+        generic: Er ging iets mis. Probeer het over een paar seconden opnieuw.
+modes:
+  stt_keywords:
+    title_unlimited: Whisper STT-trefwoorden (onbeperkt)
+    title_limit: 'Whisper STT-trefwoorden (limiet: {limit})'
+    placeholder: Typ een woord en druk op Enter (bijv. PerkySue, STT)...
+    tags_counter: '{count} / {limit} tags'
+  identity:
+    section_title: Identiteit & voorkeuren
+    title: Jouw naam
+    placeholder: 'Optioneel: hoe de LLM je moet aanspreken (bijv. Sander)...'
+    help: Gebruikt in sommige LLM-prompts (bijv. e-mailmodus)
+  prompt_modes:
+    title: Prompts
+    edit_hint: Hiermee bewerk je de systeemprompt voor elke LLM-sneltoets
+    system_prompt_help: Systeemprompt naar LLM = Huidige instellingen + Kennisbank + instructies (vak hierboven). Zet je vraag in de testinvoer hieronder.
+    test_input_label: 'Testinvoer (voorbeelden):'
+    test_response_label: 'LLM-reactie (voorbeeld):'
+    test_hint: Tests gebruiken altijd de huidige tekst hierboven, ook als die nog niet is opgeslagen.
+    paste: Plakken
+    copy: Kopiëren
+    run_test: Test uitvoeren
+    save: Opslaan
+    cancel: Annuleren
+    edit: Bewerken
+    test: Testen
+  registry:
+    transcribe:
+      name: Transcriberen
+      description: Eenvoudige transcriptie — spraak naar tekst, geen verwerking
+    improve:
+      name: Verbeteren
+      description: Spraakdictaat opschonen en interpungeren
+    professional:
+      name: Professioneel
+      description: Herschrijven in professionele, heldere toon
+    translate:
+      name: Vertalen
+      description: Vertalen naar ingestelde doeltaal
+    console:
+      name: Console
+      description: Spraak omzetten naar shell-opdrachten
+    email:
+      name: E-mail
+      description: Opmaken als professionele e-mail
+    message:
+      name: Direct bericht
+      description: Vriendelijk bericht voor WhatsApp, Slack, Discord, SMS
+    social:
+      name: Sociale post
+      description: Reageren of posten op YouTube, X/Twitter, LinkedIn, Reddit
+    summarize:
+      name: Samenvatten
+      description: Gedicteerde tekst samenvatten
+    genz:
+      name: Gen Z
+      description: Casual herschrijving met emoji's
+    answer:
+      name: Ask
+      description: Een vraag stellen met de gedicteerde tekst of de vragen daarin
+    help:
+      name: Help
+      description: Vragen over PerkySue — kennisbank van de app
+    custom1:
+      name: Eigen prompt 1
+      description: Jouw prompt — bewerk in Prompts
+    custom2:
+      name: Eigen prompt 2
+      description: Jouw prompt — bewerk in Prompts
+    custom3:
+      name: Eigen prompt 3
+      description: Jouw prompt — bewerk in Prompts
+chat:
+  title: Chat
+  new_chat: Nieuw gesprek
+  save_log: Log opslaan
+  token_counter: '{current} / {max}'
+  placeholder: Typ een bericht... of druk op de microfoon
+  hint: 'Alt+A: vraag stellen · Enter: tekst sturen · Alt+Q: stoppen met luisteren'
+  help_redirect: Vragen over PerkySue of de app? Gebruik het Help-tabblad.
+  sender_name: PerkySue
+  user_fallback: Jij
+  free_answer_notice: In het gratis abonnement wordt elke vraag afzonderlijk behandeld — de assistent onthoudt je vorige berichten niet. Multi-turn context, waarmee de assistent het lopende gesprek kan onthouden, en cursor-injectie (Smart Focus) zijn voorbehouden aan het Pro-abonnement — upgrade wanneer je wilt.
+help:
+  title: Help
+  new_chat: Nieuw gesprek
+  save_log: Log opslaan
+  token_counter: '{current} / {max}'
+  placeholder: Stel een vraag over PerkySue... of druk op de microfoon
+  hint: 'Alt+H: Microfoon aan/uit · Enter: Verzenden · Alt+Q: Stop luisteren'
+  sender_name: PerkySue
+header_tips:
+  startup_message: Tip · Zet je cursor in Word, Gmail, Slack… en druk op Alt+T
+  tips:
+  - Tip · Druk op Alt+Q of klik op de avatar om handmatig te stoppen
+  - Tip · Alt+T is voor altijd gratis — snelle transcriptie, geen LLM nodig
+  - Tip · Selecteer tekst, druk op Alt+I en zeg wat je wilt veranderen
+  - Tip · Druk overal op Alt+M om een volledige e-mail te dicteren
+  - 'Alt+A Pro: houdt het draadje in de chat — Alt+A gratis: één vraag per keer'
+  - Tip · Omgevingsgeluid voorkomt automatisch stoppen? Druk op Alt+Q
+  - Tip · Selecteer een alinea → Alt+P — toon en grammatica in één keer
+  - 'Tip · Alt+C in je terminal: beschrijf wat je nodig hebt in gewone taal'
+  - 'Tip · Alt+L: selecteer tekst en vraag om vertaling naar een taal'
+  - 'Tip · Alt+D: dicteer een direct bericht voor WhatsApp, Slack, Discord, SMS'
+  - 'Tip · Alt+X: maak een post of reactie voor LinkedIn, X, YouTube, Reddit'
+  - Tip · Plak vergadernotities, selecteer ze, Alt+S voor een korte samenvatting
+  - Tip · Selecteer een kladversie, Alt+I, zeg 'maak het korter' — klaar
+  - Tip · Alt+V t/m Alt+N = jouw eigen prompts. Bewerk ze in Prompts
+  - Tip · Maak een eigen prompt om te reageren in de toon van jouw merk
+  - Beu om steeds dezelfde AI-prompts te typen? Maak een eigen promptgenerator
+  - 'Tip · Promptidee: zet notities om in een LinkedIn-post met een haak'
+  - Tip · Gebruik eigen prompts voor opgemaakte Kling/Runway-videoprompts
+  - 'Tip · Promptidee: extraheer acties en deadlines uit een tekst'
+  - 'Tip · Alt+H: stel me alles over PerkySue in het Help-tabblad'
+  - Smart Focus heeft niet geplakt? Kopieer de uitvoer uit het Console-tabblad
+  - 'Tip · Luisterstap stoppen: klik op de avatar of druk op Alt+Q'
+  - Tip · Wissel van app terwijl PerkySue verwerkt — resultaat landt waar je begon
+  - 'Tip · Smart Focus: starten, doorgaan, tekst verschijnt op de juiste plek'
+  - CPU? Gebruik Whisper small (snel) of medium (nauwkeurig). ⚙️ → STT-model
+  - Tip · Omgevingsgeluid? Stopt niet vanzelf? — Alt+Q of klik op de avatar
+  - Tip · Bewerk de prompt van elke modus in Prompts — pas PerkySue aan op jou
+  - Tip · Whisper fout op een woord? Voeg het toe aan STT-trefwoorden in Prompts
+  delay_before_first_ms: 3500
+  display_ms: 7500
+  delay_between_ms: 15000
+header_alerts:
+  critical:
+    no_llm: Geen LLM gevonden. Download er een in Instellingen.
+    save_restart: Je moet PerkySue opslaan en herstarten
+    shortcut_in_use: Deze sneltoets is al in gebruik ({other_name}). Kies een andere.
+    llm_error_400: LLM-fout (400) — context te groot? Verhoog Max. invoer in Instellingen.
+    llm_error_generic: LLM-fout — check de console. Verhoog Max. invoer (context) in Instellingen als je Alt+A gebruikt.
+    max_input_reached: Max. invoerlimiet bereikt — geschiedenis is ingekort.
+    max_input_context_reached: Max. invoerlimiet (context) ({max_input}) bereikt. Probeer te verhogen naar {suggested} → Instellingen → Prestaties.
+    max_output_tokens_reached: Max. uitvoerlimiet ({max_output}) bereikt. Verhoog naar {suggested} in Instellingen → Prestaties.
+    llm_request_timeout: LLM-verzoek verlopen — probeer een time-out van 180 s of 240 s in Instellingen → Prestaties
+  regular:
+    recording_stopped: 🛑 Opname gestopt
+    processing_stopped: 🛑 Verwerking gestopt
+    tts_stopped: 🛑 Stemuitvoer gestopt
+    tts_loading: Stem wordt voorbereid — eerste configuratie bezig...
+    omnivoice_requires_nvidia: OmniVoice requires NVIDIA/CUDA (not available on CPU/Vulkan).
+    tts_install_in_progress: Installation already in progress — please wait.
+    ai_disclaimer: ⚠️ AI-antwoorden kunnen onjuist zijn. Controleer de feiten.
+    recording_no_audio: Geen audio vastgelegd — opname gestopt. Controleer de microfoon.
+    recording_too_short: Opname te kort — geen tekst gevonden. Controleer de microfoon of spreek langer.
+    copied_to_clipboard: Gekopieerd naar klembord
+    llm_not_available: LLM-orchestrator niet beschikbaar.
+    pro_plan_required_mode: Deze modus is vergrendeld in Free — Pro-abonnement vereist.
+    no_logs_to_save: Geen logs om op te slaan
+    all_logs_copied: Alle logs gekopieerd naar klembord
+    download_success: ✓ Downloaden gelukt.
+    download_progress: ⏳ Downloaden {name}… {pct}%
+  run_test_400_hint: → 400 Bad Request betekent meestal dat de context de modellimiet overschrijdt. Verhoog Max. invoer in Instellingen → Prestaties.
+  run_test_timeout_hint: → Het model was niet op tijd klaar. Ga naar Instellingen → Prestaties en stel de LLM-time-out in op 180 of 240 s (afhankelijk van je hardware).
+  document_injection:
+    llm_error_400: LLM-fout (400) — context te groot? Verhoog Max. invoer (context) in Instellingen.
+    llm_error_generic: LLM-fout — check de console. Verhoog Max. invoer (context) in Instellingen.
+    max_input_reached: '⚠️ Max. invoerlimiet bereikt — geschiedenis is ingekort. Bekijk Instellingen → Max. invoer en de capaciteit van je machine.
+
+
+      '
+    chat_max_input_reached: ⚠️ Je hebt de max. invoerlimiet (context) ({max_input}) bereikt. Probeer Max. invoer te verhogen in Instellingen → Prestaties naar {suggested} of hoger.
+    chat_context_limit_reached: ⚠️ Contextlimiet ({max_input}) bereikt — invoer en uitvoer delen dit budget. Verhoog Max. invoer in Instellingen → Prestaties naar {suggested} of hoger.
+    chat_max_output_reached: '⚠️ Antwoord afgekapt: max. uitvoerlimiet ({max_output}) bereikt. Verhoog Max. uitvoer in Instellingen → Prestaties naar {suggested} of hoger.'
+    chat_empty_reply: — Leeg antwoord. Probeer anders te formuleren of check de console.
+    trial_request:
+      newsletter_title: Newsletter preference
+      newsletter_question: Get updates, not spam. We'll only email you when something worth knowing happens — new features, tips & tricks, that's it.

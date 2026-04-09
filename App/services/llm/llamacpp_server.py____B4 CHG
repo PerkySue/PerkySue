@@ -1,0 +1,290 @@
+"""
+Provider LLM utilisant llama-server (binaire C++ de llama.cpp).
+Fallback quand llama-cpp-python direct échoue (problèmes CUDA threading).
+"""
+
+import logging
+import os
+import subprocess
+import time
+import requests
+from pathlib import Path
+from typing import Optional
+
+from .base import LLMProvider, LLMResult
+
+logger = logging.getLogger("perkysue.llm.llamacpp_server")
+
+
+class LlamaCppServerLLM(LLMProvider):
+    """Provider LLM via llama-server (processus séparé)."""
+    
+    def __init__(self, model_path: str = None, models_dir: str = None,
+                 n_gpu_layers: int = -1, n_ctx: int = 2048, port: int = 8081):
+        self.models_dir = Path(models_dir) if models_dir else None
+        self.n_gpu_layers = n_gpu_layers
+        self.n_ctx = n_ctx
+        self.port = port
+        self._model_path = None
+        self._process: Optional[subprocess.Popen] = None
+        self._server_url = f"http://127.0.0.1:{port}"
+        
+        # Résoudre le chemin du modèle
+        if model_path and model_path.strip():
+            p = Path(model_path)
+            if p.is_absolute() and p.exists():
+                self._model_path = p
+            elif self.models_dir:
+                candidate = self.models_dir / model_path
+                if candidate.exists():
+                    self._model_path = candidate
+        
+        if not self._model_path and self.models_dir:
+            # Auto-detect first GGUF
+            gguf_files = sorted(self.models_dir.glob("**/*.gguf"))
+            if gguf_files:
+                self._model_path = gguf_files[0]
+                logger.info(f"Server mode - Model auto-detected: {self._model_path.name}")
+
+    def _find_server_binary(self) -> Optional[Path]:
+        """Trouve llama-server.exe dans les sous-dossiers backend ou dans le PATH.
+        
+        Search order:
+        1. Data/Tools/active/ (populated by start.bat)
+        2. Data/Tools/{PERKYSUE_BACKEND}/ (env from start.bat)
+        3. Data/Tools/{backend}/ for each known backend
+        4. System PATH
+        """
+        # Strategy 1: Use models_dir to compute Tools path
+        tools_dir = None
+        if self.models_dir:
+            tools_dir = self.models_dir.parent.parent / "Tools"
+            logger.debug(f"Tools dir from models_dir: {tools_dir}")
+        
+        # Strategy 2: Use PERKYSUE_DATA env (set by start.bat and paths.py)
+        if not tools_dir or not tools_dir.exists():
+            data_dir = os.environ.get("PERKYSUE_DATA")
+            if data_dir:
+                tools_dir = Path(data_dir) / "Tools"
+                logger.debug(f"Tools dir from PERKYSUE_DATA: {tools_dir}")
+        
+        if not tools_dir:
+            logger.warning("Cannot determine Tools directory (models_dir is None and PERKYSUE_DATA not set)")
+            return None
+            
+        if not tools_dir.exists():
+            logger.warning(f"Tools directory does not exist: {tools_dir}")
+            return None
+        
+        # Build search order: active first, then backend from env, then known backends
+        backend_dirs = ["active"]
+        
+        # If start.bat told us which backend was detected, prioritize it
+        env_backend = os.environ.get("PERKYSUE_BACKEND", "")
+        if env_backend and env_backend not in backend_dirs:
+            backend_dirs.append(env_backend)
+        
+        # Then all known backends in priority order
+        for b in ["nvidia-cuda-13.1", "nvidia-cuda-12.4", "vulkan", "cpu", ""]:
+            if b not in backend_dirs:
+                backend_dirs.append(b)
+        
+        for backend in backend_dirs:
+            if backend:
+                path = tools_dir / backend / "llama-server.exe"
+            else:
+                path = tools_dir / "llama-server.exe"
+            
+            if path.exists():
+                logger.info(f"Found llama-server.exe in: {path.parent.name}/")
+                return path
+            else:
+                logger.debug(f"Not found: {path}")
+        
+        # Chercher dans PATH
+        import shutil
+        server_path = shutil.which("llama-server")
+        if server_path:
+            logger.info(f"Found llama-server in system PATH: {server_path}")
+            return Path(server_path)
+        
+        # Log diagnostic info for troubleshooting
+        logger.error(f"llama-server.exe not found anywhere!")
+        logger.error(f"  models_dir: {self.models_dir}")
+        logger.error(f"  tools_dir: {tools_dir}")
+        logger.error(f"  PERKYSUE_DATA: {os.environ.get('PERKYSUE_DATA', 'NOT SET')}")
+        logger.error(f"  PERKYSUE_BACKEND: {os.environ.get('PERKYSUE_BACKEND', 'NOT SET')}")
+        if tools_dir and tools_dir.exists():
+            try:
+                subdirs = [d.name for d in tools_dir.iterdir() if d.is_dir()]
+                logger.error(f"  Tools subdirs: {subdirs}")
+            except Exception:
+                pass
+        
+        return None
+
+    def warmup(self):
+        """Démarre le serveur llama.cpp."""
+        if self._process is not None:
+            return  # Déjà démarré
+        
+        if not self._model_path or not self._model_path.exists():
+            raise FileNotFoundError(f"Model not found: {self._model_path}")
+        
+        server_exe = self._find_server_binary()
+        if not server_exe:
+            raise RuntimeError(
+                "llama-server.exe not found. "
+                "Download it from https://github.com/ggerganov/llama.cpp/releases "
+                "and place it in Data/Tools/ or in PATH."
+            )
+        
+        # Kill any orphaned llama-server from previous sessions or start.bat
+        try:
+            if os.name == 'nt':
+                subprocess.run(
+                    ["taskkill", "/F", "/IM", "llama-server.exe"],
+                    capture_output=True, timeout=5
+                )
+                time.sleep(0.5)
+        except Exception:
+            pass
+        
+        # Construire la commande
+        cmd = [
+            str(server_exe),
+            "-m", str(self._model_path),
+            "--port", str(self.port),
+            "-c", str(self.n_ctx),
+            "-ngl", str(self.n_gpu_layers),
+            "--host", "127.0.0.1",
+        ]
+        
+        logger.info(f"Starting llama-server on port {self.port}...")
+        logger.info(f"  Binary: {server_exe}")
+        logger.info(f"  Model: {self._model_path.name}")
+        logger.info(f"  GPU layers: {self.n_gpu_layers}")
+        
+        # Démarrer le processus
+        env = os.environ.copy()
+        # CRITICAL: Remove CUDA_VISIBLE_DEVICES="" that _probe_gpu() may have set.
+        # The server binary (e.g. nvidia-cuda-13.1) has its own CUDA runtime
+        # and needs to see the GPU.
+        if "CUDA_VISIBLE_DEVICES" in env:
+            del env["CUDA_VISIBLE_DEVICES"]
+        
+        # Use TEMP as CWD to avoid linenoise.cpp.txt antivirus issues
+        import tempfile
+        cwd = tempfile.gettempdir()
+        
+        self._process = subprocess.Popen(
+            cmd,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            text=True,
+            cwd=cwd,
+            creationflags=subprocess.CREATE_NO_WINDOW if os.name == 'nt' else 0,
+            env=env,
+        )
+        
+        # Attendre que le serveur soit prêt
+        if not self._wait_for_server(timeout=60):
+            self._process.terminate()
+            raise RuntimeError("llama-server failed to start within 60 seconds")
+        
+        logger.info(f"llama-server ready at {self._server_url}")
+
+    def _wait_for_server(self, timeout: int = 60) -> bool:
+        """Attend que le serveur HTTP réponde."""
+        start = time.time()
+        while time.time() - start < timeout:
+            try:
+                response = requests.get(f"{self._server_url}/health", timeout=1)
+                if response.status_code == 200:
+                    return True
+            except requests.exceptions.ConnectionError:
+                pass
+            except Exception:
+                pass
+            
+            # Vérifier si le processus a crashé
+            if self._process.poll() is not None:
+                stdout, stderr = self._process.communicate()
+                logger.error(f"llama-server exited early. stderr: {stderr[-500:]}")
+                return False
+            
+            time.sleep(0.5)
+        
+        return False
+
+    def process(self, text: str, system_prompt: str,
+                temperature: float = 0.3, max_tokens: int = 1024) -> LLMResult:
+        if self._process is None:
+            self.warmup()
+        
+        start = time.time()
+        
+        # Construire le payload pour le chat completion
+        messages = [
+            {"role": "system", "content": system_prompt},
+            {"role": "user", "content": text},
+        ]
+        
+        payload = {
+            "messages": messages,
+            "temperature": temperature,
+            "max_tokens": max_tokens,
+            "stream": False,
+        }
+        
+        try:
+            response = requests.post(
+                f"{self._server_url}/v1/chat/completions",
+                json=payload,
+                timeout=120,
+            )
+            response.raise_for_status()
+            data = response.json()
+            
+            result_text = data["choices"][0]["message"]["content"].strip()
+            duration = time.time() - start
+            
+            tokens = data.get("usage", {}).get("total_tokens", 0)
+            
+            logger.info(f"llama-server: {tokens} tokens in {duration:.1f}s")
+            
+            return LLMResult(
+                text=result_text,
+                model=self._model_path.name if self._model_path else "unknown",
+                tokens_used=tokens,
+                duration=duration,
+            )
+            
+        except requests.exceptions.RequestException as e:
+            logger.error(f"llama-server request failed: {e}")
+            raise RuntimeError(f"LLM server error: {e}")
+
+    def is_available(self) -> bool:
+        """Vérifie si le modèle existe et si le serveur peut démarrer."""
+        if self._model_path and self._model_path.exists():
+            return True
+        return False
+
+    def get_name(self) -> str:
+        name = self._model_path.name if self._model_path else "no model"
+        return f"llama-server ({name})"
+
+    def list_models(self) -> list[str]:
+        if not self.models_dir or not self.models_dir.exists():
+            return []
+        return [f.name for f in self.models_dir.glob("**/*.gguf")]
+
+    def __del__(self):
+        """Arrête le serveur proprement."""
+        if self._process and self._process.poll() is None:
+            logger.info("Stopping llama-server...")
+            self._process.terminate()
+            try:
+                self._process.wait(timeout=5)
+            except subprocess.TimeoutExpired:
+                self._process.kill()

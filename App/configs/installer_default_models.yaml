@@ -1,0 +1,52 @@
+# ============================================================
+# PerkySue — Installer / first-run default LLM (by model id)
+# ============================================================
+# Rule selection: evaluate nvidia.rules top to bottom; first match wins.
+#
+# Download resolution (for GUI): prefer `download_sources` below so first-run
+# still works if an id disappears from recommended_models.yaml. If a model_id
+# is missing here, fall back to recommended_models.yaml by id (repo_id + filename).
+#
+# VRAM (NVIDIA): nvidia-smi — memory.total in MiB (card size). We intentionally
+# do NOT gate on memory.free: another PerkySue session or a game can leave <10 GiB
+# free on a 32 GiB card; tier would wrongly fall back to 2B.
+# ============================================================
+
+version: 1
+
+# Hugging Face targets for hf_hub_download (keep in sync when changing defaults)
+download_sources:
+  qwen3-5-2b-base-q8:
+    repo_id: "aashish1904/Qwen3.5-2B-Base-GGUF"
+    filename: "Qwen3.5-2B-Base.Q8_0.gguf"
+  qwen3-5-4b-q8:
+    repo_id: "Jackrong/Qwen3.5-4B-Claude-4.6-Opus-Reasoning-Distilled-GGUF"
+    filename: "Qwen3.5-4B.Q8_0.gguf"
+  qwen3-5-9b-q8:
+    repo_id: "Jackrong/Qwen3.5-9B-Claude-4.6-Opus-Reasoning-Distilled-GGUF"
+    filename: "Qwen3.5-9B.Q8_0.gguf"
+
+# Non-NVIDIA backends: single default each
+fallback_no_gpu:
+  cpu: qwen3-5-2b-base-q8
+  vulkan: qwen3-5-2b-base-q8
+
+# NVIDIA: evaluate rules top to bottom; FIRST match wins
+nvidia:
+  rules:
+    # ≥16 GiB total VRAM (card) → largest tier
+    - id: tier_9b
+      model_id: qwen3-5-9b-q8
+      when:
+        vram_total_mb_gte: 16384
+
+    # 8–16 GiB total → mid tier
+    - id: tier_4b
+      model_id: qwen3-5-4b-q8
+      when:
+        vram_total_mb_gte: 8192
+        vram_total_mb_lt: 16384
+
+    # <8 GiB total or unknown (catch-all for NVIDIA)
+    - id: tier_2b_nvidia_fallback
+      model_id: qwen3-5-2b-base-q8

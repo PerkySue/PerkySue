@@ -1,0 +1,636 @@
+﻿about:
+  support_patreon_label: ❤ Поддержать на Patreon
+  updates:
+    title: Обновления
+    body_idle: Проверь GitHub на наличие новой версии.
+    body_checking: Проверяем релизы GitHub…
+    body_check_failed: Не удалось проверить обновления.
+    body_available: 'Доступно обновление: {v}'
+    body_uptodate: 'У тебя последняя версия ({v}).'
+    body_downloading: Загружаем обновление…
+    body_ready_restart: Обновление установлено. Перезапусти, чтобы применить.
+    body_failed: Не удалось установить обновление.
+    wizard_title: Обновление
+    btn_check: Проверить обновления
+    btn_retry: Повторить
+    btn_update: Обновить
+    btn_restart: Перезапустить для применения
+    btn_close: Закрыть
+    btn_cancel: Отмена
+    footer_link: 'Доступно обновление {v}'
+  quick_use_cases:
+    section_title: Сценарии (быстро)
+    voice_layer: 'Голосовой слой для ИИ: в любом поле чата ИИ нажми Alt+T → говори → Enter.'
+    custom_prompts: 'Свои промпты: Alt+V/B/N = 3 слота — переиспользуемые сценарии с твоими правилами и тоном.'
+    footer: Работает локально — твой текст остаётся на твоей машине.
+  hero:
+    title: PerkySue
+    tagline: Голос в текст с AI-магией. 100% локально. 100% приватно.
+    subtitle: Нажми хоткей, скажи — и текст появляется прямо под курсором, в любом приложении, окне или поле. Никакого облака. Никаких аккаунтов. Твои данные не покидают машину.
+  why_exists:
+    section_title: Зачем нужна PerkySue
+    line_1: Все остальные инструменты диктовки решают только половину задачи.
+    line_2: Они переводят голос в слова — но не думают вместе с тобой.
+    line_3: Ты всё ещё копируешь текст в чатбот, ждёшь, потом копируешь ответ обратно. Несколько шагов там, где должен быть один — и твои слова уже уехали на чужой сервер.
+    line_4: PerkySue — это весь пайплайн в одном хоткее.
+    line_5: Распознавание речи, обработка локальным LLM, вставка текста — одним действием, в любом приложении, ничего не уходит наружу.
+    line_6: Голос — не нейтральные данные, это биометрия.
+    line_7: Он несёт твой акцент, ритм, эмоциональное состояние. Облачные инструменты диктовки захватывают его, передают и хранят на условиях, которые мало кто читает. Он идёт на обучение моделей и утекает к инфраструктурным партнёрам.
+    line_8: PerkySue захватывает аудио в RAM, обрабатывает локально и сразу удаляет. Ничего не хранится, не логируется, не передаётся.
+    line_9: Твой голос — твой!
+  how_it_works:
+    section_title: Как это работает
+    step1_title: Нажми хоткей
+    step1_description: 'Поставь курсор в любое приложение, где ты обычно пишешь (Word, Gmail, Slack, VS Code…) и нажми:'
+    step2_title: Говори как обычно
+    step2_description: PerkySue пишет, пока ты не замолчишь. Шум вокруг может помешать автостопу — жми Alt+Q (глобальный дефолт) или Esc когда приложение в фокусе, или кликни на аватар.
+    step3_title: Текст появляется там, где ты нажал
+    step3_description: PerkySue запоминает курсор и активное окно в момент нажатия хоткея.
+    step4_title: Работай дальше, пока обрабатывается
+    step4_description: Переключай вкладки, пиши в другом месте. Smart Focus вставит результат туда, откуда ты начал.
+  features:
+    section_title: Для чего это используют
+    transcribe:
+      card_title: 🎙️ Транскрипция — бесплатно, навсегда
+      badge: Alt+T
+      description: Говори — и сырая транскрипция появляется под курсором. Работает на любой машине — выбирай модели Whisper от tiny (старое железо, 4 ГБ RAM) до large-v3 (студийное качество на современных GPU). Никакого LLM, никакой подписки, никаких лимитов слов.
+    improve:
+      card_title: ✏️ Улучшить — переписать выделенное
+      badge: Alt+I
+      description: Пишешь документ, и один абзац не заходит — идея есть, но текст плоский. Выдели его, нажми Alt+I и скажи «сделай покороче и поживее». PerkySue одновременно читает твой выбор и твою инструкцию. Переписанный абзац заменяет оригинал прямо на месте, без выхода из приложения.
+      prompt: 🎤  «сделай это поживее, текущая версия слишком сухая»
+      result: ✅  Твой выбор заменён улучшенной версией.
+    professional:
+      card_title: 💼 Профессионально — тон и ошибки за один шаг
+      badge: Alt+P
+      description: Написал два абзаца, где небрежный стиль смешан с парой опечаток. Выдели, нажми Alt+P и скажи «почисти, это идёт на презентацию совету». LLM перепишет формально и исправит ошибки — твой выбор заменён, буфер обмена не нужен.
+      prompt: 🎤  «нужно звучать солидно, грамматику тоже поправь»
+      result: ✅  Твой выбор заменён формальной исправленной версией.
+  use_cases:
+    section_title: Другие голосовые режимы в деле
+    intro: Каждый режим работает как голосовая команда — выделять текст не нужно. Нажми хоткей, скажи — результат появится под курсором.
+    footer: Все режимы работают полностью на твоей машине. Никаких API-запросов, интернета, утечки данных.
+    items:
+    - badge: Alt+M
+      name: Email — скажи, отправь
+      prompt: 🎤  «напиши email Джону, что PerkySue готова к запуску — упомяни, что планируем мягкий релиз на следующей неделе»
+      result: ✅  Готовый профессиональный email появляется под курсором. PerkySue пишет на том языке, на котором ты говоришь.
+    - badge: Alt+D
+      name: Личное сообщение — дружески, готово к отправке
+      prompt: 🎤  «напиши бабушке, чтоб не забыла соевый соус»
+      result: ✅  Бабуль! Напоминашка — не забудь соевый соус! Хорошего дня!
+    - badge: Alt+X
+      name: Соцсети — пост или ответ для любой платформы
+      prompt: 🎤  «ответь на этот YouTube-комментарий — поблагодари и скажи, что следующее видео выйдет на следующей неделе про систему плагинов»
+      result: ✅  Спасибо! Рад, что зашло. Следующее видео — на следующей неделе, разбираем систему плагинов. Не переключайся!
+    - badge: Alt+C
+      name: Консоль — опиши команду, получи команду
+      prompt: 🎤  «найди все Python-файлы, изменённые за последние 7 дней»
+      result: ✅  find . -name "*.py" -mtime -7 — готово к вставке в терминал.
+    - badge: Alt+A
+      name: Ask — Q&A с памятью разговора
+      prompt: 🎤  «в чём разница между мьютексом и семафором?»
+      result: ✅  Ответ вставляется под курсором. Задай уточняющий вопрос — модель помнит историю разговора.
+    - badge: Alt+V/B/N
+      name: Свои промпты — твои правила, твои воркфлоу
+      prompt: 🎤  Три слота для своих промптов, редактируются в Промптах.
+      result: ✅  Превращай речь в заметки митинга, нужный стиль письма, структурированный вывод — как тебе надо.
+  smart_focus:
+    section_title: Smart Focus
+    card_title: 🎯 Smart Focus — запусти и забудь
+    description: 'PerkySue запоминает позицию курсора в момент нажатия хоткея. Пока Whisper транскрибирует и LLM генерирует — ты свободен: переключай приложения, продолжай печатать. Результат появится там, откуда ты запустил — не там, где курсор сейчас.'
+  voice_modes:
+    section_title: Голосовые режимы
+    modes:
+    - hotkey: Alt+T
+      name: Транскрипция
+      description: Быстрая транскрипция (без LLM)
+      needs_llm: false
+    - hotkey: Alt+I
+      name: Улучшить
+      description: Почистить и переформатировать текст
+      needs_llm: true
+    - hotkey: Alt+P
+      name: Профессионально
+      description: Формальная деловая переработка
+      needs_llm: true
+    - hotkey: Alt+L
+      name: Перевести
+      description: Перевести на целевой язык
+      needs_llm: true
+    - hotkey: Alt+C
+      name: Консоль
+      description: Извлечь shell-команду
+      needs_llm: true
+    - hotkey: Alt+M
+      name: Email
+      description: Оформить как деловой email
+      needs_llm: true
+    - hotkey: Alt+D
+      name: Личное сообщение
+      description: WhatsApp/Slack/Discord/SMS — тон под отношения
+      needs_llm: true
+    - hotkey: Alt+X
+      name: Пост в соцсети
+      description: LinkedIn/X/YouTube/Reddit — пост или ответ
+      needs_llm: true
+    - hotkey: Alt+S
+      name: Резюме
+      description: Сжать до ключевых моментов
+      needs_llm: true
+    - hotkey: Alt+A
+      name: Ask
+      description: Задай вопрос — LLM ответит под курсором
+      needs_llm: true
+    - hotkey: Alt+H
+      name: Помощь
+      description: Вопросы о PerkySue — база знаний + твои настройки
+      needs_llm: true
+    - hotkey: Alt+G
+      name: GenZ
+      description: Небрежная переписка в актуальном стиле
+      needs_llm: true
+  competition:
+    section_title: PerkySue vs. Конкуренты
+    items:
+    - title: vs. встроенная диктовка
+      examples: Windows, macOS, Google
+      description: Они транскрибируют слова. PerkySue транскрибирует и думает — 11 режимов превращают речь в email, команды, переводы, резюме.
+    - title: vs. облачная диктовка
+      examples: Wispr Flow, Typeless
+      description: Аудио не покидает твою машину. Никаких аккаунтов, интернета, лимитов слов. Работает в самолёте и с флешки.
+    - title: vs. опенсорс-инструменты
+      examples: Amical, OpenWhispr
+      description: Они делают STT + вставку. PerkySue добавляет локальный LLM-пайплайн, выделение текста + голосовые инструкции, Smart Focus и GUI-виджет.
+  privacy:
+    section_title: Приватность
+    items:
+    - icon: 🔒
+      title: Интернет не нужен
+      description: Всё работает на твоей машине
+    - icon: 🔇
+      title: Аудио не хранится
+      description: Захвачено в RAM, транскрибировано, сразу удалено
+    - icon: 👤
+      title: Аккаунт не нужен
+      description: Никакой регистрации, трекинга, куков
+    - icon: 📂
+      title: Открытый код
+      description: Проверь каждую строчку кода сам
+  why_i_built_it:
+    section_title: Почему я это создал
+    paragraph_1: 'PerkySue началась как личный инструмент продуктивности — то, что мне было нужно каждый день, а не питч-дек. После лет разработки архитектуры приложений и диалоговых платформ я хотел собрать всё в один пайплайн: голос → локальный STT → локальный LLM → текст вставлен там, где я уже работаю.'
+    paragraph_2: 'Код создавался вместе с AI: этот проект строился в тесном сотрудничестве с AI-ассистентами. Локальный пайплайн сложный. Забавно, что сегодня PerkySue помогает мне писать её собственный код — не отправляя мой голос или данные в облако.'
+  links:
+    section_title: Ссылки
+    items:
+    - label: Репозиторий GitHub
+      url: https://github.com/PerkySue/PerkySue
+    - label: Сообщество Discord
+      url: https://discord.gg/UaJHEzFgXy
+    - label: Поддержать на Patreon ❤
+      url: https://patreon.com/PerkySue
+    - label: Политика конфиденциальности
+      url: ''
+    - label: Документация по архитектуре
+      url: ''
+    credit: Создано Jérôme Corbiau  ·  Лицензия Apache 2.0
+common:
+  window_title: PerkySue — Beta 0.28.8
+  header_banner:
+    free_invite: PerkySue Beta — Бесплатно · Pro 30 дн. без карты
+    free_after_trial: PerkySue Beta — Бесплатно
+    pro_trial: PerkySue Beta — Пробный Pro · осталось {days} дн.
+    pro: PerkySue Beta — Pro
+    enterprise: PerkySue Beta — Enterprise
+  'yes': Да
+  'no': Нет
+  nav:
+    console: '>_   Консоль'
+    shortcuts: ⌨   Хоткеи
+    settings: ⚙   Настройки
+    modes: 💬   Промпты
+    chat: 💭   Чат
+    help: ❓   Помощь
+    voice: 🔊   Голос
+    user: 👤   Профиль
+    about: 💡   О приложении
+  statuses:
+    listening: Слушаю
+    processing: Обработка
+    injecting: Вставка
+    ready: Готово
+    error: Ошибка
+    crash: Краш приложения
+    no_speech: Звук не обнаружен
+    tts_loading: Подготовка голоса…
+    generating: Генерация
+    speaking: Озвучка
+  footer:
+    github: GitHub
+    discord: Discord
+    alpha_banner: Транскрипция бесплатна навсегда. Режим Pro поддерживает проект.
+user:
+  settings:
+    title: Настройки пользователя
+  billing:
+    label: Оплата Stripe
+    hint: Email, привязанный к подписке на этом ПК (только просмотр).
+    empty: —
+  section:
+    language_title: Язык интерфейса
+    language_hint: Кликни на флаг, чтобы применить язык.
+voice:
+  page_title: Голос
+  locked:
+    section_title: Синтез речи
+    body: PerkySue может вслух зачитывать ответы. Клонирование — положи короткий voice_ref.wav в папку скина. Нужен Pro.
+    pro_note: Только в Pro
+    upgrade: Перейти на Pro
+  install:
+    section_title: Добавь голос PerkySue
+    model_label: Выбери модель
+    body: Включает текст-в-речь. Ответы в режимах Answer и Help можно озвучить. В Patreon-паках может быть voice_ref.wav для клона.
+    button: Установить движок
+    button_working: Ставим…
+    retry: Попробовать снова
+  engine:
+    recommended_suffix: " (рекомендуется)"
+  output:
+    section_title: Вывод
+    enabled: Включено
+    engine_label: Движок
+  playback:
+    section_title: Воспроизведение
+    volume: Громкость
+    speed: Скорость
+    auto_speak: Авто-озвучка
+    auto_speak_hint: После Answer и Help
+  packs:
+    section_title: Голосовые паки
+    default_body: Сейчас голос Pro по умолчанию. Для клона добавь voice_ref.wav в скин или возьми персонажей на Patreon.
+    installed_lead: "Установленные голосовые паки:"
+    more_patreon: Ещё голоса на Patreon.
+  test:
+    section_title: Тест
+    field_label: Пример фразы
+    sample_text: |
+      Привет! Я PerkySue — и да, у меня есть голос.
+      Не поверишь, но я работаю полностью на твоём компьютере. Никакого облака, никакого аккаунта, никаких данных, улетающих куда-то. Только ты, я и твой микрофон.
+    speak: ▶  Произнести
+    stop: ■  Стоп
+console:
+  pipeline_status: Статус пайплайна
+  whisper_stt: 'Whisper STT:'
+  local_llm: 'Локальный LLM:'
+  no_stt: Нет STT
+  no_llm: LLM не обнаружен
+  help_only_suffix: — Только помощь
+  transcription_controls: Управление транскрипцией
+  start: Старт
+  abort: Отмена
+  copy_log: 📋  Копировать лог
+  finalized_logs: Финальные логи — временные
+  full_console: Консоль
+  copy: Копировать
+shortcuts:
+  title: Менеджер хоткеев
+  col_mode: Режим
+  col_hotkey_alt: Хоткей (Alt)
+  col_hotkey_altgr: Хоткей (AltGr)
+  edit: Изменить
+  stop_task: Стоп
+  restore_defaults: Сбросить хоткеи
+  restart_note: Изменения требуют перезапуска
+settings:
+  save_sidebar_note: Перезапусти для применения
+  update_button: Обновить
+  update_note: Применить сейчас (без перезапуска)
+  appearance:
+    title: Внешний вид
+    default_skin: По умолчанию
+    patreon_cta: Разблокируй скины для сторонников на Patreon 💛
+    filter_all: Все
+    select: Выбрать
+    import_skin: Импорт скина
+  recommended_models:
+    title: Рекомендуемые модели
+    more_models: + Ещё модели
+    current_model: Текущая модель
+    get: ↓ Скачать
+    filter_favorites_hint: Только избранные (модели со звёздами)
+    search_placeholder: Поиск моделей…
+    tooltip_labels:
+      name: Название
+      author: Автор
+      family: Семейство
+      params: Параметры
+      quant: Квантование
+      thinking: Рассуждение
+      uncensored: Без цензуры
+      languages: Языки
+      size: Размер
+      speed: Скорость
+      favorite: Избранное
+      comment: Комментарий
+      alt_a_qa: Alt+A QA
+      popularity: Популярность
+  performance:
+    title: Настройки производительности
+    stt_model: Модель STT
+    stt_device: Устройство STT
+    silence_timeout: Таймаут тишины (с)
+    max_duration: Макс. длительность записи (с)
+    first_language: Основной язык
+    llm_model: Модель LLM
+    max_input: Макс. ввод (контекст)
+    max_output: Макс. вывод (токены)
+    llm_request_timeout: Таймаут запроса LLM (с)
+    no_gguf: Нет .gguf в Data/Models/LLM
+    auto: Авто
+  save_restart: Сохранить и перезапустить
+  plan_management:
+    section_title: Подписки
+    badge_current: Текущий
+    status_valid_until: ⟳ до {date}
+    status_valid_until_unknown: ⟳ до —
+    status_pro_trial_days: 'Пробный · осталось {days} дн.'
+    status_access_until_cancelled: До {date}
+    status_pro_active_short: Pro
+    status_active_plan: Активный план
+    portal_title: Управление подпиской
+    portal_manage_unavailable: Открыть оплату из приложения пока нельзя. Используйте ссылки в письмах Stripe или напишите на hello@perkysue.com.
+    buttons:
+      active: Активен
+      free_tier: Бесплатно
+      manage: Управлять
+      start_free_trial: Пробный период
+      get_pro: Перейти на Pro 9,90 €/мес
+      contact_sales: Связаться с нами
+    free:
+      name: Бесплатно
+      price: 0 €
+      features:
+      - text: Транскрипция Alt+T
+        locked: false
+      - text: Локальный Whisper STT
+        locked: false
+      - text: Smart Focus
+        locked: false
+      - text: Alt+A Ask
+        locked: false
+      - text: Локальный LLM
+        locked: false
+    pro:
+      name: Pro
+      price: 9,90 €
+      price_sub: /мес
+      trial_sub: 30 дней · без карты
+      features:
+      - text: Все 14 LLM-режимов
+        locked: false
+      - text: Свои промпты
+        locked: false
+      - text: Приоритетные обновления
+        locked: false
+      - text: Голос-к-голосу
+        locked: false
+    enterprise:
+      name: Для компаний
+      price: По запросу
+      features:
+      - text: Базы знаний
+        locked: false
+      - text: Деплой / Команда
+        locked: false
+      - text: Выделенная поддержка
+        locked: false
+    link_subscription:
+      wizard_title: Привязать подписку
+      cta: У меня уже есть подписка
+      otp_headline: Проверь почту
+      email_intro: Введи email, чтобы начать — мы пришлём 6-значный код, чтобы убедиться, что это ты.
+      step_email_title: Email для счёта
+      step_email_hint: Тот же, что в чеке или счёте Stripe.
+      email_placeholder: ты@email.com
+      send_code: Отправить код
+      step_otp_title: Код подтверждения
+      otp_placeholder: 6 цифр
+      otp_hint: Введи 6-значный код из письма.
+      verify: Проверить и привязать
+      resend: Отправить код ещё раз
+      resend_wait: Повтор ({s} с)
+      success_title: Готово! 🎉
+      success_body: Подписка привязана. Pro активен на этом ПК.
+      resent_ok: Новый код отправлен.
+      close: Продолжить
+      busy_sending: Отправка…
+      busy_verify: Проверка…
+      errors:
+        network: Не удалось связаться с perkysue.com — проверь интернет и попробуй снова.
+        invalid_email: Похоже, email указан неверно — проверь, пожалуйста.
+        inactive: Нет активной подписки на этот email.
+        wrong_code: Код не совпадает.
+        invalid_code: Введи код из письма.
+        attempts: Слишком много попыток — подожди немного.
+        cooldown: Скоро можно будет запросить код снова.
+        generic: Что-то пошло не так. Попробуй ещё раз через пару секунд.
+      success_cta: Открыть PerkySue
+    trial_request:
+      wizard_title: Начать пробный период
+      email_intro: Введи email, чтобы начать — мы пришлём 6-значный код, чтобы убедиться, что это ты.
+      email_placeholder: ты@email.com
+      send_code: Отправить код
+      otp_headline: Подтверди email
+      otp_hint: Введи 6-значный код, затем выбери настройки рассылки.
+      newsletter_title: Рассылка
+      newsletter_question: Только полезные новости, без спама. Пишем только когда правда есть что сказать.
+      'yes': Да
+      'no': Нет
+      resend: Отправить код снова
+      resend_wait: Повтор ({s}s)
+      resent_ok: Новый код отправлен.
+      busy_sending: Отправка…
+      busy_verify: Активация…
+      success_title: Готово! 🎉
+      success_body: 30-дневный Pro-триал начинается сейчас. Все функции Pro — без лимитов, без карты.
+      success_cta: Открыть PerkySue
+      errors:
+        network: Не удалось связаться с perkysue.com — проверь интернет и попробуй снова.
+        invalid_email: Похоже, email указан неверно — проверь, пожалуйста.
+        invalid_code: Введи 6-значный код из письма.
+        wrong_code: Код не совпадает.
+        attempts: Слишком много попыток — подожди немного.
+        cooldown: Скоро можно будет запросить код снова.
+        rate_limited: Слишком много попыток — подожди немного и попробуй снова.
+        trial_already_used: Этот адрес уже использовал бесплатный пробный период.
+        trial_ineligible_paid: Этот email уже был привязан к платной подписке Pro. Бесплатный пробный период — только для новых пользователей, но повторно подписаться можно в любой момент.
+        generic: Что-то пошло не так. Попробуй ещё раз через пару секунд.
+modes:
+  stt_keywords:
+    title_unlimited: Ключевые слова Whisper STT (без лимита)
+    title_limit: 'Ключевые слова Whisper STT (лимит: {limit})'
+    placeholder: Введи слово и нажми Enter (напр. PerkySue, STT)...
+    tags_counter: '{count} / {limit} тегов'
+  identity:
+    section_title: Личность и предпочтения
+    title: Твоё имя
+    placeholder: 'Необязательно: как LLM должен к тебе обращаться (напр. Миша)...'
+    help: Используется в некоторых LLM-промптах (напр. режим email)
+  prompt_modes:
+    title: Промпты
+    edit_hint: Редактируй системный промпт для каждого LLM-хоткея
+    system_prompt_help: Системный промпт для LLM = текущие настройки + база знаний + инструкции (поле выше). Вопрос для теста — в поле ниже.
+    test_input_label: 'Тестовый ввод (примеры):'
+    test_response_label: 'Ответ LLM (превью):'
+    test_hint: Тесты всегда используют текущий текст выше, даже если он не сохранён.
+    paste: Вставить
+    copy: Копировать
+    run_test: Запустить тест
+    save: Сохранить
+    cancel: Отмена
+    edit: Изменить
+    test: Тест
+  registry:
+    transcribe:
+      name: Транскрипция
+      description: Простая транскрипция — речь в текст, без обработки
+    improve:
+      name: Улучшить
+      description: Почистить и расставить пунктуацию в диктовке
+    professional:
+      name: Профессионально
+      description: Переписать в профессиональном, чётком тоне
+    translate:
+      name: Перевести
+      description: Перевести на заданный целевой язык
+    console:
+      name: Консоль
+      description: Конвертировать речь в shell-команды
+    email:
+      name: Email
+      description: Оформить как деловой email
+    message:
+      name: Личное сообщение
+      description: Дружеское сообщение для WhatsApp, Slack, Discord, SMS
+    social:
+      name: Пост в соцсети
+      description: Ответить или запостить на YouTube, X/Twitter, LinkedIn, Reddit
+    summarize:
+      name: Резюме
+      description: Сжать продиктованный текст
+    genz:
+      name: Gen Z
+      description: Небрежная переписка с эмодзи
+    answer:
+      name: Ask
+      description: Задать вопрос по продиктованному тексту или вопросам в нём
+    help:
+      name: Помощь
+      description: Вопросы о PerkySue — использует базу знаний приложения
+    custom1:
+      name: Свой промпт 1
+      description: Твой промпт — редактируй в Промптах
+    custom2:
+      name: Свой промпт 2
+      description: Твой промпт — редактируй в Промптах
+    custom3:
+      name: Свой промпт 3
+      description: Твой промпт — редактируй в Промптах
+chat:
+  title: Чат
+  new_chat: Новый чат
+  save_log: Сохранить лог
+  token_counter: '{current} / {max}'
+  placeholder: Напиши сообщение... или нажми на микрофон
+  hint: 'Alt+A: включить/выключить микрофон · Alt+Q: остановить запись'
+  help_redirect: Вопросы о PerkySue? Загляни на вкладку Помощь
+  sender_name: PerkySue
+  user_fallback: Вы
+  free_answer_notice: В бесплатном плане каждый вопрос обрабатывается отдельно — ассистент не помнит ваши предыдущие сообщения. Многошаговый контекст, который позволяет ассистенту помнить текущий диалог, и вставка в курсор (Smart Focus) доступны только в плане Pro — переходите на него, когда захотите.
+help:
+  title: Помощь
+  new_chat: Новый чат
+  save_log: Сохранить лог
+  token_counter: '{current} / {max}'
+  placeholder: Спроси о PerkySue...
+  hint: 'Alt+H: микрофон вкл/выкл · Alt+Q: стоп'
+  sender_name: PerkySue
+header_tips:
+  startup_message: Совет · Поставь курсор в Word, Gmail, Slack… и нажми Alt+T
+  tips:
+  - Совет · Нажми Alt+Q или кликни на аватар, чтобы остановить запись вручную
+  - Совет · Alt+T бесплатен навсегда — быстрая транскрипция, LLM не нужен
+  - Совет · Выдели текст, нажми Alt+I и скажи, что изменить
+  - Совет · Нажми Alt+M где угодно, чтобы надиктовать email с нуля
+  - 'Alt+A Pro: ведёт чат с контекстом — Alt+A Бесплатно: один вопрос за раз'
+  - Совет · Шум мешает автостопу? Нажми Alt+Q
+  - Совет · Выдели абзац → Alt+P — тон и грамматика за один шаг
+  - 'Совет · Alt+C в терминале: опиши задачу обычными словами'
+  - 'Совет · Alt+L: выдели текст и попроси перевести на любой язык'
+  - 'Совет · Alt+D: надиктуй личное сообщение для WhatsApp, Slack, Discord, SMS'
+  - 'Совет · Alt+X: создай пост или ответ для LinkedIn, X, YouTube, Reddit'
+  - Совет · Вставь заметки митинга, выдели их, Alt+S — получи краткое резюме
+  - Совет · Выдели черновик, нажми Alt+I, скажи «покороче» — готово
+  - Совет · Alt+V до Alt+N = твои промпты. Редактируй в Промптах
+  - Совет · Создай свой промпт для ответов на комменты в стиле бренда
+  - Совет · Устал переписывать одни и те же AI-промпты? Сделай свой генератор
+  - Идея промпта · Превращай заметки в LinkedIn-пост с цепляющим началом
+  - Идея промпта · Генерируй форматированные видеопромпты для Kling/Runway
+  - Идея промпта · Извлекай задачи и дедлайны из текста
+  - 'Совет · Alt+H: задавай вопросы о PerkySue на вкладке Помощь'
+  - Pro · Smart Focus не вставил? Скопируй результат со вкладки Консоль
+  - 'Совет · Остановить запись: кликни на аватар или нажми Alt+Q'
+  - Совет · Делай своё, пока PerkySue думает — результат появится там, где надо
+  - Smart Focus · Нажал, пошёл дальше — текст сам появится в нужном месте
+  - Совет · CPU? Whisper small (быстро) или medium (точно). ⚙️ → Модель STT
+  - Совет · Шум вокруг, запись не останавливается? Alt+Q или кликни на аватар
+  - Совет · Редактируй промпт каждого режима в Промптах — настрой PerkySue под себя
+  - Совет · Whisper путает слово? Добавь его в ключевые слова STT в Промптах
+  delay_before_first_ms: 3500
+  display_ms: 7500
+  delay_between_ms: 15000
+header_alerts:
+  critical:
+    no_llm: LLM не обнаружен. Скачай один в Настройках.
+    save_restart: Нужно сохранить и перезапустить PerkySue
+    shortcut_in_use: Этот хоткей уже занят ({other_name}). Выбери другой.
+    llm_error_400: Ошибка LLM (400) — контекст слишком большой? Увеличь «Макс. ввод» в Настройках.
+    llm_error_generic: Ошибка LLM — смотри консоль. Увеличь «Макс. ввод» (контекст) в Настройках → Alt+A.
+    max_input_reached: Лимит токенов ввода достигнут — история сокращена.
+    max_input_context_reached: Лимит ввода (контекст) ({max_input}) достигнут. Попробуй увеличить до {suggested} → Настройки → Производительность.
+    max_output_tokens_reached: Лимит вывода ({max_output}) достигнут. Увеличь до {suggested} → Настройки → Производительность
+    llm_request_timeout: Таймаут запроса LLM — попробуй 180 с или 240 с в Настройках → Производительность
+  regular:
+    recording_stopped: 🛑 Запись остановлена
+    processing_stopped: 🛑 Обработка остановлена
+    tts_stopped: 🛑 Голосовой вывод остановлен
+    tts_loading: Подготовка голоса — первичная настройка…
+    omnivoice_requires_nvidia: OmniVoice requires NVIDIA/CUDA (not available on CPU/Vulkan).
+    tts_install_in_progress: Installation already in progress — please wait.
+    ai_disclaimer: ⚠️ Ответы ИИ могут быть неточными. Проверяйте факты.
+    recording_no_audio: Аудио не захвачено — запись остановлена. Проверь микрофон.
+    recording_too_short: Запись слишком короткая — текст не найден. Проверь микрофон или говори дольше.
+    copied_to_clipboard: Скопировано в буфер обмена
+    llm_not_available: LLM-оркестратор недоступен.
+    pro_plan_required_mode: Этот режим заблокирован в бесплатном плане — требуется Pro.
+    no_logs_to_save: Нет логов для сохранения
+    all_logs_copied: Все логи скопированы в буфер обмена
+    download_success: ✓ Загрузка завершена.
+    download_progress: ⏳ Загрузка «{name}»… {pct}%
+  run_test_400_hint: → 400 Bad Request — контекст, скорее всего, превышает лимит модели. Увеличь «Макс. ввод» в Настройках → Производительность.
+  run_test_timeout_hint: → Модель не успела ответить. В Настройках → Производительность поставь таймаут LLM на 180 или 240 с.
+  document_injection:
+    llm_error_400: Ошибка LLM (400) — контекст слишком большой? Увеличь «Макс. ввод» (контекст) в Настройках.
+    llm_error_generic: Ошибка LLM — смотри консоль. Увеличь «Макс. ввод» (контекст) в Настройках.
+    max_input_reached: '⚠️ Лимит токенов ввода достигнут — история сокращена. Смотри Настройки → Макс. ввод и возможности твоей машины.
+
+
+      '
+    chat_max_input_reached: ⚠️ Ты достиг лимита ввода (контекст) ({max_input}). Увеличь «Макс. ввод» в Настройках → Производительность до {suggested} или выше.
+    chat_context_limit_reached: ⚠️ Лимит контекста ({max_input}) достигнут — ввод и вывод делят одно окно. Увеличь «Макс. ввод» в Настройках → Производительность до {suggested} или выше.
+    chat_max_output_reached: '⚠️ Ответ обрезан: лимит вывода ({max_output}) достигнут. Увеличь «Макс. вывод» в Настройках → Производительность до {suggested} или выше.'
+    chat_empty_reply: — Пустой ответ. Перефразируй или смотри консоль.
+    trial_request:
+      newsletter_title: Newsletter preference
+      newsletter_question: Get updates, not spam. We'll only email you when something worth knowing happens — new features, tips & tricks, that's it.

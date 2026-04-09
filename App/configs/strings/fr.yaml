@@ -1,0 +1,714 @@
+﻿about:
+  support_patreon_label: ❤ Soutenir sur Patreon
+  updates:
+    title: Mises à jour
+    body_idle: Vérifier GitHub pour la dernière version.
+    body_checking: Vérification des releases GitHub…
+    body_check_failed: Impossible de vérifier les mises à jour.
+    body_available: 'Mise à jour disponible : {v}'
+    body_uptodate: 'Tu es à jour ({v}).'
+    body_downloading: Téléchargement de la mise à jour…
+    body_ready_restart: Mise à jour installée. Redémarre pour appliquer.
+    body_failed: La mise à jour a échoué.
+    wizard_title: Mise à jour
+    btn_check: Vérifier les mises à jour
+    btn_retry: Réessayer
+    btn_update: Mettre à jour
+    btn_restart: Redémarrer pour appliquer
+    btn_close: Fermer
+    btn_cancel: Annuler
+    footer_link: 'Mise à jour disponible {v}'
+  quick_use_cases:
+    section_title: Cas d’usage (rapide)
+    voice_layer: 'Couche “voice” pour l’IA : dans un chat IA, Alt+T → parle → Entrée.'
+    custom_prompts: 'Prompts persos : Alt+V/B/N = 3 slots — workflows réutilisables avec tes règles et ton ton.'
+    footer: 100 % local — ton texte reste sur ta machine.
+  hero:
+    title: PerkySue
+    tagline: Dictée vocale avec IA. 100 % local. 100 % privé.
+    subtitle: Appuie sur un raccourci, parle, et le texte apparaît là où se trouve ton curseur — dans n'importe quelle app, n'importe quelle fenêtre, n'importe quel champ de saisie. Pas de cloud. Pas de compte. Tes données ne quittent jamais ta machine.
+  why_exists:
+    section_title: Pourquoi PerkySue existe
+    line_1: Tous les autres outils de dictée ne résolvent qu'une partie du problème.
+    line_2: Ils convertissent ta voix en mots — mais ils ne pensent pas avec toi.
+    line_3: Tu copies encore du texte dans un chatbot, tu attends, puis tu recopies la réponse. C'est plusieurs étapes pour quelque chose qui devrait n'en faire qu'une — et tes mots viennent de voyager vers un serveur que tu ne contrôles pas.
+    line_4: PerkySue, c'est tout le pipeline en un seul raccourci.
+    line_5: Reconnaissance vocale, transformation par LLM local, injection de texte — en une seule action, dans n'importe quelle app, sans rien envoyer à l'extérieur.
+    line_6: La voix n'est pas une donnée neutre — c'est une donnée biométrique.
+    line_7: Elle porte ton accent, ton rythme, ton état émotionnel. Les outils de dictée cloud la captent, la transmettent et la conservent selon des conditions que la plupart des gens ne lisent jamais. Elle sert à entraîner des modèles et est partagée avec des partenaires d'infrastructure.
+    line_8: PerkySue capture l'audio en RAM, le traite localement et le supprime immédiatement. Rien n'est stocké, journalisé ou transmis.
+    line_9: Ta voix reste à toi !
+  how_it_works:
+    section_title: Comment ça marche
+    step1_title: Appuie sur un raccourci
+    step1_description: 'Place ton curseur dans n''importe quelle app où tu tapes habituellement (Word, Gmail, Slack, VS Code…) et appuie sur :'
+    step2_title: Parle naturellement
+    step2_description: PerkySue enregistre jusqu'à ce que tu arrêtes de parler. Le bruit ambiant peut empêcher l'arrêt automatique — appuie sur Alt+Q (défaut global) ou Échap lorsque l'app est au premier plan, ou clique sur la photo de profil.
+    step3_title: Le texte apparaît là où tu as déclenché
+    step3_description: PerkySue verrouille ton curseur et la fenêtre active au moment où tu appuies sur le raccourci.
+    step4_title: Continue à travailler pendant que ça traite
+    step4_description: Change d'onglet, tape ailleurs. Smart Focus injecte le résultat là où tu as commencé.
+  features:
+    section_title: Ce que les utilisateurs en font
+    transcribe:
+      card_title: 🎙️ Transcrire — gratuit, pour toujours
+      badge: Alt+T
+      description: Parle, et la transcription brute apparaît à ton curseur. Fonctionne sur toutes les machines — choisis les modèles Whisper de tiny (ancien matériel, 4 Go RAM) à large-v3 (qualité studio sur GPU récents). Aucun LLM requis, aucun abonnement, aucune limite de mots.
+    improve:
+      card_title: ✏️ Améliorer — réécris ce que tu sélectionnes
+      badge: Alt+I
+      description: Tu rédiges un document et un paragraphe sonne creux — l'idée est là mais l'écriture ne passe pas. Sélectionne-le, appuie sur Alt+I et dis "rends ça plus percutant et coupe-le en deux". PerkySue lit ta sélection et ton instruction simultanément. Le paragraphe réécrit remplace l'original, sur place, sans quitter l'app.
+      prompt: 🎤  "rends ça plus engageant, la version actuelle est trop sèche"
+      result: ✅  Ta sélection est remplacée par la version améliorée.
+    professional:
+      card_title: 💼 Professionnel — corrige le ton et les erreurs en une étape
+      badge: Alt+P
+      description: Tu as écrit deux paragraphes qui mêlent un style décontracté à quelques fautes. Sélectionne-les, appuie sur Alt+P et dis "nettoie ça, c'est pour une présentation au conseil". Le LLM réécrit avec formalité et corrige les erreurs — ta sélection est remplacée, sans manipulation du presse-papier.
+      prompt: 🎤  "il faut que ça sonne soigné, corrige aussi la grammaire"
+      result: ✅  Ta sélection est remplacée par une version formelle et corrigée.
+  use_cases:
+    section_title: D'autres modes vocaux en action
+    intro: Chaque mode fonctionne comme une commande vocale — aucune sélection de texte nécessaire. Appuie sur le raccourci, parle, et le résultat apparaît à ton curseur.
+    footer: Tous les modes s'exécutent entièrement sur ton ordi. Pas de requête API, pas d'internet, pas de données qui quittent ta machine.
+    items:
+    - badge: Alt+M
+      name: E-mail — dis-le, envoie-le
+      prompt: 🎤  "écris un e-mail à John pour lui dire que PerkySue est prête à lancer — mentionne qu'on vise une sortie en douceur la semaine prochaine"
+      result: ✅  Un e-mail professionnel et bien formaté apparaît à ton curseur. PerkySue écrit dans la langue que tu parles.
+    - badge: Alt+D
+      name: Message direct — amical, prêt à envoyer
+      prompt: 🎤  "dis à mamie de ne pas oublier la sauce soja"
+      result: ✅  Mamie ! Petit rappel — n'oublie pas la sauce soja ! Bonne journée !
+    - badge: Alt+X
+      name: Post réseaux sociaux — pour publier ou répondre
+      prompt: 🎤  "réponds à ce commentaire YouTube — dis merci et que la prochaine vidéo sort la semaine prochaine sur le système de plugins"
+      result: ✅  Merci beaucoup ! Vraiment content que ça t'ait plu. Prochaine vidéo la semaine prochaine — on plonge dans le système de plugins. À bientôt !
+    - badge: Alt+C
+      name: Console — décris la commande, obtiens la commande
+      prompt: 🎤  "trouve tous les fichiers Python modifiés dans les 7 derniers jours"
+      result: ✅  find . -name "*.py" -mtime -7 — prêt à coller dans ton terminal.
+    - badge: Alt+A
+      name: Ask — Q&R locale (gratuit dans le Chat, Pro au curseur)
+      prompt: 🎤  "quelle est la différence entre un mutex et un sémaphore ?"
+      result: '✅  Pro : réponse au curseur avec contexte. Gratuit : réponse dans l''onglet Chat, une question à la fois.'
+    - badge: Alt+V/B/N
+      name: Prompts personnalisés — tes règles, tes workflows
+      prompt: 🎤  Trois emplacements de prompts personnalisables dans Prompt Modes.
+      result: ✅  Transforme ta parole en notes de réunion, style d'écriture, sortie structurée — tout ce dont tu as besoin.
+  smart_focus:
+    section_title: Smart Focus
+    card_title: 🎯 Smart Focus — déclenche et oublie
+    description: PerkySue retient la position de ton curseur au moment où tu appuies sur le raccourci. Pendant que Whisper transcrit et que le LLM génère, tu peux changer d'app, taper ailleurs, faire autre chose. Le résultat atterrit là où tu as déclenché — pas là où ton curseur est maintenant.
+  voice_modes:
+    section_title: Modes vocaux
+    modes:
+    - hotkey: Alt+T
+      name: Transcrire
+      description: Transcription rapide (sans LLM)
+      needs_llm: false
+    - hotkey: Alt+I
+      name: Améliorer
+      description: Nettoyer et reformater le texte
+      needs_llm: true
+    - hotkey: Alt+P
+      name: Professionnel
+      description: Réécriture formelle et professionnelle
+      needs_llm: true
+    - hotkey: Alt+L
+      name: Traduire
+      description: Traduire vers la langue cible
+      needs_llm: true
+    - hotkey: Alt+C
+      name: Console
+      description: Extraire une commande shell
+      needs_llm: true
+    - hotkey: Alt+M
+      name: E-mail
+      description: Formater en e-mail professionnel
+      needs_llm: true
+    - hotkey: Alt+D
+      name: Message direct
+      description: WhatsApp/Slack/Discord/SMS — ton adapté à la relation
+      needs_llm: true
+    - hotkey: Alt+X
+      name: Post réseaux sociaux
+      description: LinkedIn/X/YouTube/Reddit — publication ou réponse
+      needs_llm: true
+    - hotkey: Alt+S
+      name: Résumer
+      description: Condenser en points clés
+      needs_llm: true
+    - hotkey: Alt+A
+      name: Ask
+      description: 'Gratuit : question dans le Chat — une à la fois. Pro : Q&R au curseur avec mémoire'
+      needs_llm: true
+    - hotkey: Alt+H
+      name: Aide
+      description: Questions sur PerkySue — KB de l'app + tes paramètres
+      needs_llm: true
+    - hotkey: Alt+G
+      name: GenZ
+      description: Réécriture décontractée, style actuel
+      needs_llm: true
+  competition:
+    section_title: PerkySue vs. Concurrence
+    items:
+    - title: vs. dictée intégrée
+      examples: Windows, macOS, Google
+      description: Ils transcrivent des mots. PerkySue transcrit et réfléchit — 11 modes transforment ta parole en e-mails, commandes, traductions, résumés.
+    - title: vs. dictée cloud
+      examples: Wispr Flow, Typeless
+      description: Ta voix ne quitte jamais ton ordi. Pas de compte, pas d'internet, pas de limite de mots. PerkySue fonctionne en mode avion et sur une clé USB.
+    - title: vs. outils open source
+      examples: Amical, OpenWhispr
+      description: Ils font STT + coller. PerkySue ajoute un pipeline LLM local, sélection de texte + instructions vocales, Smart Focus et un widget GUI.
+  privacy:
+    section_title: Confidentialité
+    items:
+    - icon: 🔒
+      title: Pas d'internet requis
+      description: Tout s'exécute sur ton ordi
+    - icon: 🔇
+      title: Audio jamais stocké
+      description: Capturé en RAM, transcrit, supprimé immédiatement
+    - icon: 👤
+      title: Pas de compte nécessaire
+      description: Pas d'inscription, pas de tracking, pas de cookies
+    - icon: 📂
+      title: Open source
+      description: Inspecte chaque ligne de code toi-même
+  why_i_built_it:
+    section_title: Pourquoi avoir créé PerkySue?
+    paragraph_1: 'PerkySue a commencé comme un outil de productivité personnel — quelque chose dont j''avais besoin chaque jour, ce n''était pas du code écrit pour un pitch deck. Après avoir conçu pendant des années des apps et des plateformes conversationnelles, je voulais rassembler en un seul outil: voix → STT local → LLM local → texte injecté là où je travaille déjà.'
+    paragraph_2: 'Le code a été co-développé avec l''IA : ce projet a impliqué une collaboration soutenue avec des assistants IA en programmation. Le pipeline local est complexe. De façon amusante, PerkySue m''assiste aujourd''hui pour coder son propre code, sans envoyer ma voix ou mes données dans le cloud.'
+  links:
+    section_title: Liens
+    items:
+    - label: Dépôt GitHub
+      url: https://github.com/PerkySue/PerkySue
+    - label: Communauté Discord
+      url: https://discord.gg/UaJHEzFgXy
+    - label: Soutenir sur Patreon ❤
+      url: https://patreon.com/PerkySue
+    - label: Politique de confidentialité
+      url: ''
+    - label: Documentation architecture
+      url: ''
+    credit: Créé par Jérôme Corbiau  ·  Licence Apache 2.0
+common:
+  window_title: PerkySue — Beta 0.28.8
+  header_banner:
+    free_invite: PerkySue Beta — Gratuit · Essai Pro (30 j · sans CB)
+    free_after_trial: PerkySue Beta — Gratuit
+    pro_trial: PerkySue Beta — Essai Pro · {days} j restants
+    pro: PerkySue Beta — Pro
+    enterprise: PerkySue Beta — Entreprise
+  'yes': Oui
+  'no': Non
+  nav:
+    console: '>_   Console'
+    shortcuts: ⌨   Raccourcis
+    settings: ⚙   Paramètres
+    modes: 💬   Prompts
+    chat: 💭   Chat
+    help: ❓   Aide
+    voice: 🔊   Voix
+    user: 👤   Utilisateur
+    about: 💡   À propos
+  statuses:
+    listening: Écoute
+    processing: Traitement
+    injecting: Injection
+    ready: Prêt
+    error: Erreur
+    crash: Crash de l'app
+    no_speech: Aucun son détecté
+    tts_loading: Initialisation voix…
+    generating: Génération
+    speaking: Parle
+  footer:
+    github: GitHub
+    discord: Discord
+    alpha_banner: Transcription gratuite à vie. Le mode Pro maintient le projet en vie.
+user:
+  settings:
+    title: Tes paramètres
+  billing:
+    label: Facturation Stripe
+    hint: E-mail saisi pour lier l’abonnement à ce PC (aperçu uniquement).
+    empty: —
+  section:
+    language_title: Langue de l'interface
+    language_hint: Clique sur un drapeau
+voice:
+  page_title: Voix
+  locked:
+    section_title: Synthèse vocale
+    body: PerkySue peut te lire les réponses à voix haute. Pour le clonage, mets un petit voice_ref.wav dans chaque dossier de skin. C'est réservé au plan Pro.
+    pro_note: Réservé au Pro
+    upgrade: Passer à Pro
+  install:
+    section_title: Ajouter une voix à PerkySue
+    model_label: Choisir un modèle
+    body: Active la synthèse vocale pour PerkySue. Les réponses des modes Answer et Help peuvent être lues à voix haute. Les packs Patreon peuvent inclure un voice_ref.wav pour le clonage.
+    button: Installer le moteur
+    button_working: Installation…
+    retry: Réessayer
+    progress_name_chatterbox: Chatterbox Turbo
+    progress_name_omnivoice: OmniVoice
+  engine:
+    chatterbox_multilingual_hint: "L’anglais (Turbo) est rapide. Les autres langues passent par un modèle multilingue séparé — souvent très lent sur CPU."
+    chatterbox_last_stt_not_english: "⚠ La dernière langue détectée n’était pas l’anglais — Chatterbox utilise un modèle multilingue (MTL) séparé. La synthèse peut être très longue, surtout sur CPU."
+    chatterbox_ui_locale_hint: "⚠ L’interface n’est pas en anglais US — pour du multilingue au quotidien, OmniVoice convient souvent mieux que Chatterbox."
+    tts_pytorch_cpu_only: "⚠ TTS : PyTorch {version} sans CUDA, ou une build CUDA incompatible avec ta carte. Whisper/llama-server peuvent encore utiliser le GPU. RTX 50xx : lance install_pytorch_cuda_cu128.bat (cu124 ne suffit pas). Autres : install_pytorch_cuda_cu124.bat ou pip avec --index-url https://download.pytorch.org/whl/cu124 — puis redémarre PerkySue."
+    tts_cpu_chatterbox: "⚠ Chatterbox tourne sur CPU — la synthèse est beaucoup plus lente qu’avec un GPU CUDA. Installe un PyTorch avec CUDA dans le Python de PerkySue si ta machine a une NVIDIA compatible."
+    tts_cpu_generic: "⚠ La synthèse vocale tourne sur CPU — c’est plus lent qu’avec un GPU."
+    chatterbox_not_recommended_you: "⚠ Déconseillé pour ta config (interface pas en anglais et/ou dernière langue parlée pas l’anglais). Préfère OmniVoice pour le multilingue."
+    recommended_suffix: " (recommandé)"
+  pytorch_cuda:
+    button: "Installer PyTorch CUDA"
+    dialog_title: "Accélérer la synthèse vocale (GPU)"
+    dialog_body: "Le Python de PerkySue utilise une build PyTorch « CPU only » : Chatterbox et OmniVoice ne peuvent pas utiliser ta NVIDIA. Whisper et le serveur LLM ne sont pas concernés.\n\nInstaller PyTorch avec CUDA maintenant ? Gros téléchargement (~2+ Go) et installation qui peut prendre plusieurs minutes — reste connecté."
+    dialog_message: "Le Python de PerkySue utilise une build PyTorch « CPU only » : Chatterbox et OmniVoice ne peuvent pas utiliser ta NVIDIA. Whisper et le serveur LLM ne sont pas concernés.\n\nInstaller PyTorch avec CUDA maintenant ? Gros téléchargement (~2+ Go) et installation qui peut prendre plusieurs minutes — reste connecté."
+    btn_yes: "Oui, installer"
+    btn_no: "Pas maintenant"
+    btn_never_ask: "Ne plus me le proposer"
+    modal_ok: "OK"
+    progress_start: "Installation PyTorch CUDA…"
+    progress_name: "PyTorch CUDA"
+    restart_sidebar_note: "Redémarre PerkySue pour charger le nouveau PyTorch (CUDA)."
+    done_title: "PyTorch"
+    done_message: "Installation terminée. Ferme complètement PerkySue puis relance-le — le nouveau PyTorch ne se charge qu’au démarrage. D’ici là, la synthèse vocale peut échouer ou se comporter bizarrement ; un redémarrage complet règle ça."
+    error_title: "Échec installation PyTorch CUDA"
+  omnivoice:
+    section_title: OmniVoice
+    mode_label: Mode voix
+    mode_auto: Auto — clonage si le skin a une référence audio
+    mode_clone: Clonage — audio de référence uniquement
+    mode_design: Design — décrire la voix
+    instruct_label: Consigne de design
+    instruct_hint: 'ex. : voix féminine, timbre neutre, accent britannique'
+    steps_label: Qualité / vitesse
+    steps_16: Plus rapide (16 pas)
+    steps_32: Équilibré (32)
+    steps_48: Meilleure qualité (48)
+  output:
+    section_title: Sortie
+    enabled: Activé
+    engine_label: Moteur
+    engine_switch_label: Moteur TTS
+    retry_engine: Réessayer le chargement
+    engine_load_failed_short: "❌ Échec chargement — voir ci-dessous"
+  playback:
+    section_title: Lecture
+    volume: Volume
+    speed: Vitesse
+    auto_speak: Lecture auto
+    auto_speak_hint: Après les modes Answer et Help
+    voice_payload: Injection « payload » seule
+    voice_payload_hint: Si Voix activée, format <PS_PAYLOAD> (voice_modes.yaml) — collage uniquement ce bloc
+    read_aloud_payload: Lire le payload à voix haute
+    read_aloud_payload_hint: La synthèse lit aussi le texte injecté (défaut off — commentaire oral seul)
+  tts:
+    lang_not_supported: 'La langue « {lang} » n''est pas prise en charge par le moteur de synthèse actuel.'
+  packs:
+    section_title: Packs voix
+    default_body: Tu es sur la voix Pro par défaut. Pour cloner, ajoute voice_ref.wav dans un skin — ou va voir les packs persos sur Patreon.
+    installed_lead: "Packs voix installés :"
+    more_patreon: Encore plus de voix sur Patreon.
+  test:
+    section_title: Test
+    field_label: Exemple de phrase
+    sample_text: |
+      Salut ! Moi c'est PerkySue — et ouais, j'ai une voix.
+      Tu vas pas me croire, mais je tourne entièrement sur ton ordi. Pas de cloud, pas de compte, pas de données qui s'envolent quelque part. Juste toi, moi, et ton micro.
+    speak: ▶  Lire
+    stop: ■  Stop
+console:
+  pipeline_status: État du pipeline
+  whisper_stt: 'Whisper STT :'
+  local_llm: 'LLM local :'
+  no_stt: Pas de STT
+  no_llm: Aucun LLM détecté
+  help_only_suffix: — Aide uniquement
+  transcription_controls: Contrôles de transcription
+  start: Démarrer
+  abort: Annuler
+  copy_log: 📋  Copier le log
+  finalized_logs: Logs Finalisés - Temporaires
+  full_console: Console
+  copy: Copier
+  llm_reasoning_source: Raisonnement LLM (thinking)
+shortcuts:
+  title: Gestionnaire de raccourcis
+  col_mode: Mode
+  col_hotkey_alt: Raccourci (Alt)
+  col_hotkey_altgr: Raccourci (AltGr)
+  edit: Éditer
+  stop_task: Arrêter la tâche
+  restore_defaults: Restaurer les raccourcis par défaut
+  restart_note: Enregistre & redémarre (barre latérale) pour appliquer.
+settings:
+  save_sidebar_note: Relancer pour appliquer
+  update_button: Mettre à jour
+  update_note: Appliquer maintenant (sans redémarrage)
+  appearance:
+    title: Apparence
+    default_skin: Par défaut
+    patreon_cta: Débloque les skins supporters sur Patreon 💛
+    filter_all: Tous
+    select: Sélectionner
+    import_skin: Importer un skin
+  advanced:
+    title: Avancé
+    debug_mode: Mode debug
+    debug_mode_hint: Si activé, l’onglet Console (Full Console) affiche la transcription STT complète, la sélection, et les messages LLM exacts system/user (après ajustement contexte). Le fichier Data/Logs/perkysue.log ne contient toujours pas ces contenus. Balises TTS brutes au collage ; PreviousAnswersSummary dans l’injection Alt+A si besoin. Pour le diagnostic — sans lien avec l’abonnement.
+  recommended_models:
+    title: Modèles recommandés
+    more_models: + Plus de modèles
+    current_model: Modèle actuel
+    get: ↓ Télécharger
+    filter_favorites_hint: Afficher uniquement les favoris (modèles étoilés)
+    search_placeholder: Rechercher un modèle…
+    tooltip_labels:
+      name: Nom
+      author: Auteur
+      family: Famille
+      params: Paramètres
+      quant: Quantification
+      thinking: Réflexion
+      uncensored: Non censuré
+      languages: Langues
+      size: Taille
+      speed: Vitesse
+      favorite: Favori
+      comment: Commentaire
+      alt_a_qa: Alt+A QA
+      popularity: Popularité
+  performance:
+    title: Paramètres de performance
+    stt_model: Modèle STT
+    stt_device: Périphérique STT
+    silence_timeout: Délai de silence (s)
+    max_duration: Durée max d'écoute (s)
+    first_language: Ta langue principale
+    llm_model: Modèle LLM
+    max_input: Entrée max (contexte)
+    max_output: Sortie max (tokens)
+    llm_request_timeout: Délai de requête LLM (s)
+    thinking_allow: Autoriser le raisonnement
+    thinking_budget: Budget tokens de raisonnement
+    no_gguf: Aucun .gguf dans Data/Models/LLM
+    auto: Auto
+  save_restart: Enregistrer & Redémarrer
+  plan_management:
+    section_title: Abonnements
+    badge_current: Actuel
+    status_valid_until: '⟳ Échéance: {date}'
+    status_valid_until_unknown: '⟳ Échéance: —'
+    status_pro_trial_days: 'Essai · encore {days} jours'
+    status_access_until_cancelled: Expire le {date}
+    status_pro_active_short: Pro actif
+    status_active_plan: Forfait actif
+    portal_title: Gérer l’abonnement
+    portal_manage_unavailable: L’ouverture du portail de facturation depuis l’app n’est pas encore disponible. Tu peux modifier ou résilier ton abonnement via les liens dans les e-mails Stripe (reçus, factures), ou écrire à hello@perkysue.com.
+    buttons:
+      active: Actif
+      free_tier: Gratuit
+      manage: Gérer
+      start_free_trial: Essai Gratuit
+      get_pro: Passer à Pro 9,90 €/mois
+      contact_sales: Contactez-nous
+    free:
+      name: Gratuit
+      price: 0 €
+      features:
+      - text: Transcription Alt+T
+        locked: false
+      - text: Whisper STT local
+        locked: false
+      - text: Le Smart Focus
+        locked: false
+      - text: Alt+A Ask
+        locked: false
+      - text: LLM local
+        locked: false
+    pro:
+      name: Pro
+      price: 9,90 €
+      price_sub: /mois
+      trial_sub: 30 jours · sans carte
+      features:
+      - text: Les 14 modes LLM
+        locked: false
+      - text: Tes prompts persos
+        locked: false
+      - text: MàJ prioritaires
+        locked: false
+      - text: Voix-à-Voix
+        locked: false
+    enterprise:
+      name: Entreprise
+      price: Sur mesure
+      features:
+      - text: Bases données Entr.
+        locked: false
+      - text: Déploiement / Team
+        locked: false
+      - text: Support dédié
+        locked: false
+    checkout:
+      back: ← Tous les forfaits
+      preview_name: Essai Pro
+      preview_price_main: 30J
+      preview_price_tail: gratuit
+      preview_hint: Sans carte · activation dans l’app
+      preview_line1: Tous les modes LLM Pro pendant l’essai
+      preview_line2: 100 % local sur ton PC
+      preview_cta: Démarrer l’essai
+      monthly_name: Pro mensuel
+      monthly_price_main: 9,90 €
+      monthly_price_tail: /mois
+      monthly_hint: Stripe · résiliation à tout moment
+      monthly_line1: Toutes les fonctions Pro
+      monthly_line2: Prélèvement chaque mois
+      monthly_cta: Continuer
+      yearly_name: Pro annuel
+      yearly_price_main: 99 €
+      yearly_price_tail: /an
+      yearly_save: ≈17 % vs 12 mois au tarif mensuel
+      yearly_line1: Un paiement par an
+      yearly_line2: Même contenu que le mensuel
+      yearly_cta: Continuer
+    link_subscription:
+      wizard_title: Lier ton abonnement
+      cta: J'ai déjà un abonnement
+      otp_headline: Vérifie ton e-mail
+      email_intro: Saisis ton e-mail pour commencer — on t'envoie un code à 6 chiffres pour confirmer que c'est bien toi.
+      step_email_title: E-mail de facturation
+      step_email_hint: Même e-mail que sur ta facture ou ton reçu Stripe.
+      email_placeholder: ton@email.com
+      send_code: Envoyer le code
+      step_otp_title: Code de vérification
+      otp_placeholder: Code à 6 chiffres
+      otp_hint: Saisis le code à 6 chiffres reçu par e-mail.
+      verify: Vérifier et lier
+      resend: Renvoyer le code
+      resend_wait: Renvoyer ({s}s)
+      success_title: C'est bon ! 🎉
+      success_body: Ton abonnement est lié. Pro est actif sur ce PC.
+      resent_ok: Nouveau code envoyé.
+      close: Continuer
+      busy_sending: Envoi…
+      busy_verify: Vérification…
+      errors:
+        network: Impossible de joindre perkysue.com pour l'instant — vérifie ta connexion et réessaie.
+        invalid_email: Cette adresse e-mail ne semble pas valide — tu peux la vérifier ?
+        inactive: Pas d'abonnement actif pour cette adresse.
+        wrong_code: Code incorrect.
+        invalid_code: Saisis le code à 6 chiffres reçu par e-mail.
+        attempts: Trop de tentatives — attends un peu avant de réessayer.
+        cooldown: Encore un instant — tu pourras renvoyer le code tout de suite.
+        generic: Petit souci de notre côté — réessaie dans quelques secondes.
+      success_cta: Utiliser PerkySue
+    trial_request:
+      wizard_title: Démarrer l'essai gratuit
+      email_intro: Saisis ton e-mail pour commencer — on t'envoie un code à 6 chiffres pour confirmer que c'est bien toi.
+      email_placeholder: ton@email.com
+      send_code: Envoyer le code
+      otp_headline: Vérifie ton e-mail
+      otp_hint: Saisis le code à 6 chiffres reçu, puis choisis ta préférence newsletter.
+      newsletter_title: Préférence newsletter
+      newsletter_question: 'Des actus utiles, pas de spam. On t''écrit seulement quand quelque chose en vaut la peine : nouvelles fonctionnalités, trucs & astuces, et c''est à peu près tout.'
+      'yes': Oui
+      'no': Non
+      resend: Renvoyer le code
+      resend_wait: Renvoyer ({s}s)
+      resent_ok: Nouveau code envoyé.
+      busy_sending: Envoi…
+      busy_verify: Activation de l'essai…
+      success_title: C'est bon ! 🎉
+      success_body: Ton essai Pro de 30 jours commence maintenant. Profite de tout — sans limite, sans carte bancaire.
+      success_cta: Utiliser PerkySue
+      errors:
+        network: Impossible de joindre perkysue.com pour l'instant.
+        invalid_email: Saisis une adresse e-mail valide.
+        invalid_code: Saisis le code à 6 chiffres reçu par e-mail.
+        wrong_code: Code incorrect.
+        attempts: Trop de tentatives.
+        cooldown: Attends un peu avant de renvoyer le code.
+        rate_limited: Trop de tentatives — réessaie dans un moment.
+        trial_already_used: Cette adresse a déjà utilisé son essai gratuit.
+        trial_ineligible_paid: Cette adresse a déjà été liée à un abonnement Pro. Les essais gratuits, c’est pour les nouveaux — tu peux te réabonner quand tu veux.
+        generic: Impossible d'activer l'essai pour l'instant.
+modes:
+  stt_keywords:
+    title_unlimited: Mots-clés Whisper STT (illimité)
+    title_limit: 'Mots-clés Whisper STT (limite : {limit})'
+    placeholder: Tape un mot et appuie sur Entrée (ex. PerkySue, STT)...
+    tags_counter: '{count} / {limit} tags'
+  identity:
+    section_title: Identité & Préférences
+    title: Ton prénom
+    placeholder: 'Facultatif : comment le LLM doit t''appeler (ex. Marie)...'
+    help: Utilisé dans certains prompts LLM (ex. mode e-mail)
+  prompt_modes:
+    title: Prompts
+    edit_hint: Te permet de modifier le prompt système pour chaque raccourci LLM
+    system_prompt_help: Prompt système envoyé au LLM = Paramètres actuels + Base de connaissance + instructions (zone ci-dessus). Mets ta question dans l'entrée de test ci-dessous.
+    test_input_label: 'Entrée de test (exemples) :'
+    test_response_label: 'Réponse LLM (aperçu) :'
+    test_hint: Les tests utilisent toujours le texte actuel ci-dessus, même s'il n'est pas enregistré.
+    paste: Coller
+    copy: Copier
+    run_test: Lancer le test
+    save: Enregistrer
+    cancel: Annuler
+    edit: Éditer
+    test: Tester
+  registry:
+    transcribe:
+      name: Transcription
+      description: Transcription simple — de la parole au texte, sans traitement
+    improve:
+      name: Améliorer
+      description: Nettoyer et ponctuer la dictée vocale
+    professional:
+      name: Professionnel
+      description: Réécrire sur un ton professionnel et clair
+    translate:
+      name: Traduire
+      description: Traduire vers la langue cible configurée
+    console:
+      name: Console
+      description: Convertir la parole en commandes shell
+    email:
+      name: E-mail
+      description: Mettre en forme comme un e-mail professionnel
+    message:
+      name: Message direct
+      description: Message convivial pour WhatsApp, Slack, Discord, SMS
+    social:
+      name: Post social
+      description: Répondre ou publier sur YouTube, X/Twitter, LinkedIn, Reddit
+    summarize:
+      name: Résumer
+      description: Résumer le texte dicté
+    genz:
+      name: Gen Z
+      description: Réécriture décontractée avec emojis
+    answer:
+      name: Ask
+      description: Poser une question via le texte dicté ou les questions qu'il contient
+    answer_free:
+      name: Ask (gratuit)
+      description: Pose une question à voix haute — la réponse s'affiche uniquement dans cet onglet Chat. Chaque question est traitée seule, sans mémoire de conversation sur le plan gratuit, et rien n'est collé dans tes autres applications.
+    answer_pro:
+      name: Ask (Pro)
+      description: 'Mode Ask complet : injection au curseur dans l''application où tu as lancé Alt+A, mémoire multi-tours et résumés périodiques pour enchaîner les questions.'
+    help:
+      name: Aide
+      description: Poser des questions sur PerkySue — base de connaissances
+    custom1:
+      name: Prompt perso 1
+      description: Ton prompt personnalisé — à éditer dans Prompts
+    custom2:
+      name: Prompt perso 2
+      description: Ton prompt personnalisé — à éditer dans Prompts
+    custom3:
+      name: Prompt perso 3
+      description: Ton prompt personnalisé — à éditer dans Prompts
+chat:
+  title: Chat
+  new_chat: Nouvelle conversation
+  save_log: Enregistrer le journal
+  token_counter: '{current} / {max}'
+  placeholder: Tape un message... ou appuie sur le micro
+  hint: 'Alt+A : poser une question · Entrée : envoyer · Alt+Q : arrêter l''écoute'
+  help_redirect: Des questions sur PerkySue ou l'app ? Utilise l'onglet Aide
+  sender_name: PerkySue
+  user_fallback: Vous
+  free_answer_notice: Sur le plan gratuit, chaque question est traitée indépendamment — l'assistant ne se souvient pas de tes messages précédents. Le contexte multi-tours, qui permet à l'assistant de se souvenir de l'échange en cours, et l'injection au curseur (Smart Focus) sont réservés au plan Pro — upgrade quand tu veux.
+help:
+  title: Aide
+  new_chat: Nouvelle conversation
+  save_log: Enregistrer le journal
+  token_counter: '{current} / {max}'
+  placeholder: Pose une question sur PerkySue...
+  hint: 'Alt+H : micro on/off · Entrée : envoyer · Alt+Q : arrêter l''écoute'
+  sender_name: PerkySue
+header_tips:
+  startup_message: Astuce · Place le curseur dans Word, Gmail, Slack… puis appuie sur Alt+T
+  tips:
+  - Astuce · Appuie sur Alt+Q ou clique sur l'avatar pour arrêter l'écoute
+  - Astuce · Alt+T reste gratuit — transcription rapide — pas de limite de mots
+  - Astuce · Sélectionne du texte, Alt+I, et dis ce que tu veux changer
+  - Astuce · Appuie sur Alt+M n'importe où pour dicter un e-mail entier
+  - 'Alt+A Pro : garde le fil dans un chat — Alt+A gratuit : une question à la fois'
+  - Astuce · Bruit ambiant = pas d'arrêt auto ? Appuie sur Alt+Q pour arrêter
+  - Astuce · Sélectionne un paragraphe → Alt+P — ton et grammaire en une fois
+  - 'Astuce · Alt+C dans le terminal : décris ce qu''il te faut en langage courant'
+  - 'Astuce · Alt+L : sélectionne du texte et demande de traduire dans une langue'
+  - 'Astuce · Alt+D : dicte un message direct pour WhatsApp, Slack, Discord, SMS'
+  - 'Astuce · Alt+X : post ou réponse pour LinkedIn, X, YouTube, Reddit'
+  - Astuce · Colle des notes de réunion, sélectionne-les, Alt+S pour un résumé court
+  - Astuce · Sélectionne un texte brouillon, Alt+I, dis « raccourcis ça » — terminé
+  - Astuce · Alt+V à Alt+N = tes prompts persos. Édite-les dans Prompts
+  - Astuce · Crée un prompt perso pour répondre aux commentaires au ton de ta marque
+  - Astuce · Marre de retaper les mêmes prompts IA ? Fais-en un prompt perso
+  - 'Astuce · Idée prompt perso : transformer des notes en post LinkedIn accrocheur'
+  - Astuce · Utilise des prompts persos pour des prompts vidéo Kling/Runway formatés
+  - 'Astuce · Idée prompt perso : extraire actions et échéances d''un texte'
+  - 'Astuce · Alt+H : pose-moi des questions sur PerkySue dans l''onglet Aide'
+  - Pro · Si Smart Focus n'a pas collé, copie la sortie depuis l'onglet Console
+  - 'Astuce · Pour quitter l''étape Écoute : clic sur l''avatar ou Alt+Q'
+  - Astuce · Fais autre chose pendant que PerkySue réfléchit — tu ne dois pas attendre
+  - 'Smart Focus : tu lances, tu fais autre chose, le texte arrive au bon endroit'
+  - Astuce · CPU ? Whisper small (rapide) ou medium (précis). ⚙️ → Modèle STT
+  - Astuce · Bruit ambiant ? L'écoute ne s'arrête pas ? — Alt+Q ou clic sur l'avatar
+  - Astuce · Édite le prompt de chaque mode dans Prompts — adapte PerkySue à toi
+  - Astuce · Whisper se trompe sur un mot ? Ajoute-le aux mots-clés STT dans Prompts
+  delay_before_first_ms: 3500
+  display_ms: 7500
+  delay_between_ms: 15000
+header_alerts:
+  critical:
+    no_llm: Aucun LLM détecté. Télécharge-en un dans Paramètres.
+    save_restart: Tu dois enregistrer et redémarrer PerkySue
+    shortcut_in_use: Ce raccourci est déjà utilisé ({other_name}). Choisis-en un autre.
+    llm_error_400: Erreur LLM (400) — contexte trop grand ? Augmente « Entrée max » dans Paramètres.
+    llm_error_generic: Erreur LLM — regarde la console. Augmente « Entrée max » (contexte) dans Paramètres si tu utilises Alt+A.
+    max_input_reached: Limite max d'entrée atteinte — l'historique a été réduit.
+    max_input_context_reached: Limite d'entrée (contexte) ({max_input}) atteinte. Augmenter à {suggested} → Paramètres → Performance.
+    max_output_tokens_reached: Limite de sortie ({max_output}) atteinte. Monte à {suggested} dans Paramètres → Performance.
+    llm_request_timeout: Requête LLM expirée — essaie un délai de 180 s ou 240 s dans Paramètres → Performance
+  regular:
+    recording_stopped: 🛑 Enregistrement arrêté
+    processing_stopped: 🛑 Traitement arrêté
+    tts_stopped: 🛑 Lecture vocale arrêtée
+    tts_loading: Préparation de la voix — configuration initiale en cours...
+    omnivoice_requires_nvidia: OmniVoice requires NVIDIA/CUDA (not available on CPU/Vulkan).
+    tts_install_in_progress: Installation already in progress — please wait.
+    ai_disclaimer: ⚠️ Les réponses de l'IA peuvent être inexactes. Vérifie les faits.
+    recording_no_audio: Aucun audio capturé — enregistrement arrêté. Vérifie le micro.
+    recording_too_short: Enregistrement trop court — pas de texte. Vérifie le micro ou parle plus longtemps.
+    copied_to_clipboard: Copié dans le presse-papiers
+    llm_not_available: Orchestrateur LLM indisponible.
+    pro_plan_required_mode: Ce mode est verrouillé en Free — plan Pro requis.
+    no_logs_to_save: Aucun journal à enregistrer
+    all_logs_copied: Tous les journaux copiés dans le presse-papiers
+    download_success: ✓ Téléchargement terminé.
+    download_progress: ⏳ Téléchargement « {name} »… {pct} %
+  run_test_400_hint: → 400 Bad Request = le contexte est sans doute trop grand pour le modèle. Augmente « Entrée max » dans Paramètres → Performance.
+  run_test_timeout_hint: → Le modèle n'a pas fini à temps. Dans Paramètres → Performance, mets le délai requête LLM à 180 ou 240 s (selon ta machine).
+  document_injection:
+    llm_error_400: Erreur LLM (400) — contexte trop grand ? Augmente « Entrée max » (contexte) dans Paramètres.
+    llm_error_generic: Erreur LLM — regarde la console. Augmente « Entrée max » (contexte) dans Paramètres.
+    max_input_reached: '⚠️ Limite max d''entrée atteinte — l''historique a été réduit. Voir Paramètres → Entrée max et la capacité de ta machine.
+
+
+      '
+    chat_max_input_reached: ⚠️ Tu as atteint la limite d'entrée (contexte) ({max_input}). Augmente « Entrée max » dans Paramètres → Performance à {suggested} ou plus.
+    chat_context_limit_reached: ⚠️ Limite de contexte ({max_input}) atteinte — entrée et sortie partagent la même enveloppe. Augmente « Entrée max » dans Paramètres → Performance à {suggested} ou plus.
+    chat_max_output_reached: '⚠️ Réponse tronquée : limite de sortie ({max_output}) atteinte. Augmente « Sortie max » dans Paramètres → Performance à {suggested} ou plus.'
+    chat_empty_reply: — Réponse vide. Reformule ou regarde la console.

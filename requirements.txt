@@ -1,0 +1,32 @@
+# PerkySue — Python Dependencies
+# Install with: pip install -r requirements.txt
+# Or run: install.bat (Windows embedded Python)
+
+# Core
+pyyaml>=6.0
+cryptography>=42.0.0
+numpy>=1.24.0
+httpx>=0.27.0
+pyperclip>=1.8.2
+pynput>=1.7.6
+
+# Audio processing
+sounddevice>=0.4.6
+webrtcvad-wheels>=2.0.10
+pygame>=2.5.0  # Required for MP3 playback
+
+# Speech-to-Text
+faster-whisper>=1.0.0
+
+# LLM server mode (HTTP API)
+requests>=2.31.0
+
+# Model downloads
+huggingface-hub>=0.20.0
+
+# Optional: OpenAI-compatible API support
+openai>=1.0.0
+
+# Note: llama-cpp-python is NOT included here
+# Direct mode (llama-cpp-python) is deprecated in favor of server mode
+# Server mode uses llama-server.exe (downloaded separately per CUDA version)

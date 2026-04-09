@@ -1,0 +1,636 @@
+﻿about:
+  support_patreon_label: ❤ Patreonで応援する
+  updates:
+    title: アップデート
+    body_idle: GitHubで最新バージョンを確認します。
+    body_checking: GitHubリリースを確認中…
+    body_check_failed: アップデートを確認できませんでした。
+    body_available: 'アップデートがあります: {v}'
+    body_uptodate: '最新です（{v}）。'
+    body_downloading: アップデートをダウンロード中…
+    body_ready_restart: アップデート完了。再起動して適用してください。
+    body_failed: アップデートに失敗しました。
+    wizard_title: アップデート
+    btn_check: アップデートを確認
+    btn_retry: 再試行
+    btn_update: 更新
+    btn_restart: 再起動して適用
+    btn_close: 閉じる
+    btn_cancel: キャンセル
+    footer_link: 'アップデートあり {v}'
+  quick_use_cases:
+    section_title: 使い方（クイック）
+    voice_layer: 'AI用ボイスレイヤー：AIチャット入力欄で Alt+T → 話す → Enter。'
+    custom_prompts: 'カスタムプロンプト：Alt+V/B/N = 3スロット — 自分のルールとトーンで再利用ワークフロー。'
+    footer: ローカル実行 — テキストはあなたのマシンに残ります。
+  hero:
+    title: PerkySue
+    tagline: 音声入力×AIの力。100%ローカル。100%プライベート。
+    subtitle: ホットキーを押して話すだけ — カーソルのある場所にテキストが届く。どんなアプリでも、どんなウィンドウでも、どんな入力欄でも。クラウドなし。アカウントなし。データは絶対に外に出ない。
+  why_exists:
+    section_title: PerkySueが生まれた理由
+    line_1: 他の音声入力ツールは、問題の半分しか解決しない。
+    line_2: 声をテキストに変えるだけで、一緒に考えてはくれない。
+    line_3: テキストをチャットボットにコピーして、待って、また貼り付ける。本来ひとつで済むはずのことに何ステップもかかる — しかも自分のコントロール外のサーバーに言葉が送られていく。
+    line_4: PerkySueは、パイプライン全体をたったひとつのホットキーで完結させる。
+    line_5: 音声認識、ローカルLLMによる変換、テキスト注入 — 一発で、どんなアプリでも、何も外に送らずに。
+    line_6: 音声はただのデータじゃない — バイオメトリクスデータだ。
+    line_7: アクセント、リズム、感情状態まで含まれている。クラウドの音声入力ツールはそれを取得・転送し、ほとんどの人が読まない規約のもとで保持する。モデルの学習に使われ、インフラパートナーと共有される。
+    line_8: PerkySueはRAMで音声をキャプチャし、ローカルで処理して即座に削除する。保存も、記録も、送信もされない。
+    line_9: 声はずっと自分のもの！
+  how_it_works:
+    section_title: 使い方
+    step1_title: ホットキーを押す
+    step1_description: いつも入力している場所（Word、Gmail、Slack、VS Code…）にカーソルを置いて押すだけ：
+    step2_title: 自然に話す
+    step2_description: PerkySueは話し終わるまで録音する。周囲の音で自動停止しない場合はAlt+Q（グローバルデフォルト）か、アプリにフォーカスがある時はEscを押すか、プロフィール画像をクリックして。
+    step3_title: テキストが起動した場所に届く
+    step3_description: ホットキーを押した瞬間のカーソル位置とウィンドウをPerkySueがロックする。
+    step4_title: 処理中も作業を続けられる
+    step4_description: タブを切り替えても、別の場所でタイプしてもOK。Smart Focusが結果を起動した場所に注入する。
+  features:
+    section_title: みんなの使い方
+    transcribe:
+      card_title: 🎙️ 文字起こし — 無料、ずっと
+      badge: Alt+T
+      description: 話すと、そのままの文字起こしがカーソル位置に届く。どんなマシンでも動く — Whisperモデルはtiny（古いPC、4GB RAM）からlarge-v3（最新GPUでスタジオ品質）まで選べる。LLM不要、サブスク不要、文字数制限なし。
+    improve:
+      card_title: ✏️ 改善 — 選択したテキストを書き直す
+      badge: Alt+I
+      description: ドキュメントを書いていて、あるパラグラフがしっくりこない — アイデアはいいのに文章が決まらない。選択してAlt+Iを押し、「もっとパンチがある感じにして、半分に削って」と話すだけ。PerkySueは選択テキストと声の指示を同時に読む。書き直されたパラグラフがアプリを離れずにその場で置き換わる。
+      prompt: 🎤  「もっと引きつける感じにして、今のは少し固い」
+      result: ✅  選択したテキストが改善版に置き換わる。
+    professional:
+      card_title: 💼 プロフェッショナル — トーンとミスを一度に修正
+      badge: Alt+P
+      description: カジュアルな言い回しとタイポが混在したパラグラフを書いた。役員会のレポートに使う必要がある。選択してAlt+Pを押し、「きちんとした感じに直して、文法もチェックして」と話すと、LLMがフォーマルに書き直してミスも修正 — クリップボードを触らずに選択テキストが置き換わる。
+      prompt: 🎤  「洗練された感じにして、文法も直して」
+      result: ✅  選択したテキストが正式版に置き換わる。
+  use_cases:
+    section_title: 他の音声モードも試してみよう
+    intro: 各モードは音声コマンドとして使える — テキスト選択は不要。ホットキーを押して話せば、結果がカーソル位置に届く。
+    footer: すべてのモードはPC上で完全に動作する。API呼び出しなし、インターネットなし、データは外に出ない。
+    items:
+    - badge: Alt+M
+      name: メール — 話して、送る
+      prompt: 🎤  「PerkySueの準備ができたことをJohnにメールで伝えて — 来週ソフトリリースを予定していることも添えて」
+      result: ✅  きちんと整形されたプロのメールがカーソル位置に届く。PerkySueは話した言語で書く。
+    - badge: Alt+D
+      name: ダイレクトメッセージ — フレンドリーに、すぐ送れる
+      prompt: 🎤  「おじいちゃんに醤油忘れないでって伝えて」
+      result: ✅  おじいちゃん！醤油忘れないでね！いい一日を！
+    - badge: Alt+X
+      name: SNS投稿 — どのプラットフォームにも対応
+      prompt: 🎤  「このYouTubeコメントに返信して — ありがとうって言って、次の動画はプラグインシステムについて来週出るって伝えて」
+      result: ✅  ありがとう！楽しんでもらえてうれしい。次の動画は来週 — プラグインシステムに深く入るよ。お楽しみに！
+    - badge: Alt+C
+      name: コンソール — 説明したらコマンドが出てくる
+      prompt: 🎤  「過去7日間に変更されたPythonファイルを全部探して」
+      result: ✅  find . -name "*.py" -mtime -7 — ターミナルにペーストするだけ。
+    - badge: Alt+A
+      name: Ask — 会話の記憶付きQ&A
+      prompt: 🎤  「mutexとsemaphoreの違いは？」
+      result: ✅  カーソル位置に答えが届く。追加で質問しても大丈夫 — モデルは会話の履歴を覚えている。
+    - badge: Alt+V/B/N
+      name: カスタムPrompts — 自分のルールで
+      prompt: 🎤  Prompt Modesで編集できるプロンプトスロットが3つ。
+      result: ✅  議事録、独自の文体、構造化された出力 — 何でも自分仕様に。
+  smart_focus:
+    section_title: Smart Focus
+    card_title: 🎯 Smart Focus — 起動したら任せてOK
+    description: PerkySueはホットキーを押した瞬間のカーソル位置を記憶する。Whisperが文字起こしし、LLMが生成している間、アプリを切り替えても、他の場所でタイプしても自由。結果は今カーソルがある場所じゃなく、起動した場所に届く。
+  voice_modes:
+    section_title: 音声モード
+    modes:
+    - hotkey: Alt+T
+      name: 文字起こし
+      description: 高速文字起こし（LLM不要）
+      needs_llm: false
+    - hotkey: Alt+I
+      name: 改善
+      description: テキストの整理とフォーマット
+      needs_llm: true
+    - hotkey: Alt+P
+      name: プロフェッショナル
+      description: フォーマルなビジネス向け書き直し
+      needs_llm: true
+    - hotkey: Alt+L
+      name: 翻訳
+      description: 設定した言語に翻訳
+      needs_llm: true
+    - hotkey: Alt+C
+      name: コンソール
+      description: シェルコマンドを生成
+      needs_llm: true
+    - hotkey: Alt+M
+      name: メール
+      description: プロのメールとして整形
+      needs_llm: true
+    - hotkey: Alt+D
+      name: ダイレクトメッセージ
+      description: WhatsApp/Slack/Discord/SMS — 関係に合わせたトーン
+      needs_llm: true
+    - hotkey: Alt+X
+      name: SNS投稿
+      description: LinkedIn/X/YouTube/Reddit — 投稿または返信
+      needs_llm: true
+    - hotkey: Alt+S
+      name: 要約
+      description: 要点をまとめる
+      needs_llm: true
+    - hotkey: Alt+A
+      name: Ask
+      description: 質問する — LLMがカーソル位置に答える
+      needs_llm: true
+    - hotkey: Alt+H
+      name: ヘルプ
+      description: PerkySueについて聞く — アプリKB + 設定
+      needs_llm: true
+    - hotkey: Alt+G
+      name: GenZ
+      description: カジュアルでいまどきな書き直し
+      needs_llm: true
+  competition:
+    section_title: PerkySue vs. 競合
+    items:
+    - title: vs. 内蔵音声入力
+      examples: Windows、macOS、Google
+      description: あっちは文字にするだけ。PerkySueは文字にして考える — 11モードが声をメール、コマンド、翻訳、要約に変える。
+    - title: vs. クラウド音声入力
+      examples: Wispr Flow、Typeless
+      description: 音声は絶対に外に出ない。アカウントなし、インターネットなし、文字数制限なし。機内モードでもUSBスティックでも動く。
+    - title: vs. オープンソースツール
+      examples: Amical、OpenWhispr
+      description: あっちはSTT+ペーストだけ。PerkySueはローカルLLMパイプライン、テキスト選択+音声指示、Smart Focus、GUIウィジェットを追加している。
+  privacy:
+    section_title: プライバシー
+    items:
+    - icon: 🔒
+      title: インターネット不要
+      description: すべて自分のPC上で動く
+    - icon: 🔇
+      title: 音声は保存されない
+      description: RAMでキャプチャ、文字起こし、即削除
+    - icon: 👤
+      title: アカウント不要
+      description: 登録なし、トラッキングなし、クッキーなし
+    - icon: 📂
+      title: オープンソース
+      description: コードを自分で全行確認できる
+  why_i_built_it:
+    section_title: なぜPerkySueを作ったのか
+    paragraph_1: PerkySueは個人の生産性ツールとして始まった — ピッチデッキのためではなく、毎日自分が必要としていたもの。何年もソフトウェアアーキテクチャと会話型プラットフォームを設計してきた経験を活かして、ひとつのパイプラインに集約したかった：音声 → ローカルSTT → ローカルLLM → 作業中の場所にテキスト注入。
+    paragraph_2: コードはAIと共同開発した：このプロジェクトはAIプログラミングアシスタントとの継続的なコラボレーションを含んでいる。ローカルパイプラインは複雑だ。おもしろいことに、今日PerkySueは自分自身のコードを書くのを手伝ってくれている — 声もデータもクラウドに送らずに。
+  links:
+    section_title: リンク
+    items:
+    - label: GitHubリポジトリ
+      url: https://github.com/PerkySue/PerkySue
+    - label: Discordコミュニティ
+      url: https://discord.gg/UaJHEzFgXy
+    - label: Patreonで応援する ❤
+      url: https://patreon.com/PerkySue
+    - label: プライバシーポリシー
+      url: ''
+    - label: アーキテクチャドキュメント
+      url: ''
+    credit: Jérôme Corbiau 作  ·  Apache 2.0 ライセンス
+common:
+  window_title: PerkySue — Beta 0.28.8
+  header_banner:
+    free_invite: PerkySue Beta — 無料 · Proお試し（30日・カード不要）
+    free_after_trial: PerkySue Beta — 無料
+    pro_trial: PerkySue Beta — Proトライアル · 残り{days}日
+    pro: PerkySue Beta — Pro
+    enterprise: PerkySue Beta — エンタープライズ
+  'yes': はい
+  'no': いいえ
+  nav:
+    console: '>_   コンソール'
+    shortcuts: ⌨   ショートカット
+    settings: ⚙   設定
+    modes: 💬   Prompts
+    chat: 💭   チャット
+    help: ❓   ヘルプ
+    voice: 🔊   音声
+    user: 👤   ユーザー
+    about: 💡   概要
+  statuses:
+    listening: 聞いてるよ
+    processing: 処理中
+    injecting: 注入中
+    ready: 準備OK
+    error: エラー
+    crash: アプリがクラッシュ
+    no_speech: 音声が検出されない
+    tts_loading: 音声を準備中…
+    generating: 生成中
+    speaking: 発声中
+  footer:
+    github: GitHub
+    discord: Discord
+    alpha_banner: 文字起こしはずっと無料。Proモードがプロジェクトを支えます。
+user:
+  settings:
+    title: ユーザー設定
+  billing:
+    label: Stripe 請求メール
+    hint: サブスクをこのPCに紐づけたメール（表示のみ）。
+    empty: —
+  section:
+    language_title: インターフェースの言語
+    language_hint: フラグをクリックして言語を変更する。
+voice:
+  page_title: 音声
+  locked:
+    section_title: 音声読み上げ
+    body: PerkySue が答えを自然な声で読み上げられるよ。声のクローンも optional で、各スキンに短い voice_ref.wav を置くだけ。Pro プラン限定。
+    pro_note: Pro 限定
+    upgrade: Pro にする
+  install:
+    section_title: PerkySue に声を追加
+    model_label: モデルを選ぶ
+    body: テキスト読み上げをオンに。Answer / Help モードの返答も読める。Patreon のボイスパックに voice_ref.wav が入ってることも。
+    button: エンジンをインストール
+    button_working: インストール中…
+    retry: もう一度
+  engine:
+    recommended_suffix: "（推奨）"
+  output:
+    section_title: 出力
+    enabled: 有効
+    engine_label: エンジン
+  playback:
+    section_title: 再生
+    volume: 音量
+    speed: 速度
+    auto_speak: 自動読み上げ
+    auto_speak_hint: Answer / Help のあと
+  packs:
+    section_title: ボイスパック
+    default_body: いまはデフォルトの Pro ボイス。クローン用に skin に voice_ref.wav を足すか、Patreon のキャラボイスをどうぞ。
+    installed_lead: "入ってるボイスパック:"
+    more_patreon: Patreon で他の声も。
+  test:
+    section_title: テスト
+    field_label: サンプル文
+    sample_text: |
+      やあ！PerkySueだよ — そう、私には声があるんだ。
+      信じられないかもしれないけど、私はぜんぶあなたのパソコンの中で動いてる。クラウドなし、アカウントなし、どこかに飛んでいくデータもなし。あなたと私と、マイクだけ。
+    speak: ▶  再生
+    stop: ■  停止
+console:
+  pipeline_status: パイプライン状態
+  whisper_stt: Whisper STT：
+  local_llm: ローカルLLM：
+  no_stt: STTなし
+  no_llm: LLMが見つからない
+  help_only_suffix: — ヘルプのみ
+  transcription_controls: 文字起こしコントロール
+  start: 開始
+  abort: 中止
+  copy_log: 📋  ログをコピー
+  finalized_logs: 確定ログ - 一時保存
+  full_console: コンソール
+  copy: コピー
+shortcuts:
+  title: ショートカット管理
+  col_mode: モード
+  col_hotkey_alt: ホットキー（Alt）
+  col_hotkey_altgr: ホットキー（AltGr）
+  edit: 編集
+  stop_task: タスクを止める
+  restore_defaults: デフォルトに戻す
+  restart_note: 変更を反映するには再起動が必要
+settings:
+  save_sidebar_note: 再起動で反映
+  update_button: 更新
+  update_note: 今すぐ適用（再起動なし）
+  appearance:
+    title: 外観
+    default_skin: デフォルト
+    patreon_cta: サポータースキンをPatreonで解放する 💛
+    filter_all: すべて
+    select: 選択
+    import_skin: スキンをインポート
+  recommended_models:
+    title: おすすめモデル
+    more_models: + もっと見る
+    current_model: 現在のモデル
+    get: ↓ ダウンロード
+    filter_favorites_hint: お気に入りのみ表示（星付きモデル）
+    search_placeholder: モデルを検索…
+    tooltip_labels:
+      name: 名前
+      author: 作者
+      family: ファミリー
+      params: パラメータ
+      quant: 量子化
+      thinking: 思考
+      uncensored: 検閲なし
+      languages: 言語
+      size: サイズ
+      speed: 速度
+      favorite: お気に入り
+      comment: コメント
+      alt_a_qa: Alt+A QA
+      popularity: 人気度
+  performance:
+    title: パフォーマンス設定
+    stt_model: STTモデル
+    stt_device: STTデバイス
+    silence_timeout: 無音タイムアウト（秒）
+    max_duration: 最大録音時間（秒）
+    first_language: メイン言語
+    llm_model: LLMモデル
+    max_input: 最大入力（コンテキスト）
+    max_output: 最大出力（トークン）
+    llm_request_timeout: LLMリクエストタイムアウト（秒）
+    no_gguf: Data/Models/LLMに.ggufがない
+    auto: 自動
+  save_restart: 保存して再起動
+  plan_management:
+    section_title: プラン管理
+    badge_current: 現在
+    status_valid_until: '⟳ 更新: {date}'
+    status_valid_until_unknown: '⟳ 更新: —'
+    status_pro_trial_days: 'Trial · 残り{days}日'
+    status_access_until_cancelled: '{date}まで'
+    status_pro_active_short: Pro
+    status_active_plan: アクティブなプラン
+    portal_title: プラン管理
+    portal_manage_unavailable: アプリから請求ページを開く機能はまだありません。Stripeのメール（領収書・請求書）のリンクを使うか、hello@perkysue.com へお問い合わせください。
+    buttons:
+      active: アクティブ
+      free_tier: 無料
+      manage: 管理
+      start_free_trial: 無料トライアルを始める
+      get_pro: Proにする 9.90€/月
+      contact_sales: お問い合わせ
+    free:
+      name: 無料
+      price: 0€
+      features:
+      - text: Alt+T 文字起こし
+        locked: false
+      - text: ローカルWhisper STT
+        locked: false
+      - text: Smart Focus
+        locked: false
+      - text: Alt+A Ask
+        locked: false
+      - text: ローカルLLM
+        locked: false
+    pro:
+      name: Pro
+      price: 9.90€
+      price_sub: /月
+      trial_sub: 30日間 · カード不要
+      features:
+      - text: 14つのLLMモード全部
+        locked: false
+      - text: カスタムPrompts
+        locked: false
+      - text: 優先アップデート
+        locked: false
+      - text: ボイス・ツー・ボイス
+        locked: false
+    enterprise:
+      name: エンタープライズ
+      price: カスタム
+      features:
+      - text: ナレッジベース
+        locked: false
+      - text: チーム展開
+        locked: false
+      - text: 専任サポート
+        locked: false
+    link_subscription:
+      wizard_title: サブスクを紐づける
+      cta: すでに契約しています
+      otp_headline: メールを確認
+      email_intro: はじめるにはメールを入力してね。本人確認のため、6桁のコードを送るよ。
+      step_email_title: 請求先メール
+      step_email_hint: Stripe の領収書や請求書と同じアドレス
+      email_placeholder: you@email.com
+      send_code: コードを送る
+      step_otp_title: 確認コード
+      otp_placeholder: 6桁のコード
+      otp_hint: 届いたメールの6桁コードを入力してね。
+      verify: 確認して紐づける
+      resend: コードを再送
+      resend_wait: 再送 ({s}秒)
+      success_title: 完了！🎉
+      success_body: サブスクを紐づけたよ。このPCでProが有効。
+      resent_ok: 新しいコードを送信しました。
+      close: 続ける
+      busy_sending: 送信中…
+      busy_verify: 確認中…
+      errors:
+        network: perkysue.com に接続できませんでした。接続を確認してもう一度お試しください。
+        invalid_email: メールアドレスの形式を確認してください。
+        inactive: このメールでは有効なサブスクがありません。
+        wrong_code: コードが一致しません。
+        invalid_code: メールに記載のコードを入力してください。
+        attempts: 試行回数が多すぎます。少し時間をおいてからどうぞ。
+        cooldown: 再送の前に少しお待ちください。
+        generic: 問題が発生しました。数秒後にもう一度お試しください。
+      success_cta: PerkySueを使う
+    trial_request:
+      wizard_title: 無料トライアルを始める
+      email_intro: はじめるにはメールを入力してね。本人確認のため、6桁のコードを送るよ。
+      email_placeholder: you@email.com
+      send_code: コードを送る
+      otp_headline: メールを確認
+      otp_hint: 6桁のコードを入力してから、ニュースレターの希望を選んでね。
+      newsletter_title: ニュースレター
+      newsletter_question: スパムじゃなく、大事なときだけ。新機能やコツだけ送るよ。
+      'yes': はい
+      'no': いいえ
+      resend: コードを再送
+      resend_wait: 再送 ({s}s)
+      resent_ok: 新しいコードを送ったよ。
+      busy_sending: 送信中…
+      busy_verify: 有効化中…
+      success_title: 完了！🎉
+      success_body: 30日間のProトライアルが始まったよ。全機能をどうぞ — 制限なし、カード不要。
+      success_cta: PerkySueを使う
+      errors:
+        network: perkysue.com に接続できませんでした。接続を確認してもう一度お試しください。
+        invalid_email: メールアドレスの形式を確認してください。
+        invalid_code: メールに記載の6桁のコードを入力してね。
+        wrong_code: コードが一致しません。
+        attempts: 試行回数が多すぎます。少し時間をおいてからどうぞ。
+        cooldown: 再送の前に少しお待ちください。
+        rate_limited: 試行が多すぎます。少し待ってからもう一度お試しください。
+        trial_already_used: このメールアドレスではすでに無料トライアルを利用済みだよ。
+        trial_ineligible_paid: このメールは以前Proサブスクと紐づいていたよ。無料トライアルは新規ユーザー向け — いつでも再購読できるよ。
+        generic: 問題が発生しました。数秒後にもう一度お試しください。
+modes:
+  stt_keywords:
+    title_unlimited: Whisper STTキーワード（無制限）
+    title_limit: Whisper STTキーワード（上限：{limit}）
+    placeholder: 単語を入力してEnterを押す（例：PerkySue、STT）...
+    tags_counter: '{count} / {limit} タグ'
+  identity:
+    section_title: プロフィールと設定
+    title: 名前
+    placeholder: 任意：LLMに呼ばせたい名前（例：ユウキ）...
+    help: 一部のLLMプロンプトで使用（例：メールモード）
+  prompt_modes:
+    title: Prompt Modes
+    edit_hint: 各LLMショートカットのシステムプロンプトを編集できる
+    system_prompt_help: LLMに送られるシステムプロンプト = 現在の設定 + ナレッジベース + 上記の指示。テスト入力に質問を書いて試してみて。
+    test_input_label: テスト入力（サンプル）：
+    test_response_label: LLMの返答（プレビュー）：
+    test_hint: テストは保存前でも、上のテキストをそのまま使う。
+    paste: 貼り付け
+    copy: コピー
+    run_test: テスト実行
+    save: 保存
+    cancel: キャンセル
+    edit: 編集
+    test: テスト
+  registry:
+    transcribe:
+      name: 文字起こし
+      description: シンプルな文字起こし — 加工なしで声をテキストに
+    improve:
+      name: 改善
+      description: 音声入力を整理して句読点を付ける
+    professional:
+      name: プロフェッショナル
+      description: プロらしくクリアなトーンで書き直す
+    translate:
+      name: 翻訳
+      description: 設定した言語に翻訳
+    console:
+      name: コンソール
+      description: 声をシェルコマンドに変換
+    email:
+      name: メール
+      description: プロのメールとして整形
+    message:
+      name: ダイレクトメッセージ
+      description: WhatsApp、Slack、Discord、SMS向けのフレンドリーなメッセージ
+    social:
+      name: SNS投稿
+      description: YouTube、X/Twitter、LinkedIn、Redditに投稿または返信
+    summarize:
+      name: 要約
+      description: 話したテキストを要約
+    genz:
+      name: Gen Z
+      description: 絵文字付きのカジュアルな書き直し
+    answer:
+      name: Ask
+      description: 話したテキストや含まれる質問で問いかける
+    help:
+      name: ヘルプ
+      description: PerkySueについて質問する — アプリのナレッジベースを使用
+    custom1:
+      name: カスタムPrompt 1
+      description: 自分のプロンプト — Prompt Modesで編集
+    custom2:
+      name: カスタムPrompt 2
+      description: 自分のプロンプト — Prompt Modesで編集
+    custom3:
+      name: カスタムPrompt 3
+      description: 自分のプロンプト — Prompt Modesで編集
+chat:
+  title: チャット
+  new_chat: 新しいチャット
+  save_log: ログを保存
+  token_counter: '{current} / {max}'
+  placeholder: メッセージを入力… またはマイクを押して話す
+  hint: Alt+A：マイクのオン/オフ · Alt+Q：録音停止
+  help_redirect: PerkySueについて聞くならヘルプタブへ
+  sender_name: PerkySue
+  user_fallback: あなた
+  free_answer_notice: 無料プランでは、各質問は独立して処理されます。アシスタントは以前のメッセージを記憶しません。進行中のやり取りを記憶できるマルチターン文脈と、カーソル位置への挿入（Smart Focus）はProプラン限定です。必要になったらいつでもアップグレードできます。
+help:
+  title: ヘルプ
+  new_chat: 新しいチャット
+  save_log: ログを保存
+  token_counter: '{current} / {max}'
+  placeholder: PerkySueについて質問する...
+  hint: Alt+H：マイクのオン/オフ Alt+Q：録音停止
+  sender_name: PerkySue
+header_tips:
+  startup_message: ヒント · Word、Gmail、Slack…にカーソルを置いてAlt+Tを押してみて
+  tips:
+  - ヒント · Alt+Qを押すかアバターをクリックして手動で録音停止
+  - ヒント · Alt+Tはずっと無料 — 高速文字起こし、LLM不要
+  - ヒント · テキストを選択してAlt+I、何を変えたいか話すだけ
+  - ヒント · Alt+Mを押してメール全体を声で書き起こす
+  - Alt+A Pro：チャットで続きを保持 — Alt+A無料：1問ずつ
+  - ヒント · 周囲の音で自動停止しない？ Alt+Qを押して
+  - ヒント · パラグラフを選択 → Alt+P — トーンと文法を一発で修正
+  - ヒント · Alt+C：ターミナルで普通の言葉でやりたいことを説明して
+  - ヒント · Alt+L：テキストを選択して別の言語に翻訳するよう頼む
+  - ヒント · Alt+D：WhatsApp、Slack、Discord、SMS向けメッセージを声で作る
+  - ヒント · Alt+X：LinkedIn、X、YouTube向けの投稿や返信を作る
+  - ヒント · 議事録を貼り付けて選択、Alt+Sで短い要約に
+  - ヒント · 雑なテキストを選択してAlt+I、「短くして」と言えば完了
+  - ヒント · Alt+V〜Alt+N = 自分だけのカスタムPrompts。Prompt Modesで編集できる
+  - ヒント · コメントにブランドのトーンで返信するカスタムPromptを作ろう
+  - ヒント · 同じプロンプトを繰り返してる？カスタムPromptにしちゃおう
+  - ヒント · カスタムPromptアイデア：メモをフックのあるLinkedIn投稿に変換
+  - ヒント · カスタムPromptでKling/Runway用の動画プロンプトを整形する
+  - ヒント · カスタムPromptアイデア：テキストからアクションと締め切りを抽出
+  - ヒント · Alt+H：ヘルプタブでPerkySueに何でも聞いてみて
+  - Pro · Smart Focusが貼り付けなかった場合はコンソールタブから出力をコピー
+  - ヒント · 録音停止はアバターをクリックかAlt+Qで
+  - ヒント · PerkySueが考えている間も別の作業をしてOK — 待たなくていい
+  - Smart Focus：起動したら別の作業へ — 結果は起動した場所に届く
+  - ヒント · CPUのみ？Whisper small（速い）かmedium（正確）を使ってみて。⚙️ → STTモデル
+  - ヒント · 周囲の音で録音が止まらない？ Alt+Qかアバターをクリックして
+  - ヒント · 各モードのプロンプトをPrompt Modesで編集して自分仕様に
+  - ヒント · Whisperが単語を間違える？Prompt Modesの STTキーワードに追加して
+  delay_before_first_ms: 3500
+  display_ms: 7500
+  delay_between_ms: 15000
+header_alerts:
+  critical:
+    no_llm: LLMが見つからない。設定からダウンロードして。
+    save_restart: PerkySueの保存と再起動が必要
+    shortcut_in_use: このショートカットはすでに使われている（{other_name}）。別のを選んで。
+    llm_error_400: LLMエラー（400） — コンテキストが大きすぎる？設定で「最大入力」を増やして。
+    llm_error_generic: LLMエラー — コンソールを確認して。Alt+A使用時は設定で「最大入力」（コンテキスト）を増やして。
+    max_input_reached: 最大入力トークン上限に達した — 履歴が削減された。
+    max_input_context_reached: 最大入力（コンテキスト）上限（{max_input}）に達した。{suggested}に増やしてみて → 設定 → パフォーマンス。
+    max_output_tokens_reached: 最大出力上限（{max_output}）に達した。設定 → パフォーマンスで{suggested}に増やして
+    llm_request_timeout: LLMリクエストがタイムアウト — 設定 → パフォーマンスで180秒か240秒を試して
+  regular:
+    recording_stopped: 🛑 録音を停止した
+    processing_stopped: 🛑 処理を停止した
+    tts_stopped: 🛑 音声出力を停止
+    tts_loading: 音声を準備中 — 初回設定中...
+    omnivoice_requires_nvidia: OmniVoice requires NVIDIA/CUDA (not available on CPU/Vulkan).
+    tts_install_in_progress: Installation already in progress — please wait.
+    ai_disclaimer: ⚠️ AIの回答は不正確な場合があります。事実を確認してください。
+    recording_no_audio: 音声がキャプチャされなかった — 録音停止またはマイクを確認して。
+    recording_too_short: 録音が短すぎ — テキストが検出されなかった。マイクを確認するか、もっと長く話して。
+    copied_to_clipboard: クリップボードにコピーした
+    llm_not_available: LLMオーケストレーターが使用できない。
+    pro_plan_required_mode: このモードは無料プランではロックされています — Proプランが必要です。
+    no_logs_to_save: 保存するログがない
+    all_logs_copied: すべてのログをクリップボードにコピーした
+    download_success: ✓ ダウンロード完了。
+    download_progress: ⏳ 「{name}」をダウンロード中… {pct}%
+  run_test_400_hint: → 400 Bad Request はコンテキストがモデルの上限を超えている可能性が高い。設定 → パフォーマンスで「最大入力」を増やして。
+  run_test_timeout_hint: → モデルが時間内に終わらなかった。設定 → パフォーマンスで、LLMリクエストタイムアウトを180か240秒に設定して（マシンの速度による）。
+  document_injection:
+    llm_error_400: LLMエラー（400） — コンテキストが大きすぎる？設定で「最大入力」（コンテキスト）を増やして。
+    llm_error_generic: LLMエラー — コンソールを確認して。設定で「最大入力」（コンテキスト）を増やして。
+    max_input_reached: '⚠️ 最大入力トークン上限に達した — 履歴が削減された。設定 → 最大入力とマシンのキャパを確認して。
+
+
+      '
+    chat_max_input_reached: ⚠️ 最大入力（コンテキスト）上限（{max_input}）に達した。設定 → パフォーマンスで「最大入力」を{suggested}以上に増やして。
+    chat_context_limit_reached: ⚠️ コンテキスト上限（{max_input}）に達した — 入力と出力でこの枠を共有している。設定 → パフォーマンスで「最大入力」を{suggested}以上に増やして。
+    chat_max_output_reached: ⚠️ 返答が途切れた：最大出力上限（{max_output}）に達した。設定 → パフォーマンスで「最大出力」を{suggested}以上に増やして。
+    chat_empty_reply: — 返答が空だった。言い方を変えるかコンソールを確認して。
+    trial_request:
+      newsletter_title: Newsletter preference
+      newsletter_question: Get updates, not spam. We'll only email you when something worth knowing happens — new features, tips & tricks, that's it.

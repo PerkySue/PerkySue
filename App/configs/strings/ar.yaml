@@ -1,0 +1,636 @@
+﻿about:
+  support_patreon_label: ❤ ادعمنا على Patreon
+  updates:
+    title: التحديثات
+    body_idle: تحقّق من GitHub للحصول على أحدث إصدار.
+    body_checking: جارٍ التحقق من إصدارات GitHub…
+    body_check_failed: تعذّر التحقق من التحديثات.
+    body_available: 'يوجد تحديث: {v}'
+    body_uptodate: 'أنت على أحدث إصدار ({v}).'
+    body_downloading: جارٍ تنزيل التحديث…
+    body_ready_restart: تم تثبيت التحديث. أعد التشغيل للتطبيق.
+    body_failed: فشل التحديث.
+    wizard_title: تحديث
+    btn_check: التحقق من التحديثات
+    btn_retry: إعادة المحاولة
+    btn_update: تحديث
+    btn_restart: إعادة التشغيل للتطبيق
+    btn_close: إغلاق
+    btn_cancel: إلغاء
+    footer_link: 'يوجد تحديث {v}'
+  quick_use_cases:
+    section_title: حالات استخدام (سريعة)
+    voice_layer: 'طبقة صوت للذكاء الاصطناعي: في أي حقل دردشة IA، Alt+T ← تحدّث ← Enter.'
+    custom_prompts: 'قوالب مخصّصة: Alt+V/B/N = 3 خانات — سير عمل قابل لإعادة الاستخدام بقواعدك ونبرتك.'
+    footer: يعمل محليًا — يبقى نصّك على جهازك.
+  hero:
+    title: PerkySue
+    tagline: تحويل صوتك لنص بقوة الذكاء الاصطناعي. 100% محلي. 100% خاص.
+    subtitle: اضغط اختصاراً، تكلّم، ويظهر النص مباشرة حيث يقف مؤشرك — في أي تطبيق، أي نافذة، أي حقل نص. بدون سحابة. بدون حساب. بياناتك لا تغادر جهازك أبداً.
+  why_exists:
+    section_title: لماذا PerkySue؟
+    line_1: كل أدوات الإملاء الأخرى تحل نصف المشكلة فقط.
+    line_2: تحوّل صوتك إلى كلمات — لكنها لا تفكر معك.
+    line_3: لا تزال تنسخ نصاً إلى chatbot، تنتظر، ثم تنسخ الرد. خطوات كثيرة لشيء يجب أن يكون بخطوة واحدة — وكلماتك سافرت إلى خادم لا تتحكم فيه.
+    line_4: PerkySue هو كل هذا Pipeline في اختصار واحد.
+    line_5: التعرف على الكلام، تحويل LLM المحلي، وحقن النص — بضغطة واحدة، في أي تطبيق، بدون إرسال أي شيء للخارج.
+    line_6: الصوت ليس بياناً عادياً — إنه بيانات بيومترية.
+    line_7: يحمل لهجتك، إيقاعك، حالتك العاطفية. أدوات الإملاء السحابية تلتقطه وترسله وتحتفظ به بشروط لا يقرأها أحد. يُستخدم لتدريب النماذج ويُشارك مع شركاء البنية التحتية.
+    line_8: PerkySue يلتقط الصوت في RAM، يعالجه محلياً، ويحذفه فوراً. لا شيء يُخزَّن أو يُسجَّل أو يُرسَل.
+    line_9: صوتك يبقى لك!
+  how_it_works:
+    section_title: كيف يعمل
+    step1_title: اضغط اختصاراً
+    step1_description: 'ضع مؤشرك في أي تطبيق تكتب فيه (Word، Gmail، Slack، VS Code…) واضغط:'
+    step2_title: تكلّم بشكل طبيعي
+    step2_description: PerkySue يسجّل حتى تتوقف عن الكلام. الضوضاء المحيطة قد تمنع الإيقاف التلقائي — اضغط Alt+Q (الافتراضي العالمي) أو Esc عندما يكون التطبيق في المقدمة، أو انقر على صورة الملف الشخصي.
+    step3_title: النص يظهر حيث بدأت
+    step3_description: PerkySue يقفل على مؤشرك والنافذة النشطة لحظة الضغط على الاختصار.
+    step4_title: واصل العمل أثناء المعالجة
+    step4_description: بدّل التبويبات، اكتب في مكان آخر. Smart Focus يحقن النتيجة حيث بدأت.
+  features:
+    section_title: ماذا يفعل المستخدمون به
+    transcribe:
+      card_title: 🎙️ نسخ — مجاني، للأبد
+      badge: Alt+T
+      description: تكلّم، ويظهر النص الخام عند مؤشرك. يعمل على أي جهاز — اختر نماذج Whisper من tiny (أجهزة قديمة، 4 جيجا RAM) إلى large-v3 (دقة احترافية على GPU حديث). لا يحتاج LLM، لا اشتراك، لا حد للكلمات.
+    improve:
+      card_title: ✏️ تحسين — أعِد كتابة ما تحدده
+      badge: Alt+I
+      description: تكتب مستنداً وفقرة ما تبدو مسطحة — الفكرة موجودة لكن الكتابة لا تصل. حددها، اضغط Alt+I، وقل "اجعل هذا أقوى واختصره للنصف". PerkySue يقرأ نصك المحدد وتعليماتك الصوتية معاً. الفقرة المُعاد كتابتها تحل محل الأصلية، في مكانها، بدون مغادرة التطبيق.
+      prompt: 🎤  "اجعل هذا أكثر جاذبية، النسخة الحالية جافة جداً"
+      result: ✅  نصك المحدد يُستبدل بالنسخة المحسّنة.
+    professional:
+      card_title: 💼 احترافي — صحّح الأسلوب والأخطاء دفعة واحدة
+      badge: Alt+P
+      description: كتبت فقرتين تمزجان أسلوباً غير رسمي مع بعض الأخطاء. حددهما، اضغط Alt+P، وقل "نظّف هذا، أحتاجه لعرض مجلس الإدارة". LLM يُعيد الكتابة بأسلوب رسمي ويصحح الأخطاء — نصك المحدد يُستبدل، بدون لمس الحافظة.
+      prompt: 🎤  "يجب أن يبدو هذا مصقولاً، صحّح القواعد أيضاً"
+      result: ✅  نصك المحدد يُستبدل بنسخة رسمية مصحّحة.
+  use_cases:
+    section_title: أوضاع صوتية أخرى في العمل
+    intro: كل وضع يعمل كأمر صوتي — لا تحتاج لتحديد نص. اضغط الاختصار، تكلّم، وتظهر النتيجة عند مؤشرك.
+    footer: كل الأوضاع تعمل كلياً على جهازك. لا طلب API، لا إنترنت، لا بيانات تغادر جهازك.
+    items:
+    - badge: Alt+M
+      name: بريد إلكتروني — قله، أرسله
+      prompt: 🎤  "اكتب بريداً لـ John يخبره أن PerkySue جاهزة للإطلاق — اذكر أننا نستهدف إصداراً هادئاً الأسبوع القادم"
+      result: ✅  بريد إلكتروني احترافي ومنسق يظهر عند مؤشرك. PerkySue يكتب بالغة التي تتكلم بها.
+    - badge: Alt+D
+      name: رسالة مباشرة — ودية، جاهزة للإرسال
+      prompt: 🎤  "قل لجدو ما ينسى صلصة الصويا"
+      result: ✅  جدو! تذكير سريع — ما تنسى صلصة الصويا! يوم سعيد!
+    - badge: Alt+X
+      name: منشور سوشيال — للنشر أو الرد على أي منصة
+      prompt: 🎤  "رد على هذا التعليق في YouTube — قل شكراً والفيديو القادم الأسبوع القادم عن نظام الإضافات"
+      result: ✅  شكراً جزيلاً! سعيد أنك استمتعت به. الفيديو القادم الأسبوع الجاي — نغوص في نظام الإضافات. ترقّب!
+    - badge: Alt+C
+      name: كونسول — صِف الأمر، احصل على الأمر
+      prompt: 🎤  "ابحث عن كل ملفات Python المعدّلة في آخر 7 أيام"
+      result: ✅  find . -name "*.py" -mtime -7 — جاهز للصق في الطرفية.
+    - badge: Alt+A
+      name: Ask — سؤال وجواب مع ذاكرة المحادثة
+      prompt: 🎤  "ما الفرق بين mutex و semaphore؟"
+      result: ✅  الإجابة تُحقن عند مؤشرك. اسأل سؤالاً متابعاً — النموذج يحتفظ بتاريخ المحادثة.
+    - badge: Alt+V/B/N
+      name: Prompts مخصصة — قواعدك، تدفق عملك
+      prompt: 🎤  ثلاثة فتحات Prompts قابلة للتعديل في Prompt Modes.
+      result: ✅  حوّل كلامك إلى ملاحظات اجتماع، أسلوب كتابة محدد، مخرجات منظمة — ما تحتاج.
+  smart_focus:
+    section_title: Smart Focus
+    card_title: 🎯 Smart Focus — شغّل وانسَ
+    description: PerkySue يقفل على موضع مؤشرك لحظة الضغط على الاختصار. بينما Whisper ينسخ وLLM يولّد، أنت حر — بدّل التطبيقات، واصل الكتابة، افعل ما تشاء. النتيجة تصل حيث ضغطت — لا حيث مؤشرك الآن.
+  voice_modes:
+    section_title: الأوضاع الصوتية
+    modes:
+    - hotkey: Alt+T
+      name: نسخ
+      description: نسخ سريع (بدون LLM)
+      needs_llm: false
+    - hotkey: Alt+I
+      name: تحسين
+      description: تنظيف النص وإعادة تنسيقه
+      needs_llm: true
+    - hotkey: Alt+P
+      name: احترافي
+      description: إعادة كتابة رسمية واحترافية
+      needs_llm: true
+    - hotkey: Alt+L
+      name: ترجمة
+      description: ترجمة إلى اللغة المستهدفة
+      needs_llm: true
+    - hotkey: Alt+C
+      name: كونسول
+      description: استخراج أمر shell
+      needs_llm: true
+    - hotkey: Alt+M
+      name: بريد إلكتروني
+      description: تنسيق كبريد احترافي
+      needs_llm: true
+    - hotkey: Alt+D
+      name: رسالة مباشرة
+      description: WhatsApp/Slack/Discord/SMS — أسلوب يتكيف مع العلاقة
+      needs_llm: true
+    - hotkey: Alt+X
+      name: منشور سوشيال
+      description: LinkedIn/X/YouTube/Reddit — نشر أو رد
+      needs_llm: true
+    - hotkey: Alt+S
+      name: تلخيص
+      description: ضغط النص في نقاط أساسية
+      needs_llm: true
+    - hotkey: Alt+A
+      name: Ask
+      description: اسأل سؤالاً — LLM يجيب عند مؤشرك
+      needs_llm: true
+    - hotkey: Alt+H
+      name: مساعدة
+      description: اسأل عن PerkySue — KB التطبيق + إعداداتك
+      needs_llm: true
+    - hotkey: Alt+G
+      name: GenZ
+      description: إعادة كتابة عصرية وغير رسمية
+      needs_llm: true
+  competition:
+    section_title: PerkySue مقابل المنافسين
+    items:
+    - title: مقابل الإملاء المدمج
+      examples: Windows, macOS, Google
+      description: هم ينسخون الكلمات. PerkySue ينسخ ويفكر — 11 وضعاً تحوّل كلامك إلى بريد، أوامر، ترجمات، ملخصات.
+    - title: مقابل الإملاء السحابي
+      examples: Wispr Flow, Typeless
+      description: صوتك لا يغادر جهازك أبداً. لا حساب، لا إنترنت، لا حد للكلمات. يعمل في وضع الطائرة وعلى USB.
+    - title: مقابل الأدوات مفتوحة المصدر
+      examples: Amical, OpenWhispr
+      description: هم يفعلون STT + لصق. PerkySue يضيف pipeline LLM محلي، تحديد نص + تعليمات صوتية، Smart Focus، وواجهة GUI.
+  privacy:
+    section_title: الخصوصية
+    items:
+    - icon: 🔒
+      title: لا يحتاج إنترنت
+      description: كل شيء يعمل على جهازك
+    - icon: 🔇
+      title: الصوت لا يُخزَّن أبداً
+      description: يُلتقط في RAM، يُنسخ، يُحذف فوراً
+    - icon: 👤
+      title: لا حساب مطلوب
+      description: لا تسجيل، لا تتبع، لا كوكيز
+    - icon: 📂
+      title: مفتوح المصدر
+      description: افحص كل سطر من الكود بنفسك
+  why_i_built_it:
+    section_title: لماذا بنيت PerkySue؟
+    paragraph_1: 'بدأ PerkySue كأداة إنتاجية شخصية — شيء احتجته على جهازي كل يوم، لم يكن عرض pitch أولاً. بعد سنوات من تصميم معماريات البرمجيات والمنصات الحوارية، أردت pipeline واحداً: صوت → STT محلي → LLM محلي → نص يُحقن حيث أعمل.'
+    paragraph_2: 'الكود طُوِّر بالتعاون مع الذكاء الاصطناعي: المشروع تضمّن تعاوناً مستمراً مع مساعدي برمجة AI. الـ pipeline المحلي معقد. والمضحك أن PerkySue يساعدني اليوم في كتابة كوده الخاص، بدون إرسال صوتي أو بياناتي للسحابة.'
+  links:
+    section_title: روابط
+    items:
+    - label: مستودع GitHub
+      url: https://github.com/PerkySue/PerkySue
+    - label: مجتمع Discord
+      url: https://discord.gg/UaJHEzFgXy
+    - label: ادعمنا على Patreon ❤
+      url: https://patreon.com/PerkySue
+    - label: سياسة الخصوصية
+      url: ''
+    - label: توثيق المعمارية
+      url: ''
+    credit: صنعه Jérôme Corbiau  ·  رخصة Apache 2.0
+common:
+  window_title: PerkySue — Beta 0.28.8
+  header_banner:
+    free_invite: PerkySue Beta — مجاني · جرّب Pro (٣٠ يومًا، بدون بطاقة)
+    free_after_trial: PerkySue Beta — مجاني
+    pro_trial: PerkySue Beta — تجربة Pro · بقي {days} يومًا
+    pro: PerkySue Beta — Pro
+    enterprise: PerkySue Beta — Enterprise
+  'yes': نعم
+  'no': لا
+  nav:
+    console: '>_   كونسول'
+    shortcuts: ⌨   الاختصارات
+    settings: ⚙   الإعدادات
+    modes: 💬   Prompts
+    chat: 💭   دردشة
+    help: ❓   مساعدة
+    voice: 🔊   الصوت
+    user: 👤   المستخدم
+    about: 💡   حول
+  statuses:
+    listening: استماع
+    processing: معالجة
+    injecting: حقن
+    ready: جاهز
+    error: خطأ
+    crash: تعطّل التطبيق
+    no_speech: لا صوت
+    tts_loading: جاري تجهيز الصوت…
+    generating: توليد
+    speaking: يتحدث
+  footer:
+    github: GitHub
+    discord: Discord
+    alpha_banner: النسخ مجاني للأبد. وضع Pro يبقي المشروع حياً.
+user:
+  settings:
+    title: إعدادات المستخدم
+  billing:
+    label: فوترة Stripe
+    hint: البريد المستخدم لربط الاشتراك بهذا الجهاز (للقراءة فقط).
+    empty: —
+  section:
+    language_title: لغة الواجهة
+    language_hint: انقر على علم لتطبيق اللغة.
+voice:
+  page_title: الصوت
+  locked:
+    section_title: تحويل النص إلى كلام
+    body: يقدر PerkySue يقرأ الإجابات بصوت طبيعي. للاستنساخ الصوتي، حط ملف voice_ref.wav قصير في مجلد كل سكن. يحتاج برو.
+    pro_note: للبرو فقط
+    upgrade: ترقية إلى برو
+  install:
+    section_title: أضف صوتًا لـ PerkySue
+    model_label: اختر نموذجًا
+    body: يفعّل تحويل النص إلى كلام. تقدر تسمع ردود وضعي Answer وHelp. حزم Patreon قد تحتوي voice_ref.wav للاستنساخ.
+    button: تثبيت المحرك
+    button_working: جارٍ التثبيت…
+    retry: حاول مرة أخرى
+  engine:
+    recommended_suffix: " (موصى به)"
+  output:
+    section_title: المخرجات
+    enabled: مفعّل
+    engine_label: المحرك
+  playback:
+    section_title: التشغيل
+    volume: مستوى الصوت
+    speed: السرعة
+    auto_speak: قراءة تلقائية
+    auto_speak_hint: بعد وضعي Answer وHelp
+  packs:
+    section_title: حزم الأصوات
+    default_body: صوت البرو الافتراضي حاليًا. أضف voice_ref.wav للسكن للاستنساخ، أو احصل على حزم شخصيات من Patreon.
+    installed_lead: "حزم الأصوات المثبتة:"
+    more_patreon: المزيد من الأصوات على Patreon.
+  test:
+    section_title: اختبار
+    field_label: جملة تجريبية
+    sample_text: |
+      مرحباً! أنا PerkySue — ونعم، لديّ صوت.
+      مش هتصدق، بس أنا بشتغل بالكامل على جهازك. لا سحابة، لا حساب، لا بيانات بتطير لأي مكان. بس أنت وأنا والميكروفون.
+    speak: ▶  تشغيل
+    stop: ■  إيقاف
+console:
+  pipeline_status: حالة الـ Pipeline
+  whisper_stt: 'Whisper STT:'
+  local_llm: 'LLM المحلي:'
+  no_stt: لا STT
+  no_llm: لا يوجد LLM
+  help_only_suffix: — مساعدة فقط
+  transcription_controls: التحكم في النسخ
+  start: بدء
+  abort: إلغاء
+  copy_log: 📋  نسخ السجل
+  finalized_logs: السجلات المكتملة — مؤقتة
+  full_console: كونسول
+  copy: نسخ
+shortcuts:
+  title: مدير الاختصارات
+  col_mode: الوضع
+  col_hotkey_alt: الاختصار (Alt)
+  col_hotkey_altgr: الاختصار (AltGr)
+  edit: تعديل
+  stop_task: إيقاف المهمة
+  restore_defaults: استعادة الاختصارات الافتراضية
+  restart_note: التغييرات تتطلب إعادة التشغيل
+settings:
+  save_sidebar_note: أعِد التشغيل لتطبيق التغييرات
+  update_button: تحديث
+  update_note: تطبيق الآن (بدون إعادة تشغيل)
+  appearance:
+    title: المظهر
+    default_skin: افتراضي
+    patreon_cta: افتح سكينات الداعمين على Patreon 💛
+    filter_all: الكل
+    select: اختيار
+    import_skin: استيراد سكين
+  recommended_models:
+    title: النماذج الموصى بها
+    more_models: + المزيد من النماذج
+    current_model: النموذج الحالي
+    get: ↓ تحميل
+    filter_favorites_hint: عرض المفضّلة فقط (نماذج بها نجوم)
+    search_placeholder: بحث في النماذج…
+    tooltip_labels:
+      name: الاسم
+      author: المؤلف
+      family: العائلة
+      params: المعلمات
+      quant: التكميم
+      thinking: التفكير
+      uncensored: غير خاضع للرقابة
+      languages: اللغات
+      size: الحجم
+      speed: السرعة
+      favorite: مفضّل
+      comment: تعليق
+      alt_a_qa: Alt+A QA
+      popularity: الشعبية
+  performance:
+    title: إعدادات الأداء
+    stt_model: نموذج STT
+    stt_device: جهاز STT
+    silence_timeout: مهلة الصمت (ث)
+    max_duration: مدة الاستماع القصوى (ث)
+    first_language: لغتك الأساسية
+    llm_model: نموذج LLM
+    max_input: الإدخال الأقصى (السياق)
+    max_output: الإخراج الأقصى (Tokens)
+    llm_request_timeout: مهلة طلب LLM (ث)
+    no_gguf: لا يوجد .gguf في Data/Models/LLM
+    auto: تلقائي
+  save_restart: حفظ وإعادة التشغيل
+  plan_management:
+    section_title: الاشتراكات
+    badge_current: الحالي
+    status_valid_until: ⟳ حتى {date}
+    status_valid_until_unknown: ⟳ حتى —
+    status_pro_trial_days: 'تجربة · متبقي {days} يومًا'
+    status_access_until_cancelled: ينتهي {date}
+    status_pro_active_short: Pro
+    status_active_plan: الخطة النشطة
+    portal_title: إدارة الاشتراك
+    portal_manage_unavailable: فتح فوترة من التطبيق غير متاح بعد. استخدم الروابط في رسائل Stripe أو راسل hello@perkysue.com.
+    buttons:
+      active: نشط
+      free_tier: مجاني
+      manage: إدارة
+      start_free_trial: ابدأ التجربة المجانية
+      get_pro: احصل على Pro بـ 9.90 €/شهر
+      contact_sales: تواصل معنا
+    free:
+      name: مجاني
+      price: 0 €
+      features:
+      - text: نسخ Alt+T
+        locked: false
+      - text: Whisper STT المحلي
+        locked: false
+      - text: Smart Focus
+        locked: false
+      - text: Alt+A Ask
+        locked: false
+      - text: LLM محلي
+        locked: false
+    pro:
+      name: Pro
+      price: 9.90 €
+      price_sub: /شهر
+      trial_sub: 30 يوماً · بدون بطاقة
+      features:
+      - text: كل 14 وضع LLM
+        locked: false
+      - text: Prompts المخصصة
+        locked: false
+      - text: تحديثات أولوية
+        locked: false
+      - text: صوت-إلى-صوت
+        locked: false
+    enterprise:
+      name: مؤسسات
+      price: حسب الطلب
+      features:
+      - text: قواعد بيانات المؤسسة
+        locked: false
+      - text: نشر / فريق
+        locked: false
+      - text: دعم مخصص
+        locked: false
+    link_subscription:
+      wizard_title: ربط اشتراكك
+      cta: لدي اشتراك بالفعل
+      otp_headline: تحقق من بريدك
+      email_intro: اكتب بريدك للبدء — نرسل لك رمزًا من 6 أرقام للتأكد أنك أنت.
+      step_email_title: البريد المستخدم للفوترة
+      step_email_hint: نفس البريد الظاهر في فاتورة Stripe أو الإيصال.
+      email_placeholder: you@email.com
+      send_code: إرسال الرمز
+      step_otp_title: رمز التحقق
+      otp_placeholder: رمز من 6 أرقام
+      otp_hint: أدخل الرمز المكوّن من 6 أرقام من الرسالة.
+      verify: تحقق واربط
+      resend: إعادة إرسال الرمز
+      resend_wait: إعادة الإرسال ({s} ث)
+      success_title: تم! 🎉
+      success_body: تم ربط الاشتراك. Pro مفعّل على هذا الجهاز.
+      resent_ok: تم إرسال رمز جديد.
+      close: متابعة
+      busy_sending: جارٍ الإرسال…
+      busy_verify: جارٍ التحقق…
+      errors:
+        network: تعذّر الوصول إلى perkysue.com — تحقّق من الاتصال وحاول مرة أخرى.
+        invalid_email: هذا البريد لا يبدو صحيحًا — هل يمكنك التحقق؟
+        inactive: لا يوجد اشتراك نشط لهذا البريد.
+        wrong_code: الرمز غير صحيح.
+        invalid_code: أدخل الرمز الوارد في بريدك.
+        attempts: محاولات كثيرة جدًا — انتظر قليلًا ثم أعد المحاولة.
+        cooldown: لحظات قليلة — يمكنك طلب رمز جديد بعدها.
+        generic: حدث خطأ ما. أعد المحاولة بعد ثوانٍ.
+      success_cta: ابدأ استخدام PerkySue
+    trial_request:
+      wizard_title: ابدأ التجربة المجانية
+      email_intro: اكتب بريدك للبدء — نرسل لك رمزًا من 6 أرقام للتأكد أنك أنت.
+      email_placeholder: you@email.com
+      send_code: إرسال الرمز
+      otp_headline: أكّد بريدك
+      otp_hint: أدخل الرمز من 6 أرقام ثم اختر تفضيل النشرة.
+      newsletter_title: النشرة
+      newsletter_question: أخبار مفيدة بلا إزعاج. نراسلك فقط عندما يكون هناك جديد يستحق المعرفة.
+      'yes': نعم
+      'no': لا
+      resend: إعادة إرسال الرمز
+      resend_wait: إعادة ({s}s)
+      resent_ok: تم إرسال رمز جديد.
+      busy_sending: جارٍ الإرسال…
+      busy_verify: جارٍ التفعيل…
+      success_title: تم! 🎉
+      success_body: تجربة Pro لمدة 30 يومًا تبدأ الآن. كل مزايا Pro — بلا حدود وبلا بطاقة.
+      success_cta: ابدأ استخدام PerkySue
+      errors:
+        network: تعذّر الوصول إلى perkysue.com — تحقّق من الاتصال وحاول مرة أخرى.
+        invalid_email: هذا البريد لا يبدو صحيحًا — هل يمكنك التحقق؟
+        invalid_code: أدخل الرمز المكوّن من 6 أرقام من الرسالة.
+        wrong_code: الرمز غير صحيح.
+        attempts: محاولات كثيرة جدًا — انتظر قليلًا ثم أعد المحاولة.
+        cooldown: لحظات قليلة — يمكنك طلب رمز جديد بعدها.
+        rate_limited: محاولات كثيرة — انتظر قليلًا ثم أعد المحاولة.
+        trial_already_used: هذا البريد استخدم بالفعل التجربة المجانية.
+        trial_ineligible_paid: هذا البريد مرتبط سابقًا باشتراك Pro. التجربة المجانية للمستخدمين الجدد فقط — ويمكنك إعادة الاشتراك في أي وقت.
+        generic: حدث خطأ ما. أعد المحاولة بعد ثوانٍ.
+modes:
+  stt_keywords:
+    title_unlimited: كلمات مفتاحية Whisper STT (غير محدودة)
+    title_limit: 'كلمات مفتاحية Whisper STT (الحد: {limit})'
+    placeholder: 'اكتب كلمة واضغط Enter (مثال: PerkySue، STT)...'
+    tags_counter: '{count} / {limit} وسوم'
+  identity:
+    section_title: الهوية والتفضيلات
+    title: اسمك
+    placeholder: 'اختياري: كيف يناديك LLM (مثال: محمد)...'
+    help: 'يُستخدم في بعض Prompts LLM (مثال: وضع البريد الإلكتروني)'
+  prompt_modes:
+    title: Prompt Modes
+    edit_hint: يتيح لك تعديل الـ system prompt لكل اختصار LLM
+    system_prompt_help: الـ system prompt المرسل لـ LLM = الإعدادات الحالية + قاعدة المعرفة + التعليمات (المربع أعلاه). ضع سؤالك في إدخال الاختبار أدناه.
+    test_input_label: 'إدخال الاختبار (أمثلة):'
+    test_response_label: 'رد LLM (معاينة):'
+    test_hint: الاختبارات تستخدم دائماً النص الحالي أعلاه، حتى لو لم يُحفظ.
+    paste: لصق
+    copy: نسخ
+    run_test: تشغيل الاختبار
+    save: حفظ
+    cancel: إلغاء
+    edit: تعديل
+    test: اختبار
+  registry:
+    transcribe:
+      name: نسخ
+      description: نسخ بسيط — من الكلام إلى النص، بدون معالجة
+    improve:
+      name: تحسين
+      description: تنظيف الإملاء الصوتي وإضافة الترقيم
+    professional:
+      name: احترافي
+      description: إعادة كتابة بأسلوب احترافي وواضح
+    translate:
+      name: ترجمة
+      description: ترجمة إلى اللغة المستهدفة المحددة
+    console:
+      name: كونسول
+      description: تحويل الكلام إلى أوامر shell
+    email:
+      name: بريد إلكتروني
+      description: تنسيق كبريد إلكتروني احترافي
+    message:
+      name: رسالة مباشرة
+      description: رسالة ودية لـ WhatsApp، Slack، Discord، SMS
+    social:
+      name: منشور سوشيال
+      description: رد أو نشر على YouTube، X/Twitter، LinkedIn، Reddit
+    summarize:
+      name: تلخيص
+      description: تلخيص النص المُملى
+    genz:
+      name: Gen Z
+      description: إعادة كتابة غير رسمية مع إيموجي
+    answer:
+      name: Ask
+      description: طرح سؤال انطلاقاً من النص المُملى أو الأسئلة فيه
+    help:
+      name: مساعدة
+      description: اسأل عن PerkySue — قاعدة معرفة التطبيق
+    custom1:
+      name: Prompt مخصص 1
+      description: Prompt الخاص بك — عدّله في Prompt Modes
+    custom2:
+      name: Prompt مخصص 2
+      description: Prompt الخاص بك — عدّله في Prompt Modes
+    custom3:
+      name: Prompt مخصص 3
+      description: Prompt الخاص بك — عدّله في Prompt Modes
+chat:
+  title: دردشة
+  new_chat: محادثة جديدة
+  save_log: حفظ السجل
+  token_counter: '{current} / {max}'
+  placeholder: اكتب رسالة... أو اضغط الميكروفون للكلام
+  hint: 'Alt+A: تفعيل/إيقاف الميك · Alt+Q: إيقاف الاستماع'
+  help_redirect: أسئلة عن PerkySue أو التطبيق؟ استخدم تبويب المساعدة
+  sender_name: PerkySue
+  user_fallback: أنت
+  free_answer_notice: في الخطة المجانية، يتم التعامل مع كل سؤال بشكل مستقل — لا يتذكر المساعد رسائلك السابقة. سياق متعدد الجولات، الذي يتيح للمساعد تذكر المحادثة الجارية، وميزة الإدراج عند المؤشر (Smart Focus)، مخصصان لخطة Pro فقط — يمكنك الترقية متى أردت.
+help:
+  title: مساعدة
+  new_chat: محادثة جديدة
+  save_log: حفظ السجل
+  token_counter: '{current} / {max}'
+  placeholder: اسأل عن PerkySue...
+  hint: 'Alt+H: تفعيل/إيقاف الميك · Alt+Q: إيقاف الاستماع'
+  sender_name: PerkySue
+header_tips:
+  startup_message: نصيحة · ضع مؤشرك في Word أو Gmail أو Slack… ثم اضغط Alt+T
+  tips:
+  - نصيحة · اضغط Alt+Q أو انقر على الأفاتار لإيقاف التسجيل يدوياً
+  - نصيحة · Alt+T مجاني للأبد — نسخ سريع، لا يحتاج LLM
+  - نصيحة · حدد أي نص، اضغط Alt+I، وقل ما تريد تغييره
+  - نصيحة · اضغط Alt+M في أي مكان لإملاء بريد إلكتروني كامل
+  - 'Alt+A Pro: يتابع المحادثة في الدردشة — Alt+A المجاني: سؤال واحد في المرة'
+  - نصيحة · الضوضاء تمنع الإيقاف التلقائي؟ اضغط Alt+Q للإيقاف
+  - نصيحة · حدد فقرة ← Alt+P — صحّح الأسلوب والقواعد دفعة واحدة
+  - 'نصيحة · Alt+C في طرفيتك: صِف ما تريده بلغة عادية'
+  - 'نصيحة · Alt+L: حدد أي نص واطلب ترجمته إلى أي لغة'
+  - 'نصيحة · Alt+D: أمْلِ رسالة مباشرة لـ WhatsApp، Slack، Discord، SMS'
+  - 'نصيحة · Alt+X: أنشئ منشوراً أو رداً لـ LinkedIn، X، YouTube، Reddit'
+  - نصيحة · الصق ملاحظات اجتماع، حددها، Alt+S لملخص مختصر
+  - نصيحة · حدد نصاً خاماً، Alt+I، قل «اختصر هذا» — انتهى
+  - نصيحة · Alt+V إلى Alt+N = Prompts مخصصة. عدّلها في Prompt Modes
+  - نصيحة · أنشئ Prompt مخصصاً للرد على التعليقات بأسلوب علامتك
+  - نصيحة · متعب من إعادة كتابة نفس الـ Prompts؟ اصنع Prompt مخصصاً
+  - 'نصيحة · فكرة Prompt: حوّل الملاحظات إلى منشور LinkedIn جذاب'
+  - نصيحة · استخدم Prompts مخصصة لتوليد Prompts فيديو Kling/Runway
+  - 'نصيحة · فكرة Prompt: استخرج المهام والمواعيد النهائية من نص'
+  - 'نصيحة · Alt+H: اسألني أي شيء عن PerkySue في تبويب المساعدة'
+  - Pro · إذا لم يلصق Smart Focus، انسخ المخرجات من تبويب الكونسول
+  - نصيحة · أوقف خطوة الاستماع بالنقر على الأفاتار أو Alt+Q
+  - نصيحة · بدّل التطبيقات أثناء تفكير PerkySue — لا داعي للانتظار
+  - 'Smart Focus: اضغط، افعل شيئاً آخر، النص يصل في المكان الصحيح'
+  - نصيحة · CPU فقط؟ جرب Whisper small (سريع) أو medium (دقيق). ⚙️ ← نموذج STT
+  - نصيحة · ضوضاء؟ التسجيل لا يتوقف تلقائياً؟ — Alt+Q أو انقر الأفاتار
+  - نصيحة · عدّل Prompt أي وضع في Prompt Modes — اجعل PerkySue لك
+  - نصيحة · Whisper يخطئ في كلمة؟ أضفها إلى كلمات STT المفتاحية في Prompt Modes
+  delay_before_first_ms: 3500
+  display_ms: 7500
+  delay_between_ms: 15000
+header_alerts:
+  critical:
+    no_llm: لا يوجد LLM. حمّل نموذجاً من الإعدادات.
+    save_restart: يجب عليك حفظ PerkySue وإعادة تشغيله
+    shortcut_in_use: هذا الاختصار مستخدم بالفعل ({other_name}). اختر اختصاراً آخر.
+    llm_error_400: خطأ LLM (400) — السياق كبير جداً؟ زِد «الإدخال الأقصى» في الإعدادات.
+    llm_error_generic: خطأ LLM — راجع الكونسول. زِد «الإدخال الأقصى» (السياق) في الإعدادات إذا كنت تستخدم Alt+A
+    max_input_reached: تم الوصول لحد الإدخال الأقصى — تم تقليص السجل.
+    max_input_context_reached: تم الوصول لحد الإدخال (السياق) ({max_input}). جرب الزيادة إلى {suggested} ← الإعدادات ← الأداء.
+    max_output_tokens_reached: تم الوصول لحد الإخراج الأقصى ({max_output}). زِد إلى {suggested} في الإعدادات ← الأداء
+    llm_request_timeout: انتهت مهلة طلب LLM — جرب 180 أو 240 ثانية في الإعدادات ← الأداء
+  regular:
+    recording_stopped: 🛑 توقف التسجيل
+    processing_stopped: 🛑 توقفت المعالجة
+    tts_stopped: 🛑 تم إيقاف الصوت
+    tts_loading: جاري تجهيز الصوت — الإعداد الأولي جارٍ...
+    omnivoice_requires_nvidia: OmniVoice requires NVIDIA/CUDA (not available on CPU/Vulkan).
+    tts_install_in_progress: Installation already in progress — please wait.
+    ai_disclaimer: ⚠️ قد تكون ردود الذكاء الاصطناعي غير دقيقة. تحقّق من الحقائق.
+    recording_no_audio: لم يُلتقط أي صوت — تحقق من الميكروفون.
+    recording_too_short: التسجيل قصير جداً — لم يُكتشف نص. تحقق من الميكروفون أو تكلّم أطول.
+    copied_to_clipboard: نُسخ إلى الحافظة
+    llm_not_available: منسق LLM غير متاح.
+    pro_plan_required_mode: هذا الوضع مقفول في الخطة المجانية — يلزم خطة Pro.
+    no_logs_to_save: لا توجد سجلات للحفظ
+    all_logs_copied: نُسخت كل السجلات إلى الحافظة
+    download_success: ✓ اكتمل التحميل.
+    download_progress: ⏳ جارٍ تحميل «{name}»… {pct}%
+  run_test_400_hint: → 400 Bad Request عادةً يعني أن السياق يتجاوز حد النموذج. زِد «الإدخال الأقصى» في الإعدادات ← الأداء.
+  run_test_timeout_hint: → النموذج لم ينته في الوقت المحدد. في الإعدادات ← الأداء، اضبط مهلة طلب LLM على 180 أو 240 ثانية.
+  document_injection:
+    llm_error_400: خطأ LLM (400) — السياق كبير جداً؟ زِد «الإدخال الأقصى» (السياق) في الإعدادات.
+    llm_error_generic: خطأ LLM — راجع الكونسول. زِد «الإدخال الأقصى» (السياق) في الإعدادات.
+    max_input_reached: '⚠️ تم الوصول لحد الإدخال الأقصى — تم تقليص السجل. راجع الإعدادات ← الإدخال الأقصى وإمكانيات جهازك.
+
+
+      '
+    chat_max_input_reached: ⚠️ وصلت لحد الإدخال الأقصى (السياق) ({max_input}). جرب زيادة «الإدخال الأقصى» في الإعدادات ← الأداء إلى {suggested} أو أكثر.
+    chat_context_limit_reached: ⚠️ تم الوصول لحد السياق ({max_input}) — الإدخال والإخراج يتشاركان هذه الميزانية. زِد «الإدخال الأقصى» في الإعدادات ← الأداء إلى {suggested} أو أكثر.
+    chat_max_output_reached: '⚠️ تم قطع الرد: تم الوصول لحد الإخراج الأقصى ({max_output}). زِد «الإخراج الأقصى» في الإعدادات ← الأداء إلى {suggested} أو أكثر.'
+    chat_empty_reply: — رد فارغ. أعِد الصياغة أو راجع الكونسول.
+    trial_request:
+      newsletter_title: Newsletter preference
+      newsletter_question: Get updates, not spam. We'll only email you when something worth knowing happens — new features, tips & tricks, that's it.

@@ -1,0 +1,636 @@
+﻿about:
+  support_patreon_label: ❤ 在 Patreon 上支持我们
+  updates:
+    title: 更新
+    body_idle: 在 GitHub 上检查最新版本。
+    body_checking: 正在检查 GitHub Releases…
+    body_check_failed: 无法检查更新。
+    body_available: '有新版本：{v}'
+    body_uptodate: '已是最新版本（{v}）。'
+    body_downloading: 正在下载更新…
+    body_ready_restart: 更新已安装。重启以应用。
+    body_failed: 更新失败。
+    wizard_title: 更新
+    btn_check: 检查更新
+    btn_retry: 重试
+    btn_update: 更新
+    btn_restart: 重启以应用
+    btn_close: 关闭
+    btn_cancel: 取消
+    footer_link: '有新版本 {v}'
+  quick_use_cases:
+    section_title: 用法（快速）
+    voice_layer: 'AI 语音层：在任何 AI 聊天输入框，Alt+T → 说话 → 回车。'
+    custom_prompts: '自定义 prompts：Alt+V/B/N = 3 个槽位 — 用你的规则与语气复用工作流。'
+    footer: 本地运行 — 你的文本留在你的电脑上。
+  hero:
+    title: PerkySue
+    tagline: AI 加持的语音输入。100% 本地。100% 私密。
+    subtitle: 按下快捷键，开口说话，文字就出现在光标处 — 任意应用、任意窗口、任意输入框。无云端。无账号。数据永远不离开你的电脑。
+  why_exists:
+    section_title: PerkySue 为什么存在
+    line_1: 其他所有听写工具都只解决了一半问题。
+    line_2: 它们把你的声音转成文字 — 但不帮你思考。
+    line_3: 你还是得把文字复制到聊天机器人里，等着，再把答案复制回来。本该一步搞定的事，变成了好几步 — 而且你的话已经跑到你管不着的服务器上了。
+    line_4: PerkySue 把整条流程压进一个快捷键。
+    line_5: 语音识别、本地 LLM 转换、文字注入 — 一气呵成，任意应用，什么都不用发出去。
+    line_6: 声音不是普通数据 — 它是生物特征数据。
+    line_7: 它携带着你的口音、你的节奏、你的情绪状态。云端听写工具会捕获、传输并保留它，依据的条款大多数人根本不会去读。它被用来训练模型，还会被分享给基础设施合作伙伴。
+    line_8: PerkySue 把音频捕获在 RAM 里，本地处理，立刻丢弃。没有存储，没有日志，没有传输。
+    line_9: 你的声音，永远是你的！
+  how_it_works:
+    section_title: 怎么用
+    step1_title: 按下快捷键
+    step1_description: 把光标放到你平时打字的应用里（Word、Gmail、Slack、VS Code……），然后按：
+    step2_title: 自然地说话
+    step2_description: PerkySue 会一直录音直到你停下来。环境噪音可能妨碍自动停止 — 按 Alt+Q（全局默认）或 Esc（应用在前台时），或点击头像。
+    step3_title: 文字出现在你触发的地方
+    step3_description: 你按下快捷键的那一刻，PerkySue 就锁定了光标和当前窗口。
+    step4_title: 处理时继续干别的
+    step4_description: 切标签、在别处打字都行。Smart Focus 会把结果注入到你开始的地方。
+  features:
+    section_title: 用户都用它来做什么
+    transcribe:
+      card_title: 🎙️ 转写 — 永久免费
+      badge: Alt+T
+      description: 开口说话，原始转写文字就出现在光标处。支持所有设备 — Whisper 模型从 tiny（老硬件，4 GB RAM）到 large-v3（现代 GPU 上的录音室级精度）随你选。无需 LLM，无需订阅，无字数限制。
+    improve:
+      card_title: ✏️ 改写 — 重写你选中的内容
+      badge: Alt+I
+      description: 你在写文档，某段感觉很平 — 意思到了但文字不到位。选中它，按 Alt+I，说「让它更有力，砍掉一半」。PerkySue 同时读取你的选区和你的指令。改写后的段落直接替换原文，不用离开应用。
+      prompt: 🎤  "让这段更抓人，现在的版本太平了"
+      result: ✅  你的选区被改写后的版本替换。
+    professional:
+      card_title: 💼 专业 — 一步修正语气和错误
+      badge: Alt+P
+      description: 你写了两段，口语和错别字混在一起。选中它们，按 Alt+P，说「整理一下，要交给董事会」。LLM 重写为正式风格并纠正错误 — 选区直接被替换，不用折腾剪贴板。
+      prompt: 🎤  "要听起来正式，顺便修一下语法"
+      result: ✅  你的选区被正式、纠错后的版本替换。
+  use_cases:
+    section_title: 更多语音模式实战
+    intro: 每个模式都是语音指令 — 不需要选中文字。按下快捷键，开口说，结果就出现在光标处。
+    footer: 所有模式完全在你的电脑上运行。无 API 调用，无网络，数据不离开你的设备。
+    items:
+    - badge: Alt+M
+      name: 邮件 — 说出来，发出去
+      prompt: 🎤  "给 John 写封邮件，告诉他 PerkySue 已经准备好上线了 — 提一下我们计划下周软发布"
+      result: ✅  一封格式规范的专业邮件出现在光标处。PerkySue 用你说话的语言来写。
+    - badge: Alt+D
+      name: 私信 — 友好，随时可发
+      prompt: 🎤  "跟奶奶说别忘了买酱油"
+      result: ✅  奶奶！提醒一下 — 别忘了买酱油哦！祝你今天愉快！
+    - badge: Alt+X
+      name: 社交帖子 — 发帖或回复
+      prompt: 🎤  "回复这条 YouTube 评论 — 说谢谢，下个视频下周出，讲插件系统"
+      result: ✅  非常感谢！很高兴你喜欢。下个视频下周见 — 我们来聊聊插件系统。敬请期待！
+    - badge: Alt+C
+      name: 终端 — 描述需求，得到命令
+      prompt: 🎤  "找出过去 7 天内修改过的所有 Python 文件"
+      result: ✅  find . -name "*.py" -mtime -7 — 直接粘贴到终端就行。
+    - badge: Alt+A
+      name: Ask — 带对话记忆的 Q&A
+      prompt: 🎤  "mutex 和 semaphore 有什么区别？"
+      result: ✅  答案注入到光标处。继续追问 — 模型会记住对话历史。
+    - badge: Alt+V/B/N
+      name: 自定义 Prompts — 你的规则，你的工作流
+      prompt: 🎤  在 Prompt Modes 里可编辑的三个自定义 prompts 槽。
+      result: ✅  把语音变成会议记录、特定写作风格、结构化输出 — 随你定。
+  smart_focus:
+    section_title: Smart Focus
+    card_title: 🎯 Smart Focus — 触发后随便干
+    description: 你按下快捷键的那一刻，PerkySue 就记住了光标位置。Whisper 转写、LLM 生成的时候，你可以随便切应用、在别处打字、打开其他窗口。结果会落在你触发的地方 — 不是你现在的光标处。
+  voice_modes:
+    section_title: 语音模式
+    modes:
+    - hotkey: Alt+T
+      name: 转写
+      description: 快速转写（无需 LLM）
+      needs_llm: false
+    - hotkey: Alt+I
+      name: 改写
+      description: 清理并重新格式化文字
+      needs_llm: true
+    - hotkey: Alt+P
+      name: 专业
+      description: 正式商务风格改写
+      needs_llm: true
+    - hotkey: Alt+L
+      name: 翻译
+      description: 翻译成目标语言
+      needs_llm: true
+    - hotkey: Alt+C
+      name: 终端
+      description: 提取 shell 命令
+      needs_llm: true
+    - hotkey: Alt+M
+      name: 邮件
+      description: 格式化为专业邮件
+      needs_llm: true
+    - hotkey: Alt+D
+      name: 私信
+      description: WhatsApp/Slack/Discord/SMS — 语气自动适配关系
+      needs_llm: true
+    - hotkey: Alt+X
+      name: 社交帖子
+      description: LinkedIn/X/YouTube/Reddit — 发帖或回复
+      needs_llm: true
+    - hotkey: Alt+S
+      name: 总结
+      description: 提炼关键要点
+      needs_llm: true
+    - hotkey: Alt+A
+      name: Ask
+      description: 提问 — LLM 在光标处回答
+      needs_llm: true
+    - hotkey: Alt+H
+      name: 帮助
+      description: 问关于 PerkySue 的问题 — 应用知识库 + 你的设置
+      needs_llm: true
+    - hotkey: Alt+G
+      name: GenZ
+      description: 轻松随意的现代风改写
+      needs_llm: true
+  competition:
+    section_title: PerkySue vs. 竞品
+    items:
+    - title: vs. 系统内置听写
+      examples: Windows、macOS、Google
+      description: 它们只转写文字。PerkySue 转写还能思考 — 11 种模式把你的语音变成邮件、命令、翻译、摘要。
+    - title: vs. 云端听写
+      examples: Wispr Flow、Typeless
+      description: 你的音频永远不离开电脑。无账号，无网络，无字数限制。飞行模式或 U 盘上也能用。
+    - title: vs. 开源工具
+      examples: Amical、OpenWhispr
+      description: 它们只做 STT + 粘贴。PerkySue 还加了本地 LLM 流水线、选区 + 语音指令、Smart Focus 和 GUI 组件。
+  privacy:
+    section_title: 隐私
+    items:
+    - icon: 🔒
+      title: 无需网络
+      description: 全部在你的电脑上运行
+    - icon: 🔇
+      title: 音频从不存储
+      description: 捕获到 RAM，转写，立刻丢弃
+    - icon: 👤
+      title: 无需账号
+      description: 无注册，无追踪，无 Cookie
+    - icon: 📂
+      title: 开源
+      description: 自己检查每一行代码
+  why_i_built_it:
+    section_title: 为什么要做 PerkySue
+    paragraph_1: PerkySue 起初是个人生产力工具 — 我每天自己需要的东西，不是为了融资 PPT。在设计了多年软件架构和对话平台之后，我想把整条流程压进一个工具：语音 → 本地 STT → 本地 LLM → 文字注入到我已经在工作的地方。
+    paragraph_2: 代码是和 AI 共同开发的：这个项目持续地与 AI 编程助手合作完成。本地流水线相当复杂。有趣的是，PerkySue 今天正在帮我写它自己的代码，没有把我的声音或数据发到云端。
+  links:
+    section_title: 链接
+    items:
+    - label: GitHub 仓库
+      url: https://github.com/PerkySue/PerkySue
+    - label: Discord 社区
+      url: https://discord.gg/UaJHEzFgXy
+    - label: 在 Patreon 上支持我们 ❤
+      url: https://patreon.com/PerkySue
+    - label: 隐私政策
+      url: ''
+    - label: 架构文档
+      url: ''
+    credit: 由 Jérôme Corbiau 创作  ·  Apache 2.0 许可证
+common:
+  window_title: PerkySue — Beta 0.28.8
+  header_banner:
+    free_invite: PerkySue Beta — 免费 · 试用 Pro（30 天·免卡）
+    free_after_trial: PerkySue Beta — 免费
+    pro_trial: PerkySue Beta — Pro 试用 · 还剩 {days} 天
+    pro: PerkySue Beta — Pro
+    enterprise: PerkySue Beta — 企业版
+  'yes': 是
+  'no': 否
+  nav:
+    console: '>_   终端'
+    shortcuts: ⌨   快捷键
+    settings: ⚙   设置
+    modes: 💬   Prompts
+    chat: 💭   聊天
+    help: ❓   帮助
+    voice: 🔊   语音
+    user: 👤   用户
+    about: 💡   关于
+  statuses:
+    listening: 听取中
+    processing: 处理中
+    injecting: 注入中
+    ready: 就绪
+    error: 错误
+    crash: 应用崩溃
+    no_speech: 未检测到声音
+    tts_loading: 正在准备语音…
+    generating: 生成中
+    speaking: 播报中
+  footer:
+    github: GitHub
+    discord: Discord
+    alpha_banner: 转写永久免费。Pro 模式让项目得以延续。
+user:
+  settings:
+    title: 用户设置
+  billing:
+    label: Stripe 账单邮箱
+    hint: 用于将订阅绑定到此电脑的邮箱（只读）。
+    empty: —
+  section:
+    language_title: 界面语言
+    language_hint: 点击国旗切换语言。
+voice:
+  page_title: 语音
+  locked:
+    section_title: 文字转语音
+    body: PerkySue 可以把回答读出来。想做声音克隆的话，在每个皮肤文件夹里放一个短的 voice_ref.wav 就行。需要 Pro。
+    pro_note: 需要 Pro
+    upgrade: 升级到 Pro
+  install:
+    section_title: 给 PerkySue 加个声音
+    model_label: 选择模型
+    body: 打开文字转语音后，Answer 和 Help 模式的回复也能朗读。Patreon 语音包可能会带 voice_ref.wav 用来克隆。
+    button: 安装引擎
+    button_working: 正在安装…
+    retry: 再试一次
+  engine:
+    recommended_suffix: "（推荐）"
+  output:
+    section_title: 输出
+    enabled: 已启用
+    engine_label: 引擎
+  playback:
+    section_title: 播放
+    volume: 音量
+    speed: 语速
+    auto_speak: 自动朗读
+    auto_speak_hint: 在 Answer 和 Help 模式之后
+  packs:
+    section_title: 语音包
+    default_body: 当前是默认 Pro 语音。要克隆就往皮肤里加 voice_ref.wav，或者在 Patreon 找角色包。
+    installed_lead: "已安装的语音包:"
+    more_patreon: Patreon 上还有更多声音。
+  test:
+    section_title: 测试
+    field_label: 示例句子
+    sample_text: |
+      嗨！我是PerkySue — 没错，我有一把声音。
+      你可能不信，但我完全跑在你的电脑上。没有云，没有账号，没有数据飞到什么地方去。就只有你、我，还有你的麦克风。
+    speak: ▶  朗读
+    stop: ■  停止
+console:
+  pipeline_status: 流水线状态
+  whisper_stt: Whisper STT：
+  local_llm: 本地 LLM：
+  no_stt: 无 STT
+  no_llm: 未检测到 LLM
+  help_only_suffix: — 仅限帮助
+  transcription_controls: 转写控制
+  start: 开始
+  abort: 中止
+  copy_log: 📋  复制日志
+  finalized_logs: 已完成日志 - 临时
+  full_console: 终端
+  copy: 复制
+shortcuts:
+  title: 快捷键管理
+  col_mode: 模式
+  col_hotkey_alt: 快捷键（Alt）
+  col_hotkey_altgr: 快捷键（AltGr）
+  edit: 编辑
+  stop_task: 停止任务
+  restore_defaults: 恢复默认快捷键
+  restart_note: 修改需要重启才能生效
+settings:
+  save_sidebar_note: 重启后生效
+  update_button: 更新
+  update_note: 立即应用（无需重启）
+  appearance:
+    title: 外观
+    default_skin: 默认
+    patreon_cta: 在 Patreon 解锁支持者皮肤 💛
+    filter_all: 全部
+    select: 选择
+    import_skin: 导入皮肤
+  recommended_models:
+    title: 推荐模型
+    more_models: + 更多模型
+    current_model: 当前模型
+    get: ↓ 下载
+    filter_favorites_hint: 仅显示收藏（带星标的模型）
+    search_placeholder: 搜索模型…
+    tooltip_labels:
+      name: 名称
+      author: 作者
+      family: 系列
+      params: 参数
+      quant: 量化
+      thinking: 思考
+      uncensored: 无审查
+      languages: 语言
+      size: 大小
+      speed: 速度
+      favorite: 收藏
+      comment: 评论
+      alt_a_qa: Alt+A QA
+      popularity: 热度
+  performance:
+    title: 性能设置
+    stt_model: STT 模型
+    stt_device: STT 设备
+    silence_timeout: 静音超时（秒）
+    max_duration: 最长听取时长（秒）
+    first_language: 你的主要语言
+    llm_model: LLM 模型
+    max_input: 最大输入（上下文）
+    max_output: 最大输出（token）
+    llm_request_timeout: LLM 请求超时（秒）
+    no_gguf: Data/Models/LLM 中没有 .gguf 文件
+    auto: 自动
+  save_restart: 保存并重启
+  plan_management:
+    section_title: 订阅管理
+    badge_current: 当前
+    status_valid_until: '⟳ 到期: {date}'
+    status_valid_until_unknown: '⟳ 到期: —'
+    status_pro_trial_days: '试用 · 还剩 {days} 天'
+    status_access_until_cancelled: '到期: {date}'
+    status_pro_active_short: Pro
+    status_active_plan: 当前套餐
+    portal_title: 管理订阅
+    portal_manage_unavailable: 暂无法从应用内打开账单。请使用 Stripe 邮件中的链接，或联系 hello@perkysue.com。
+    buttons:
+      active: 已激活
+      free_tier: 免费版
+      manage: 管理
+      start_free_trial: 开始免费试用
+      get_pro: 升级 Pro 9.90 €/月
+      contact_sales: 联系我们
+    free:
+      name: 免费
+      price: 0 €
+      features:
+      - text: Alt+T 转写
+        locked: false
+      - text: 本地 Whisper STT
+        locked: false
+      - text: Smart Focus
+        locked: false
+      - text: Alt+A Ask
+        locked: false
+      - text: 本地 LLM
+        locked: false
+    pro:
+      name: Pro
+      price: 9.90 €
+      price_sub: /月
+      trial_sub: 30 天 · 无需绑卡
+      features:
+      - text: 全部 14 种 LLM 模式
+        locked: false
+      - text: 自定义 prompts
+        locked: false
+      - text: 优先更新
+        locked: false
+      - text: 语音对语音
+        locked: false
+    enterprise:
+      name: 企业版
+      price: 定制报价
+      features:
+      - text: 企业知识库
+        locked: false
+      - text: 团队部署
+        locked: false
+      - text: 专属支持
+        locked: false
+    link_subscription:
+      wizard_title: 关联你的订阅
+      cta: 我已经订阅了
+      otp_headline: 查看邮箱
+      email_intro: 输入邮箱开始 — 我们会发 6 位验证码，确认是你本人。
+      step_email_title: 账单邮箱
+      step_email_hint: 与 Stripe 收据或发票上的邮箱一致。
+      email_placeholder: your@email.com
+      send_code: 发送验证码
+      step_otp_title: 验证码
+      otp_placeholder: 6 位数字
+      otp_hint: 输入我们发到邮箱的 6 位验证码。
+      verify: 验证并关联
+      resend: 重发验证码
+      resend_wait: 重发 ({s}秒)
+      success_title: 搞定啦！🎉
+      success_body: 订阅已绑定。此电脑上的 Pro 已启用。
+      resent_ok: 新验证码已发送。
+      close: 继续
+      busy_sending: 发送中…
+      busy_verify: 验证中…
+      errors:
+        network: 无法连接 perkysue.com，请检查网络后重试。
+        invalid_email: 邮箱格式好像不对，再检查一下？
+        inactive: 该邮箱没有有效订阅。
+        wrong_code: 验证码不对。
+        invalid_code: 请输入邮件中的验证码。
+        attempts: 尝试次数过多，请稍后再试。
+        cooldown: 请稍候再请求验证码。
+        generic: 出了点问题，请几秒后再试。
+      success_cta: 开始使用 PerkySue
+    trial_request:
+      wizard_title: 开始免费试用
+      email_intro: 输入邮箱开始 — 我们会发 6 位验证码，确认是你本人。
+      email_placeholder: your@email.com
+      send_code: 发送验证码
+      otp_headline: 验证邮箱
+      otp_hint: 输入 6 位验证码，然后选择是否订阅邮件。
+      newsletter_title: 邮件订阅
+      newsletter_question: 只发有用更新，不发垃圾邮件。有新功能、技巧时才会联系你。
+      'yes': 好
+      'no': 不用
+      resend: 重发验证码
+      resend_wait: 重发 ({s}s)
+      resent_ok: 新验证码已发送。
+      busy_sending: 发送中…
+      busy_verify: 激活中…
+      success_title: 搞定啦！🎉
+      success_body: 30 天 Pro 试用现在开始。尽享全部 Pro 功能 — 不限量，无需信用卡。
+      success_cta: 开始使用 PerkySue
+      errors:
+        network: 无法连接 perkysue.com，请检查网络后重试。
+        invalid_email: 邮箱格式好像不对，再检查一下？
+        invalid_code: 请输入邮件里的 6 位验证码。
+        wrong_code: 验证码不对。
+        attempts: 尝试次数过多，请稍后再试。
+        cooldown: 请稍候再请求验证码。
+        rate_limited: 尝试次数过多，请稍后再试。
+        trial_already_used: 该邮箱已用过免费试用。
+        trial_ineligible_paid: 该邮箱曾关联过 Pro 订阅。免费试用仅面向新用户 — 你随时可以再订阅。
+        generic: 出了点问题，请几秒后再试。
+modes:
+  stt_keywords:
+    title_unlimited: Whisper STT 关键词（无限制）
+    title_limit: Whisper STT 关键词（限制：{limit}）
+    placeholder: 输入一个词后按 Enter（例如 PerkySue、STT）……
+    tags_counter: '{count} / {limit} 个标签'
+  identity:
+    section_title: 身份与偏好
+    title: 你的名字
+    placeholder: 可选：LLM 怎么称呼你（例如 小明）……
+    help: 用于部分 LLM prompts（例如邮件模式）
+  prompt_modes:
+    title: Prompts
+    edit_hint: 可以修改每个 LLM 快捷键的系统 prompt
+    system_prompt_help: 发送给 LLM 的系统 prompt = 当前设置 + 知识库 + 指令（上方区域）。把你的问题放在下方测试输入里。
+    test_input_label: 测试输入（示例）：
+    test_response_label: LLM 响应（预览）：
+    test_hint: 测试始终使用上方当前文字，即使未保存也一样。
+    paste: 粘贴
+    copy: 复制
+    run_test: 运行测试
+    save: 保存
+    cancel: 取消
+    edit: 编辑
+    test: 测试
+  registry:
+    transcribe:
+      name: 转写
+      description: 简单转写 — 语音转文字，无后处理
+    improve:
+      name: 改写
+      description: 清理语音听写并添加标点
+    professional:
+      name: 专业
+      description: 以专业、清晰的语气改写
+    translate:
+      name: 翻译
+      description: 翻译成已配置的目标语言
+    console:
+      name: 终端
+      description: 将语音转换为 shell 命令
+    email:
+      name: 邮件
+      description: 格式化为专业邮件
+    message:
+      name: 私信
+      description: 适用于 WhatsApp、Slack、Discord、SMS 的友好消息
+    social:
+      name: 社交帖子
+      description: 在 YouTube、X/Twitter、LinkedIn、Reddit 回复或发帖
+    summarize:
+      name: 总结
+      description: 总结听写的文字
+    genz:
+      name: Gen Z
+      description: 带表情符号的轻松随意改写
+    answer:
+      name: Ask
+      description: 基于听写文本或其中问题发起提问
+    help:
+      name: 帮助
+      description: 问关于 PerkySue 的问题 — 使用应用知识库
+    custom1:
+      name: 自定义 prompt 1
+      description: 你的自定义 prompt — 在 Prompts 中编辑
+    custom2:
+      name: 自定义 prompt 2
+      description: 你的自定义 prompt — 在 Prompts 中编辑
+    custom3:
+      name: 自定义 prompt 3
+      description: 你的自定义 prompt — 在 Prompts 中编辑
+chat:
+  title: 聊天
+  new_chat: 新对话
+  save_log: 保存日志
+  token_counter: '{current} / {max}'
+  placeholder: 输入消息……或按麦克风说话
+  hint: Alt+A：开关麦克风 · Alt+Q：停止听取
+  help_redirect: 有关于 PerkySue 或应用的问题？用帮助选项卡。
+  sender_name: PerkySue
+  user_fallback: 你
+  free_answer_notice: 在免费方案中，每个问题都会被独立处理——助手不会记住你之前的消息。可让助手记住当前对话的多轮上下文，以及光标注入（Smart Focus），仅在 Pro 方案中提供——你可在需要时随时升级。
+help:
+  title: 帮助
+  new_chat: 新对话
+  save_log: 保存日志
+  token_counter: '{current} / {max}'
+  placeholder: 问关于 PerkySue 的问题……
+  hint: Alt+H：开关麦克风 · Alt+Q：停止听取
+  sender_name: PerkySue
+header_tips:
+  startup_message: 小贴士 · 把光标放到 Word、Gmail、Slack……然后按 Alt+T
+  tips:
+  - 小贴士 · 按 Alt+Q 或点击头像停止听取
+  - 小贴士 · Alt+T 永久免费 — 快速转写，无字数限制
+  - 小贴士 · 选中文字，按 Alt+I，说你想改什么
+  - 小贴士 · 在任意地方按 Alt+M，口述一整封邮件
+  - Alt+A Pro：聊天延续上下文 — Alt+A 免费：每次一问
+  - 小贴士 · 有环境噪音不会自动停？按 Alt+Q 停止
+  - 小贴士 · 选中段落 → Alt+P — 一键修语气和语法
+  - 小贴士 · 在终端按 Alt+C：用大白话描述你要什么
+  - 小贴士 · Alt+L：选中文字，让它翻译成任意语言
+  - 小贴士 · Alt+D：口述发给 WhatsApp、Slack、Discord、SMS 的消息
+  - 小贴士 · Alt+X：为 LinkedIn、X、YouTube、Reddit 生成帖子或回复
+  - 小贴士 · 粘入会议记录，选中，Alt+S 生成简洁摘要
+  - 小贴士 · 选中草稿，Alt+I，说「缩短它」— 搞定
+  - 小贴士 · Alt+V 到 Alt+N = 你的自定义 prompts。在 Prompts 里编辑
+  - 小贴士 · 建一个自定义 prompt，用品牌语气回复评论
+  - 小贴士 · 厌倦了重复写同样的 AI prompt？做成自定义 prompt
+  - 小贴士 · 自定义 prompt 灵感：把笔记变成带钩子的 LinkedIn 帖
+  - 小贴士 · 用自定义 prompts 生成格式化的 Kling/Runway 视频 prompt
+  - 小贴士 · 自定义 prompt 灵感：从文字中提取行动项和截止日期
+  - 小贴士 · Alt+H：在帮助选项卡问我任何关于 PerkySue 的问题
+  - Pro · 如果 Smart Focus 没有粘贴，从终端选项卡复制输出
+  - 小贴士 · 退出听取状态：点击头像或按 Alt+Q
+  - 小贴士 · PerkySue 处理时随便干别的 — 不用等
+  - Smart Focus：触发后去忙别的，文字会落在正确的地方
+  - 小贴士 · 用 CPU？Whisper small（快）或 medium（准）。⚙️ → STT 模型
+  - 小贴士 · 有环境噪音？听取不停？— Alt+Q 或点击头像
+  - 小贴士 · 在 Prompts 里编辑每个模式的 prompt — 把 PerkySue 调成你的风格
+  - 小贴士 · Whisper 识错某个词？在 Prompts 的 STT 关键词里加上它
+  delay_before_first_ms: 3500
+  display_ms: 7500
+  delay_between_ms: 15000
+header_alerts:
+  critical:
+    no_llm: 未检测到 LLM。在设置中下载一个。
+    save_restart: 你需要保存并重启 PerkySue
+    shortcut_in_use: 该快捷键已被占用（{other_name}）。请换一个。
+    llm_error_400: LLM 错误（400）— 上下文太大？在设置中增加「最大输入」。
+    llm_error_generic: LLM 错误 — 查看终端。如果使用 Alt+A，在设置中增加「最大输入」（上下文）。
+    max_input_reached: 已达最大输入限制 — 历史记录已被压缩。
+    max_input_context_reached: 输入（上下文）限制（{max_input}）已达到。增加到 {suggested} → 设置 → 性能。
+    max_output_tokens_reached: 输出限制（{max_output}）已达到。在 → 设置中增加到 {suggested}
+    llm_request_timeout: LLM 请求超时 — 在设置 → 性能中尝试 180 秒或 240 秒
+  regular:
+    recording_stopped: 🛑 录音已停止
+    processing_stopped: 🛑 处理已停止
+    tts_stopped: 🛑 语音播放已停止
+    tts_loading: 正在准备语音 — 首次设置进行中...
+    omnivoice_requires_nvidia: OmniVoice requires NVIDIA/CUDA (not available on CPU/Vulkan).
+    tts_install_in_progress: Installation already in progress — please wait.
+    ai_disclaimer: ⚠️ AI 的回答可能不准确。请核实事实。
+    recording_no_audio: 未捕获到音频 — 录音已停止。检查麦克风。
+    recording_too_short: 录音太短 — 未检测到文字。检查麦克风或说长一点。
+    copied_to_clipboard: 已复制到剪贴板
+    llm_not_available: LLM 编排器不可用。
+    pro_plan_required_mode: 此模式在免费方案中已锁定——需要 Pro 方案。
+    no_logs_to_save: 没有日志可保存
+    all_logs_copied: 所有日志已复制到剪贴板
+    download_success: ✓ 下载完成。
+    download_progress: ⏳ 正在下载「{name}」…… {pct}%
+  run_test_400_hint: → 400 Bad Request 通常意味着上下文超出了模型限制。在设置 → 性能中增加「最大输入」。
+  run_test_timeout_hint: → 模型未能及时完成。在设置 → 性能中，把 LLM 请求超时设为 180 或 240 秒（取决于你的硬件耐心）。
+  document_injection:
+    llm_error_400: LLM 错误（400）— 上下文太大？在设置中增加「最大输入」（上下文）。
+    llm_error_generic: LLM 错误 — 查看终端。在设置中增加「最大输入」（上下文）。
+    max_input_reached: '⚠️ 已达最大输入限制 — 历史记录已被压缩。参见设置 → 最大输入及你的系统容量。
+
+
+      '
+    chat_max_input_reached: ⚠️ 已达输入（上下文）限制（{max_input}）。在设置 → 性能中将「最大输入」增加到 {suggested} 或更高。
+    chat_context_limit_reached: ⚠️ 上下文限制（{max_input}）已达到 — 输入和输出共用这个额度。 在设置 → 性能中将「最大输入」增加到 {suggested} 或更高。
+    chat_max_output_reached: ⚠️ 回复被截断：输出限制（{max_output}）已达到。在设置 → 性能中将「最大输出」增加到 {suggested} 或更高。
+    chat_empty_reply: — 回复为空。换个说法或查看终端。
+    trial_request:
+      newsletter_title: Newsletter preference
+      newsletter_question: Get updates, not spam. We'll only email you when something worth knowing happens — new features, tips & tricks, that's it.

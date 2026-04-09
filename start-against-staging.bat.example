@@ -1,0 +1,7 @@
+@echo off
+REM INTERNAL ONLY — copy this file to start-against-staging.bat (gitignored) and set YOUR staging URL.
+REM Do not commit start-against-staging.bat: it contains your Cloudflare workers.dev origin (semi-private).
+REM Same base is used for PERKYSUE_LICENSE_API and for /pro + /alpha links (see App/gui/widget.py).
+REM Requires: Data\Plugins\dev\manifest.yaml with strict_remote: true.
+set "PERKYSUE_LICENSE_API=https://YOUR-STAGING-SUBDOMAIN.workers.dev"
+call "%~dp0start.bat"

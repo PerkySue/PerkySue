@@ -1,0 +1,636 @@
+﻿about:
+  support_patreon_label: ❤ Patreon에서 후원하기
+  updates:
+    title: 업데이트
+    body_idle: GitHub에서 최신 버전을 확인하세요.
+    body_checking: GitHub 릴리스를 확인하는 중…
+    body_check_failed: 업데이트를 확인할 수 없습니다.
+    body_available: '업데이트 가능: {v}'
+    body_uptodate: '최신 버전입니다 ({v}).'
+    body_downloading: 업데이트 다운로드 중…
+    body_ready_restart: 업데이트 설치 완료. 적용하려면 재시작하세요.
+    body_failed: 업데이트 실패.
+    wizard_title: 업데이트
+    btn_check: 업데이트 확인
+    btn_retry: 다시 시도
+    btn_update: 업데이트
+    btn_restart: 재시작하여 적용
+    btn_close: 닫기
+    btn_cancel: 취소
+    footer_link: '업데이트 가능 {v}'
+  quick_use_cases:
+    section_title: 사용 사례(빠르게)
+    voice_layer: 'AI용 보이스 레이어: 어떤 AI 채팅 입력창이든 Alt+T → 말하기 → Enter.'
+    custom_prompts: '커스텀 프롬프트: Alt+V/B/N = 3개 슬롯 — 내 규칙과 톤으로 워크플로 재사용.'
+    footer: 로컬 실행 — 텍스트는 내 PC에 남습니다.
+  hero:
+    title: PerkySue
+    tagline: AI 탑재 음성-텍스트 변환. 100% 로컬. 100% 프라이빗.
+    subtitle: 단축키 누르고, 말하면, 커서 위치에 바로 텍스트가 뜬다 — 어떤 앱이든, 어떤 창이든, 어떤 입력란이든. 클라우드 없음. 계정 없음. 데이터가 내 PC를 절대 떠나지 않음.
+  why_exists:
+    section_title: PerkySue가 존재하는 이유
+    line_1: 다른 받아쓰기 툴들은 전부 문제의 절반만 해결한다.
+    line_2: 목소리를 단어로 바꿔주긴 하는데 — 같이 생각해주지는 않는다.
+    line_3: 텍스트를 챗봇에 복붙하고, 기다리고, 답변을 다시 복붙한다. 한 번에 끝날 일이 여러 단계가 되고 — 내 말은 내가 통제 못하는 서버로 날아간다.
+    line_4: PerkySue는 단축키 하나로 전체 파이프라인을 처리한다.
+    line_5: 음성 인식, 로컬 LLM 변환, 텍스트 삽입 — 한 번에, 어떤 앱에서든, 아무것도 내 기기를 떠나지 않고.
+    line_6: 목소리는 중립 데이터가 아니다 — 생체 정보다.
+    line_7: 억양, 말 리듬, 감정 상태가 담겨 있다. 클라우드 받아쓰기 툴들은 그걸 캡처하고, 전송하고, 대부분 읽지도 않는 약관 하에 보관한다. 모델 학습에 쓰이고 인프라 파트너와 공유된다.
+    line_8: PerkySue는 오디오를 RAM에서 처리하고 로컬에서 변환한 뒤 즉시 삭제한다. 저장도, 로그도, 전송도 없다.
+    line_9: 내 목소리는 나에게 남는다.
+  how_it_works:
+    section_title: 어떻게 작동하나
+    step1_title: 단축키 누르기
+    step1_description: '보통 타이핑하는 앱에 커서를 놓고 (Word, Gmail, Slack, VS Code…) 누르면 된다:'
+    step2_title: 자연스럽게 말하기
+    step2_description: 말을 멈출 때까지 PerkySue가 듣는다. 주변 소음 때문에 자동 정지가 안 되면 — Alt+Q (전역 기본값) 또는 앱이 포커스일 때 Esc를 누르거나, 프로필 사진을 클릭하면 된다.
+    step3_title: 텍스트가 시작한 곳에 나타남
+    step3_description: 단축키를 누르는 순간 PerkySue가 커서와 활성 창을 잠근다.
+    step4_title: 처리되는 동안 계속 작업하기
+    step4_description: 탭 바꾸고, 다른 데 타이핑해도 된다. Smart Focus가 시작한 위치에 결과를 삽입한다.
+  features:
+    section_title: 사람들이 어디에 쓰나
+    transcribe:
+      card_title: 🎙️ 받아쓰기 — 무료, 영원히
+      badge: Alt+T
+      description: 말하면 커서 위치에 원문 텍스트가 바로 뜬다. 모든 PC에서 작동 — Whisper 모델을 tiny (구형 하드웨어, 4GB RAM)부터 large-v3 (최신 GPU 스튜디오급)까지 선택 가능. LLM 필요 없음, 구독 없음, 단어 제한 없음.
+    improve:
+      card_title: ✏️ 개선 — 선택한 텍스트 다시 쓰기
+      badge: Alt+I
+      description: 문서 작업 중 한 단락이 안 사는 경우 — 아이디어는 있는데 글이 밋밋하다. 선택하고, Alt+I 누르고, "더 임팩트 있게, 절반으로 줄여줘"라고 말하면 된다. PerkySue가 선택 텍스트와 지시를 동시에 읽는다. 다시 쓴 단락이 원본을 대체하고, 앱을 벗어나지 않는다.
+      prompt: 🎤  "더 흥미롭게 만들어줘, 지금 버전은 너무 딱딱해"
+      result: ✅  선택한 텍스트가 개선된 버전으로 교체된다.
+    professional:
+      card_title: 💼 전문적 — 어조와 오류를 한 번에 수정
+      badge: Alt+P
+      description: 캐주얼한 말투와 오타가 섞인 두 단락을 썼다. 선택하고, Alt+P 누르고, "정리해줘, 이사회 보고용이야"라고 말하면 된다. LLM이 격식체로 다시 쓰고 오류를 수정한다 — 클립보드 없이 선택 텍스트가 바로 교체된다.
+      prompt: 🎤  "세련되게 들려야 해, 문법도 고쳐줘"
+      result: ✅  선택한 텍스트가 격식 있게 수정된 버전으로 교체된다.
+  use_cases:
+    section_title: 더 많은 음성 모드 실제 활용
+    intro: 각 모드는 음성 명령으로 작동한다 — 텍스트 선택 불필요. 단축키 누르고, 말하고, 커서 위치에 결과가 나타난다.
+    footer: 모든 모드는 내 PC에서만 실행된다. API 호출 없음, 인터넷 없음, 데이터가 기기를 떠나지 않음.
+    items:
+    - badge: Alt+M
+      name: 이메일 — 말하고 보내기
+      prompt: 🎤  "John에게 PerkySue가 런치 준비됐다고 이메일 써줘 — 다음 주 소프트 출시 목표라고 언급해줘"
+      result: ✅  커서 위치에 제대로 포맷된 전문 이메일이 나타난다. PerkySue는 말하는 언어로 작성한다.
+    - badge: Alt+D
+      name: 다이렉트 메시지 — 바로 보낼 수 있게
+      prompt: 🎤  "할머니한테 간장 잊지 말라고 해줘"
+      result: ✅  할머니! 간장 잊지 마세요! 좋은 하루 되세요!
+    - badge: Alt+X
+      name: 소셜 포스트 — 게시 또는 답글
+      prompt: 🎤  "이 YouTube 댓글에 답글 달아줘 — 감사하다고 하고 다음 주에 플러그인 시스템 영상 올라온다고 해줘"
+      result: ✅  정말 감사해요! 좋게 봐주셔서 기쁩니다. 다음 주에 플러그인 시스템 영상 올라와요. 기대해주세요!
+    - badge: Alt+C
+      name: 콘솔 — 설명하면 명령어가 나옴
+      prompt: 🎤  "최근 7일 동안 수정된 Python 파일 전부 찾아줘"
+      result: ✅  find . -name "*.py" -mtime -7 — 터미널에 바로 붙여넣을 수 있다.
+    - badge: Alt+A
+      name: Ask — 대화 메모리 포함 Q&A
+      prompt: 🎤  "mutex와 semaphore의 차이가 뭐야?"
+      result: ✅  커서 위치에 답변이 삽입된다. 추가 질문을 해도 모델이 대화 내용을 기억한다.
+    - badge: Alt+V/B/N
+      name: 커스텀 프롬프트 — 내 규칙, 내 워크플로
+      prompt: 🎤  Prompts에서 편집할 수 있는 사용자 정의 프롬프트 슬롯 3개.
+      result: ✅  음성을 회의 노트, 특정 글쓰기 스타일, 구조화된 출력으로 변환 — 필요한 것 무엇이든.
+  smart_focus:
+    section_title: Smart Focus
+    card_title: 🎯 Smart Focus — 누르고 잊어버려도 된다
+    description: 단축키를 누르는 순간 PerkySue가 커서 위치를 기억한다. Whisper가 받아쓰고 LLM이 생성하는 동안 앱을 바꾸고, 다른 곳에 타이핑하고, 뭐든 해도 된다. 결과는 시작한 위치에 도착한다 — 지금 커서가 있는 곳이 아니라.
+  voice_modes:
+    section_title: 음성 모드
+    modes:
+    - hotkey: Alt+T
+      name: 받아쓰기
+      description: 빠른 받아쓰기 (LLM 없음)
+      needs_llm: false
+    - hotkey: Alt+I
+      name: 개선
+      description: 텍스트 정리 및 포맷
+      needs_llm: true
+    - hotkey: Alt+P
+      name: 전문적
+      description: 격식체 비즈니스 리라이트
+      needs_llm: true
+    - hotkey: Alt+L
+      name: 번역
+      description: 목표 언어로 번역
+      needs_llm: true
+    - hotkey: Alt+C
+      name: 콘솔
+      description: 셸 명령어 추출
+      needs_llm: true
+    - hotkey: Alt+M
+      name: 이메일
+      description: 전문 이메일 형식으로 포맷
+      needs_llm: true
+    - hotkey: Alt+D
+      name: 다이렉트 메시지
+      description: WhatsApp/Slack/Discord/SMS — 관계에 맞는 어조
+      needs_llm: true
+    - hotkey: Alt+X
+      name: 소셜 포스트
+      description: LinkedIn/X/YouTube/Reddit — 게시 또는 답글
+      needs_llm: true
+    - hotkey: Alt+S
+      name: 요약
+      description: 핵심 포인트로 압축
+      needs_llm: true
+    - hotkey: Alt+A
+      name: Ask
+      description: 질문하면 LLM이 커서 위치에 답함
+      needs_llm: true
+    - hotkey: Alt+H
+      name: 도움말
+      description: PerkySue 질문 — 앱 KB + 내 설정
+      needs_llm: true
+    - hotkey: Alt+G
+      name: GenZ
+      description: 캐주얼하고 트렌디한 리라이트
+      needs_llm: true
+  competition:
+    section_title: PerkySue vs. 경쟁 제품
+    items:
+    - title: vs. 내장 받아쓰기
+      examples: Windows, macOS, Google
+      description: 그것들은 단어만 받아쓴다. PerkySue는 받아쓰고 생각한다 — 11가지 모드가 음성을 이메일, 명령어, 번역, 요약으로 변환한다.
+    - title: vs. 클라우드 받아쓰기
+      examples: Wispr Flow, Typeless
+      description: 오디오가 내 PC를 절대 떠나지 않는다. 계정 없음, 인터넷 없음, 단어 제한 없음. 비행기 모드나 USB에서도 작동한다.
+    - title: vs. 오픈소스 툴
+      examples: Amical, OpenWhispr
+      description: 그것들은 STT + 붙여넣기만 한다. PerkySue는 로컬 LLM 파이프라인, 텍스트 선택 + 음성 지시, Smart Focus, GUI 위젯을 추가한다.
+  privacy:
+    section_title: 개인정보 보호
+    items:
+    - icon: 🔒
+      title: 인터넷 불필요
+      description: 모든 것이 내 PC에서 실행됨
+    - icon: 🔇
+      title: 오디오 저장 안 됨
+      description: RAM에서 캡처, 변환 후 즉시 삭제
+    - icon: 👤
+      title: 계정 불필요
+      description: 회원가입 없음, 추적 없음, 쿠키 없음
+    - icon: 📂
+      title: 오픈 소스
+      description: 코드 한 줄 한 줄 직접 확인 가능
+  why_i_built_it:
+    section_title: 왜 만들었나
+    paragraph_1: 'PerkySue는 개인 생산성 툴로 시작했다 — 피치덱용이 아니라 내가 매일 필요한 것. 수년간 소프트웨어 아키텍처와 대화형 플랫폼을 설계한 후, 하나의 파이프라인을 원했다: 음성 → 로컬 STT → 로컬 LLM → 이미 작업 중인 곳에 텍스트 삽입.'
+    paragraph_2: '코드는 AI와 공동 개발됐다: 이 프로젝트는 AI 프로그래밍 어시스턴트와의 지속적인 협업으로 만들어졌다. 로컬 파이프라인은 복잡하다. 재미있게도, PerkySue가 오늘 내 목소리나 데이터를 클라우드에 보내지 않고 자기 코드를 짜는 걸 도와주고 있다.'
+  links:
+    section_title: 링크
+    items:
+    - label: GitHub 저장소
+      url: https://github.com/PerkySue/PerkySue
+    - label: Discord 커뮤니티
+      url: https://discord.gg/UaJHEzFgXy
+    - label: Patreon에서 후원하기 ❤
+      url: https://patreon.com/PerkySue
+    - label: 개인정보 처리방침
+      url: ''
+    - label: 아키텍처 문서
+      url: ''
+    credit: '제작: Jérôme Corbiau  ·  Apache 2.0 라이선스'
+common:
+  window_title: PerkySue — Beta 0.28.8
+  header_banner:
+    free_invite: PerkySue Beta — 무료 · Pro 체험(30일·카드 없음)
+    free_after_trial: PerkySue Beta — 무료
+    pro_trial: PerkySue Beta — Pro 체험 · {days}일 남음
+    pro: PerkySue Beta — Pro
+    enterprise: PerkySue Beta — 엔터프라이즈
+  'yes': 예
+  'no': 아니오
+  nav:
+    console: '>_   콘솔'
+    shortcuts: ⌨   단축키
+    settings: ⚙   설정
+    modes: 💬   Prompts
+    chat: 💭   채팅
+    help: ❓   도움말
+    voice: 🔊   음성
+    user: 👤   사용자
+    about: 💡   정보
+  statuses:
+    listening: 듣는 중
+    processing: 처리 중
+    injecting: 삽입 중
+    ready: 준비됨
+    error: 오류
+    crash: 앱 충돌
+    no_speech: 소리 없음
+    tts_loading: 음성 준비 중…
+    generating: 생성 중
+    speaking: 재생 중
+  footer:
+    github: GitHub
+    discord: Discord
+    alpha_banner: 전사는 평생 무료입니다. Pro 모드가 프로젝트를 이어 갑니다.
+user:
+  settings:
+    title: 사용자 설정
+  billing:
+    label: Stripe 청구 이메일
+    hint: 이 PC에 구독을 연결한 이메일(읽기 전용).
+    empty: —
+  section:
+    language_title: 인터페이스 언어
+    language_hint: 국기를 클릭하면 적용된다.
+voice:
+  page_title: 음성
+  locked:
+    section_title: 텍스트 읽기
+    body: PerkySue가 답변을 소리 내어 읽어줄 수 있어. 보이스 클론은 각 스킨 폴더에 짧은 voice_ref.wav만 넣으면 돼. Pro 플랜만 가능해.
+    pro_note: Pro 전용
+    upgrade: Pro로 업그레이드
+  install:
+    section_title: PerkySue에 목소리 더하기
+    model_label: 모델 고르기
+    body: TTS를 켜면 Answer·Help 모드 답변도 읽어줄 수 있어. Patreon 보이스 팩에 클론용 voice_ref.wav가 들어있을 수도 있어.
+    button: 엔진 설치
+    button_working: 설치 중…
+    retry: 다시 시도
+  engine:
+    recommended_suffix: " (권장)"
+  output:
+    section_title: 출력
+    enabled: 켜짐
+    engine_label: 엔진
+  playback:
+    section_title: 재생
+    volume: 볼륨
+    speed: 속도
+    auto_speak: 자동 읽기
+    auto_speak_hint: Answer·Help 모드 후에
+  packs:
+    section_title: 보이스 팩
+    default_body: 지금은 기본 Pro 보이스야. 클론하려면 스킨에 voice_ref.wav 추가하거나 Patreon 캐릭터 팩을 봐봐.
+    installed_lead: "설치된 보이스 팩:"
+    more_patreon: Patreon에 더 많은 목소리.
+  test:
+    section_title: 테스트
+    field_label: 샘플 문장
+    sample_text: |
+      안녕! 나는 PerkySue야 — 그래, 나한테 목소리가 있어.
+      믿기 힘들겠지만, 나는 완전히 네 컴퓨터 안에서 돌아가. 클라우드도 없고, 계정도 없고, 어딘가로 날아가는 데이터도 없어. 그냥 너랑 나랑, 마이크뿐이야.
+    speak: ▶  읽기
+    stop: ■  중지
+console:
+  pipeline_status: 파이프라인 상태
+  whisper_stt: 'Whisper STT:'
+  local_llm: '로컬 LLM:'
+  no_stt: STT 없음
+  no_llm: LLM 감지 안 됨
+  help_only_suffix: — 도움말 전용
+  transcription_controls: 받아쓰기 제어
+  start: 시작
+  abort: 중단
+  copy_log: 📋  로그 복사
+  finalized_logs: 완료됨 - 임시 로그
+  full_console: 콘솔
+  copy: 복사
+shortcuts:
+  title: 단축키 관리자
+  col_mode: 모드
+  col_hotkey_alt: 단축키 (Alt)
+  col_hotkey_altgr: 단축키 (AltGr)
+  edit: 편집
+  stop_task: 작업 중지
+  restore_defaults: 기본 단축키 복원
+  restart_note: 변경 사항은 저장 & 재시작 필요 (사이드바).
+settings:
+  save_sidebar_note: 재시작 후 적용됨
+  update_button: 업데이트
+  update_note: 지금 적용 (재시작 없음)
+  appearance:
+    title: 외관
+    default_skin: 기본
+    patreon_cta: Patreon에서 서포터 스킨 잠금 해제 ❤
+    filter_all: 전체
+    select: 선택
+    import_skin: 스킨 가져오기
+  recommended_models:
+    title: 추천 모델
+    more_models: + 더 많은 모델
+    current_model: 현재 모델
+    get: ↓ 다운로드
+    filter_favorites_hint: 즐겨찾기만 표시 (별 표시 모델)
+    search_placeholder: 모델 검색…
+    tooltip_labels:
+      name: 이름
+      author: 작성자
+      family: 패밀리
+      params: 파라미터
+      quant: 양자화
+      thinking: 사고형
+      uncensored: 검열 없음
+      languages: 언어
+      size: 크기
+      speed: 속도
+      favorite: 즐겨찾기
+      comment: 코멘트
+      alt_a_qa: Alt+A QA
+      popularity: 인기도
+  performance:
+    title: 성능 설정
+    stt_model: STT 모델
+    stt_device: STT 장치
+    silence_timeout: 무음 타임아웃 (초)
+    max_duration: 최대 듣기 시간 (초)
+    first_language: 주 사용 언어
+    llm_model: LLM 모델
+    max_input: 최대 입력 (컨텍스트)
+    max_output: 최대 출력 (토큰)
+    llm_request_timeout: LLM 요청 타임아웃 (초)
+    no_gguf: Data/Models/LLM에 .gguf 없음
+    auto: 자동
+  save_restart: 저장 & 재시작
+  plan_management:
+    section_title: 구독 관리
+    badge_current: 현재
+    status_valid_until: '⟳ 갱신: {date}'
+    status_valid_until_unknown: '⟳ 갱신: —'
+    status_pro_trial_days: 'Trial · {days}일 남음'
+    status_access_until_cancelled: '만료: {date}'
+    status_pro_active_short: Pro
+    status_active_plan: 활성 플랜
+    portal_title: 구독 관리
+    portal_manage_unavailable: 앱에서 청구 페이지를 여는 기능은 아직 없습니다. Stripe 이메일의 링크를 사용하거나 hello@perkysue.com 으로 문의하세요.
+    buttons:
+      active: 활성
+      free_tier: 무료
+      manage: 관리
+      start_free_trial: 무료 체험 시작
+      get_pro: Pro 시작 9.90€/월
+      contact_sales: 영업 →
+    free:
+      name: 무료
+      price: 0€
+      features:
+      - text: Alt+T 받아쓰기
+        locked: false
+      - text: 로컬 Whisper STT
+        locked: false
+      - text: Smart Focus
+        locked: false
+      - text: Alt+A Ask
+        locked: false
+      - text: 로컬 LLM
+        locked: false
+    pro:
+      name: Pro
+      price: 9.90€
+      price_sub: /월
+      trial_sub: 30일 · 카드 불필요
+      features:
+      - text: LLM 모드 14개 전부
+        locked: false
+      - text: 커스텀 프롬프트
+        locked: false
+      - text: 우선 업데이트
+        locked: false
+      - text: 보이스-투-보이스
+        locked: false
+    enterprise:
+      name: 엔터프라이즈
+      price: 맞춤형
+      features:
+      - text: 지식 베이스
+        locked: false
+      - text: 팀 배포
+        locked: false
+      - text: 전담 지원
+        locked: false
+    link_subscription:
+      wizard_title: 구독 연결하기
+      cta: 이미 구독 중이에요
+      otp_headline: 이메일을 확인해줘
+      email_intro: 시작하려면 이메일을 입력해줘. 본인 확인용 6자리 코드를 보낼게.
+      step_email_title: 청구 이메일
+      step_email_hint: Stripe 영수증·청구서와 같은 주소
+      email_placeholder: you@email.com
+      send_code: 코드 보내기
+      step_otp_title: 인증 코드
+      otp_placeholder: 숫자 6자리
+      otp_hint: 메일로 보낸 6자리 코드를 입력해줘.
+      verify: 확인 후 연결
+      resend: 코드 다시 보내기
+      resend_wait: 다시 보내기 ({s}초)
+      success_title: 준비 완료! 🎉
+      success_body: 구독이 연결됐어. 이 PC에서 Pro가 활성화됐어.
+      resent_ok: 새 코드를 보냈어요.
+      close: 계속
+      busy_sending: 보내는 중…
+      busy_verify: 확인 중…
+      errors:
+        network: perkysue.com에 연결할 수 없어요. 인터넷을 확인하고 다시 시도해 주세요.
+        invalid_email: 이메일 형식을 다시 확인해 주세요.
+        inactive: 이 이메일로는 활성 구독이 없어요.
+        wrong_code: 코드가 일치하지 않아요.
+        invalid_code: 이메일로 받은 코드를 입력해 주세요.
+        attempts: 시도가 너무 많아요. 잠시 후 다시 해 주세요.
+        cooldown: 잠시 후에 코드를 다시 요청할 수 있어요.
+        generic: 문제가 생겼어요. 몇 초 뒤에 다시 시도해 주세요.
+      success_cta: PerkySue 시작하기
+    trial_request:
+      wizard_title: 무료 체험 시작
+      email_intro: 시작하려면 이메일을 입력해줘. 본인 확인용 6자리 코드를 보낼게.
+      email_placeholder: you@email.com
+      send_code: 코드 보내기
+      otp_headline: 이메일 확인
+      otp_hint: 6자리 코드를 입력하고 뉴스레터 선택을 골라줘.
+      newsletter_title: 뉴스레터
+      newsletter_question: 스팸 말고 소식만. 정말 알 만한 일이 있을 때만 보낼게.
+      'yes': 예
+      'no': 아니요
+      resend: 코드 다시 보내기
+      resend_wait: 다시 보내기 ({s}s)
+      resent_ok: 새 코드를 보냈어.
+      busy_sending: 보내는 중…
+      busy_verify: 활성화 중…
+      success_title: 준비 완료! 🎉
+      success_body: 30일 Pro 체험이 지금 시작돼. 모든 Pro 기능을 마음껏 — 한도 없음, 카드 없음.
+      success_cta: PerkySue 시작하기
+      errors:
+        network: perkysue.com에 연결할 수 없어요. 인터넷을 확인하고 다시 시도해 주세요.
+        invalid_email: 이메일 형식을 다시 확인해 주세요.
+        invalid_code: 메일로 받은 6자리 코드를 입력해 주세요.
+        wrong_code: 코드가 일치하지 않아요.
+        attempts: 시도가 너무 많아요. 잠시 후 다시 해 주세요.
+        cooldown: 잠시 후에 코드를 다시 요청할 수 있어요.
+        rate_limited: 시도가 너무 많아요. 잠시 후 다시 해 주세요.
+        trial_already_used: 이 이메일로는 이미 무료 체험을 썼어요.
+        trial_ineligible_paid: 이 이메일은 예전에 Pro 구독과 연결된 적이 있어요. 무료 체험은 새 사용자만 — 다시 구독은 언제든지 가능해요.
+        generic: 문제가 생겼어요. 몇 초 뒤에 다시 시도해 주세요.
+modes:
+  stt_keywords:
+    title_unlimited: Whisper STT 키워드 (무제한)
+    title_limit: 'Whisper STT 키워드 (한도: {limit})'
+    placeholder: '단어 입력 후 Enter 누르기 (예: PerkySue, STT)...'
+    tags_counter: '{count} / {limit} 태그'
+  identity:
+    section_title: 정체성 & 환경설정
+    title: 내 이름
+    placeholder: '선택사항: LLM이 나를 뭐라고 부를지 (예: 민준)...'
+    help: '일부 LLM 프롬프트에서 사용됨 (예: 이메일 모드)'
+  prompt_modes:
+    title: Prompts
+    edit_hint: 각 LLM 단축키의 시스템 프롬프트를 편집할 수 있다
+    system_prompt_help: LLM에 전송되는 시스템 프롬프트 = 현재 설정 + 지식 베이스 + 지시사항 (위 박스). 아래 테스트 입력에 질문을 넣어보자.
+    test_input_label: '테스트 입력 (예시):'
+    test_response_label: 'LLM 응답 (미리보기):'
+    test_hint: 테스트는 저장 여부와 관계없이 항상 위의 현재 텍스트를 사용한다.
+    paste: 붙여넣기
+    copy: 복사
+    run_test: 테스트 실행
+    save: 저장
+    cancel: 취소
+    edit: 편집
+    test: 테스트
+  registry:
+    transcribe:
+      name: 받아쓰기
+      description: 단순 받아쓰기 — 음성을 텍스트로, 처리 없음
+    improve:
+      name: 개선
+      description: 음성 받아쓰기 정리 및 구두점 추가
+    professional:
+      name: 전문적
+      description: 전문적이고 명확한 어조로 다시 쓰기
+    translate:
+      name: 번역
+      description: 설정된 목표 언어로 번역
+    console:
+      name: 콘솔
+      description: 음성을 셸 명령어로 변환
+    email:
+      name: 이메일
+      description: 전문 이메일 형식으로 포맷
+    message:
+      name: 다이렉트 메시지
+      description: WhatsApp, Slack, Discord, SMS용 친근한 메시지
+    social:
+      name: 소셜 포스트
+      description: YouTube, X/Twitter, LinkedIn, Reddit에 답글 또는 게시
+    summarize:
+      name: 요약
+      description: 받아쓴 텍스트 요약
+    genz:
+      name: Gen Z
+      description: 이모지 포함 캐주얼 리라이트
+    answer:
+      name: Ask
+      description: 받아쓴 텍스트나 질문으로 묻기
+    help:
+      name: 도움말
+      description: PerkySue 질문 — 앱 지식 베이스 활용
+    custom1:
+      name: 커스텀 프롬프트 1
+      description: 내 커스텀 프롬프트 — Prompts에서 편집
+    custom2:
+      name: 커스텀 프롬프트 2
+      description: 내 커스텀 프롬프트 — Prompts에서 편집
+    custom3:
+      name: 커스텀 프롬프트 3
+      description: 내 커스텀 프롬프트 — Prompts에서 편집
+chat:
+  title: 채팅
+  new_chat: 새 채팅
+  save_log: 로그 저장
+  token_counter: '{current} / {max}'
+  placeholder: 메시지 입력... 또는 마이크 버튼 누르기
+  hint: 'Alt+A: 질문하기 · Enter: 텍스트 전송 · Alt+Q: 듣기 중지'
+  help_redirect: PerkySue나 앱에 관한 질문? 도움말 탭을 이용하면 된다.
+  sender_name: PerkySue
+  user_fallback: 당신
+  free_answer_notice: 무료 플랜에서는 각 질문이 독립적으로 처리되며, 어시스턴트는 이전 메시지를 기억하지 않습니다. 진행 중인 대화를 기억하게 해 주는 멀티턴 컨텍스트와 커서 삽입(Smart Focus)은 Pro 플랜 전용입니다. 원할 때 언제든지 업그레이드하세요.
+help:
+  title: 도움말
+  new_chat: 새 채팅
+  save_log: 로그 저장
+  token_counter: '{current} / {max}'
+  placeholder: PerkySue에 대해 물어보기... 또는 마이크 누르기
+  hint: 'Alt+H: 마이크 켜기/끄기 · Enter: 텍스트 전송 · Alt+Q: 듣기 중지'
+  sender_name: PerkySue
+header_tips:
+  startup_message: 팁 · Word, Gmail, Slack… 에 커서 놓고 Alt+T 누르면 된다
+  tips:
+  - 팁 · Alt+Q 누르거나 사이드바 아바타 클릭해서 녹음 중지
+  - 팁 · Alt+T는 영원히 무료 — 빠른 받아쓰기, 단어 제한 없음
+  - 팁 · 텍스트 선택, Alt+I, 바꾸고 싶은 거 말하면 된다
+  - 팁 · 어디서든 Alt+M 눌러서 이메일 전체를 받아쓸 수 있다
+  - 'Alt+A Pro: 채팅에서 대화 이어감 — Alt+A 무료: 한 번에 한 질문'
+  - 팁 · 주변 소음 때문에 자동 정지 안 됨? Alt+Q 눌러서 중지
+  - 팁 · 단락 선택 → Alt+P — 어조와 문법을 한 번에 수정
+  - '팁 · 터미널에서 Alt+C: 필요한 게 뭔지 쉬운 말로 설명하면 됨'
+  - '팁 · Alt+L: 텍스트 선택 후 어떤 언어로든 번역 요청 가능'
+  - '팁 · Alt+D: WhatsApp, Slack, Discord, SMS용 메시지 받아쓰기'
+  - '팁 · Alt+X: LinkedIn, X, YouTube, Reddit용 게시물 또는 답글 만들기'
+  - 팁 · 회의 노트 붙여넣고 선택한 뒤 Alt+S로 간단 요약
+  - 팁 · 초안 텍스트 선택, Alt+I, '더 짧게' 말하면 — 끝
+  - 팁 · Alt+V~Alt+N = 내 커스텀 프롬프트. Prompts에서 편집
+  - 팁 · 내 브랜드 어조로 댓글에 답하는 커스텀 프롬프트 만들어보기
+  - 팁 · 같은 AI 프롬프트 계속 다시 쓰기 귀찮아? 커스텀 프롬프트로 만들면 된다
+  - '팁 · 프롬프트 아이디어: 노트를 훅 있는 LinkedIn 포스트로 변환'
+  - 팁 · 포맷된 Kling/Runway 비디오 프롬프트용 커스텀 프롬프트 활용
+  - '팁 · 프롬프트 아이디어: 텍스트에서 할 일과 마감 기한 추출'
+  - '팁 · Alt+H: 도움말 탭에서 PerkySue에 관한 뭐든지 물어봐'
+  - Pro · Smart Focus가 붙여넣기 안 됐어? 콘솔 탭에서 출력 복사하기
+  - '팁 · 듣기 단계 중지: 아바타 클릭 또는 Alt+Q 누르기'
+  - 팁 · PerkySue가 생각하는 동안 다른 작업 해도 됨 — 기다릴 필요 없다
+  - '팁 · Smart Focus: 누르고, 다른 거 하면 됨, 텍스트가 맞는 위치에 도착함'
+  - 팁 · CPU? Whisper small (빠름) 또는 medium (정확). ⚙️ → STT 모델
+  - 팁 · 주변 소음? 녹음이 자동 중지 안 됨 — Alt+Q 또는 아바타 클릭
+  - 팁 · Prompts에서 각 모드의 프롬프트 편집 — 내 것으로 만들기
+  - 팁 · Whisper가 단어 틀렸어? Prompts의 STT 키워드에 추가하면 됨
+  delay_before_first_ms: 3500
+  display_ms: 7500
+  delay_between_ms: 15000
+header_alerts:
+  critical:
+    no_llm: LLM이 감지되지 않았다. 설정에서 하나 다운로드하면 된다.
+    save_restart: PerkySue를 저장하고 재시작해야 한다
+    shortcut_in_use: 이 단축키는 이미 사용 중이다 ({other_name}). 다른 걸 선택하면 된다.
+    llm_error_400: LLM 오류 (400) — 컨텍스트가 너무 크다? 설정에서 최대 입력을 늘려보자
+    llm_error_generic: LLM 오류 — 콘솔 확인. Alt+A 사용 시 설정에서 최대 입력 (컨텍스트) 늘리기
+    max_input_reached: 최대 입력 토큰 한도 도달 — 기록이 줄었다.
+    max_input_context_reached: 최대 입력 (컨텍스트) ({max_input}) 도달. {suggested}으로 늘리기 → 설정 → 성능.
+    max_output_tokens_reached: 최대 출력 한도 ({max_output}) 도달. 설정 → 성능에서 {suggested}으로 늘려보자.
+    llm_request_timeout: LLM 요청 시간 초과 — 설정 → 성능에서 LLM 요청 타임아웃을 180초 또는 240초로 해보자
+  regular:
+    recording_stopped: 🛑 녹음 중지됨
+    processing_stopped: 🛑 처리 중지됨
+    tts_stopped: 🛑 음성 출력 중지됨
+    tts_loading: 음성 준비 중 — 초기 설정 중...
+    omnivoice_requires_nvidia: OmniVoice requires NVIDIA/CUDA (not available on CPU/Vulkan).
+    tts_install_in_progress: Installation already in progress — please wait.
+    ai_disclaimer: ⚠️ AI 답변은 부정확할 수 있습니다. 사실을 확인하세요.
+    recording_no_audio: 오디오가 캡처되지 않았다 — 녹음 중지 또는 마이크 확인.
+    recording_too_short: 녹음이 너무 짧다 — 텍스트 없음. 마이크 확인 또는 더 길게 말하기.
+    copied_to_clipboard: 클립보드에 복사됨
+    llm_not_available: LLM 오케스트레이터를 사용할 수 없다.
+    pro_plan_required_mode: 이 모드는 무료 플랜에서 잠겨 있습니다 — Pro 플랜이 필요합니다.
+    no_logs_to_save: 저장할 로그 없음
+    all_logs_copied: 모든 로그가 클립보드에 복사됨
+    download_success: ✓ 다운로드 성공.
+    download_progress: ⏳ {name} 다운로드 중… {pct}%
+  run_test_400_hint: → 400 Bad Request는 보통 컨텍스트가 모델 한도를 초과했다는 뜻이다. 설정 → 성능에서 최대 입력을 늘려보자.
+  run_test_timeout_hint: → 모델이 제 시간에 완료하지 못했다. 설정 → 성능에서 LLM 요청 타임아웃을 180초 또는 240초로 설정해보자 (하드웨어 속도에 따라).
+  document_injection:
+    llm_error_400: LLM 오류 (400) — 컨텍스트가 너무 크다? 설정에서 최대 입력 (컨텍스트) 늘리기.
+    llm_error_generic: LLM 오류 — 콘솔 확인. 설정에서 최대 입력 (컨텍스트) 늘리기.
+    max_input_reached: '⚠️ 최대 입력 토큰 한도 도달 — 기록이 줄었다. 설정 → 최대 입력 및 시스템 용량을 확인해보자.
+
+
+      '
+    chat_max_input_reached: ⚠️ 최대 입력 (컨텍스트) 한도 ({max_input})에 도달했다. 설정 → 성능에서 '최대 입력'을 {suggested} 이상으로 늘려보자.
+    chat_context_limit_reached: ⚠️ 컨텍스트 한도 ({max_input}) 도달 — 입력과 출력이 이 예산을 공유한다. 설정 → 성능에서 '최대 입력'을 {suggested} 이상으로 늘려보자.
+    chat_max_output_reached: '⚠️ 응답이 잘렸다: 최대 출력 한도 ({max_output}) 도달. 설정 → 성능에서 ''최대 출력''을 {suggested} 이상으로 늘려보자.'
+    chat_empty_reply: — 응답이 비었다. 다시 말해보거나 콘솔 확인.
+    trial_request:
+      newsletter_title: Newsletter preference
+      newsletter_question: Get updates, not spam. We'll only email you when something worth knowing happens — new features, tips & tricks, that's it.

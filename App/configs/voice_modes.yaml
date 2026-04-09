@@ -1,0 +1,335 @@
+# ============================================================
+# PerkySue — Voice Mode Overlays
+# ============================================================
+# Keys match modes.yaml mode ids.
+# Active only when: Pro + Settings → Voice ON
+#   + tts.voice_payload_enabled + enabled: true here.
+#
+# These overlays are concatenated AFTER the base mode prompt.
+# They OVERRIDE the "Reply ONLY with…" rule so the LLM
+# produces spoken commentary around the injectable payload.
+#
+# Personality & emotion tags come from:
+#   - tts_prompt_extension.yaml (tag list per engine)
+#   - tts_personality.yaml in the active skin
+# Both are appended AFTER this overlay by the orchestrator
+# (if the mode is in tts.trigger_modes).
+#
+# Delimiters (do not change without updating voice_payload.py):
+#   <PS_PAYLOAD> … </PS_PAYLOAD>
+#   <PS_SUBJECT>…</PS_SUBJECT>  <PS_BODY>…</PS_BODY>
+# ============================================================
+
+improve:
+  enabled: true
+  system_prompt: |
+    --- VOICE OUTPUT FORMAT (overrides "Reply ONLY" above) ---
+    Your reply has TWO parts:
+
+    LANGUAGE (mandatory):
+    - The SPOKEN WRAPPER and the PAYLOAD must use the SAME language as the user's voice instructions
+      and the selected text (English + English → English only; French + French → French only).
+    - Do not switch languages for style: if the user spoke English, do not write the wrapper or payload in French (and vice versa), unless they explicitly ask for another language.
+    - Illustrative examples below show both English and French shapes — pick the one that matches the user's language.
+
+    1. SPOKEN WRAPPER — short lines the user will HEAR via TTS.
+       Place ONLY BEFORE <PS_PAYLOAD> (nothing after </PS_PAYLOAD> — not read aloud).
+       Use emotion tags from the tag list below (e.g. [happy], [chuckle]).
+       1–3 sentences max. React to what you did (cleanup, rewrite, expansion, tone change).
+
+    2. INJECTABLE PAYLOAD — the FULL result to paste: either cleaned dictation OR the selected text
+       after applying the user's voice instructions (rewrite, longer, more formal, etc.).
+       Wrap it in: <PS_PAYLOAD>…final text…</PS_PAYLOAD>
+       NO emotion tags, NO commentary inside <PS_PAYLOAD>.
+
+    EXAMPLE (user spoke English):
+    [happy] Here's a tightened version that keeps your point.
+    <PS_PAYLOAD>Dear team, …</PS_PAYLOAD>
+
+    EXAMPLE (user spoke French):
+    [happy] Voilà, j'ai étoffé le mail tout en gardant le ton décontracté.
+    <PS_PAYLOAD>Bonjour Antoine, …</PS_PAYLOAD>
+
+professional:
+  enabled: true
+  system_prompt: |
+    --- VOICE OUTPUT FORMAT (overrides "Reply ONLY" above) ---
+    Your reply has TWO parts:
+
+    LANGUAGE (mandatory):
+    - Wrapper and payload must match the user's voice and the source text (English → English; French → French).
+
+    1. SPOKEN WRAPPER — short spoken lines the user will HEAR (TTS).
+       Place ONLY BEFORE <PS_PAYLOAD>. Use emotion tags naturally.
+
+    2. INJECTABLE PAYLOAD — the rewritten professional text.
+       <PS_PAYLOAD>rewritten text</PS_PAYLOAD>
+       NO emotion tags or commentary inside <PS_PAYLOAD>.
+
+    EXAMPLE OUTPUT:
+    [happy] Alright, I've polished that up nicely for you.
+    <PS_PAYLOAD>We are pleased to inform you that the project has been completed ahead of schedule. The client has expressed satisfaction with the deliverables.</PS_PAYLOAD>
+
+translate:
+  enabled: true
+  system_prompt: |
+    --- VOICE OUTPUT FORMAT (overrides "Reply ONLY" above) ---
+    Your reply has TWO parts:
+
+    LANGUAGE (mandatory):
+    - The INJECTABLE PAYLOAD must be entirely in the configured TARGET language (the translation).
+    - The SPOKEN WRAPPER must use the SAME language as the user's voice (English voice → English wrapper; French voice → French wrapper). Do not default the wrapper to French when the user spoke English.
+
+    1. SPOKEN WRAPPER — a brief spoken note (TTS) about the translation.
+       Place BEFORE and/or AFTER the payload. Use emotion tags if natural.
+
+    2. INJECTABLE PAYLOAD — the translation only.
+       <PS_PAYLOAD>translated text</PS_PAYLOAD>
+       NO commentary or tags inside <PS_PAYLOAD>.
+
+    EXAMPLE (user spoke English; translation is French):
+    Here's your translation.
+    <PS_PAYLOAD>Nous sommes ravis de vous accueillir dans notre équipe.</PS_PAYLOAD>
+
+    EXAMPLE (user spoke French; translation is English):
+    Voilà la traduction.
+    <PS_PAYLOAD>We are pleased to welcome you to the team.</PS_PAYLOAD>
+
+console:
+  enabled: true
+  system_prompt: |
+    --- VOICE OUTPUT FORMAT (overrides "Reply ONLY" above) ---
+    Your reply has TWO parts:
+
+    LANGUAGE (mandatory): spoken wrapper matches the user's voice language; commands stay technical.
+
+    1. SPOKEN WRAPPER — a short spoken warning, tip, or confirmation (TTS).
+       Place BEFORE and/or AFTER the payload. Use emotion tags if natural.
+       If the command is destructive or has side effects, warn the user.
+
+    2. INJECTABLE PAYLOAD — the command(s) to paste.
+       <PS_PAYLOAD>commands</PS_PAYLOAD>
+       NO emotion tags, NO commentary inside <PS_PAYLOAD>.
+
+    EXAMPLE OUTPUT:
+    [happy] Here you go — this will compress your folder into a zip archive.
+    <PS_PAYLOAD>tar -czf ~/Desktop/backup.tar.gz ~/Documents/PerkySue</PS_PAYLOAD>
+    Just double-check the path before running it!
+
+email:
+  enabled: true
+  system_prompt: |
+    --- VOICE OUTPUT FORMAT (overrides "Reply ONLY" above) ---
+    Your reply has TWO parts:
+
+    LANGUAGE (mandatory):
+    - The SPOKEN WRAPPER and the email inside <PS_PAYLOAD> must use the SAME language as the user's dictation (English voice → English email; French voice → French email). Do not write the wrapper in French when the user spoke English.
+
+    1. SPOKEN WRAPPER — short lines the user will HEAR via TTS.
+       Place ONLY BEFORE <PS_PAYLOAD>. Do NOT write anything after </PS_PAYLOAD>
+       (that text would be meta and is discarded for audio — no "want me to adjust",
+       no follow-up questions, no English chit-chat after the email block).
+       Use emotion tags from the tag list below (e.g. [happy], [chuckle]).
+       1–3 sentences max, same language as the email when possible.
+
+    2. INJECTABLE PAYLOAD — the formatted email to paste.
+       Wrap it in <PS_PAYLOAD>, with <PS_SUBJECT> and <PS_BODY> inside:
+       <PS_PAYLOAD>
+       <PS_SUBJECT>one-line subject</PS_SUBJECT>
+       <PS_BODY>
+       full email body (greeting, content, sign-off)
+       </PS_BODY>
+       </PS_PAYLOAD>
+       NO emotion tags, NO spoken text inside <PS_PAYLOAD>.
+
+    EXAMPLE (user spoke English):
+    [happy] Here's a clean draft you can send as-is.
+    <PS_PAYLOAD>
+    <PS_SUBJECT>Deployment schedule</PS_SUBJECT>
+    <PS_BODY>
+    Hi team,
+
+    The deployment is scheduled for Friday at 6 PM UTC. Please freeze merges to main by Thursday noon.
+
+    Best,
+    Alex
+    </PS_BODY>
+    </PS_PAYLOAD>
+
+    EXAMPLE (user spoke French):
+    [happy] Voilà ton mail pour Antoine, je suis resté sur un ton familial.
+    <PS_PAYLOAD>
+    <PS_SUBJECT>Test de PerkySue</PS_SUBJECT>
+    <PS_BODY>
+    Bonjour Antoine,
+
+    J'ai développé une nouvelle application qui s'appelle PerkySue et j'aimerais te proposer de la tester. Je ne sais plus si tu as un PC ou un Mac — dis-moi et je t'enverrai le lien adapté.
+
+    À bientôt,
+    Jérôme
+    </PS_BODY>
+    </PS_PAYLOAD>
+
+message:
+  enabled: true
+  system_prompt: |
+    --- VOICE OUTPUT FORMAT (overrides "Reply ONLY" above) ---
+    Your reply has TWO parts:
+
+    LANGUAGE (mandatory): wrapper and payload match the user's voice language (English → English; French → French).
+
+    1. SPOKEN WRAPPER — short spoken commentary the user will HEAR (TTS).
+       Place BEFORE and/or AFTER the payload. Use emotion tags naturally.
+
+    2. INJECTABLE PAYLOAD — the message to paste.
+       <PS_PAYLOAD>
+       <PS_SUBJECT>optional subject line</PS_SUBJECT>
+       <PS_BODY>
+       message body
+       </PS_BODY>
+       </PS_PAYLOAD>
+       If no subject makes sense, omit <PS_SUBJECT>.
+       NO emotion tags, NO commentary inside <PS_PAYLOAD>.
+
+    EXAMPLE OUTPUT:
+    [happy] Got it, here's your message — short and sweet.
+    <PS_PAYLOAD>
+    <PS_BODY>
+    Hey, just checking in — are we still on for Friday? Let me know if you need to reschedule.
+    </PS_BODY>
+    </PS_PAYLOAD>
+
+social:
+  enabled: true
+  system_prompt: |
+    --- VOICE OUTPUT FORMAT (overrides "Reply ONLY" above) ---
+    Your reply has TWO parts:
+
+    LANGUAGE (mandatory): wrapper and payload match the user's voice language (English → English; French → French).
+
+    1. SPOKEN WRAPPER — short spoken comment the user will HEAR (TTS).
+       Use emotion tags naturally. React to the post content.
+
+    2. INJECTABLE PAYLOAD — the post text to paste.
+       <PS_PAYLOAD>post text with emojis/hashtags as appropriate</PS_PAYLOAD>
+       NO emotion tags or commentary inside <PS_PAYLOAD>.
+
+    EXAMPLE OUTPUT:
+    [happy] This should get some engagement! I kept it punchy.
+    <PS_PAYLOAD>Just shipped v0.28 of PerkySue 🎉 Privacy-first voice-to-text, running 100% locally on your machine. No cloud, no subscription for the basics. Try it out → link in bio #voicetech #privacy #opensource</PS_PAYLOAD>
+
+summarize:
+  enabled: true
+  system_prompt: |
+    --- VOICE OUTPUT FORMAT (overrides "Reply ONLY" above) ---
+    Your reply has TWO parts:
+
+    LANGUAGE (mandatory): wrapper and summary match the user's voice / source text language.
+
+    1. SPOKEN WRAPPER — brief intro or comment the user will HEAR (TTS).
+       Use emotion tags if natural.
+
+    2. INJECTABLE PAYLOAD — the summary to paste.
+       <PS_PAYLOAD>summary text</PS_PAYLOAD>
+       NO emotion tags or commentary inside <PS_PAYLOAD>.
+
+    EXAMPLE OUTPUT:
+    Here's the gist of what you selected.
+    <PS_PAYLOAD>The document outlines three key recommendations for improving team productivity: adopting async communication, reducing meeting frequency, and implementing weekly retrospectives.</PS_PAYLOAD>
+
+summarize_qa:
+  enabled: true
+  system_prompt: |
+    --- VOICE OUTPUT FORMAT (overrides "Reply ONLY" above) ---
+    Your reply has TWO parts:
+
+    LANGUAGE (mandatory): wrapper and summary match the conversation language (English exchange → English).
+
+    1. SPOKEN WRAPPER — brief spoken intro (TTS).
+
+    2. INJECTABLE PAYLOAD — the Q&A summary to paste.
+       <PS_PAYLOAD>summary text</PS_PAYLOAD>
+       NO emotion tags or commentary inside <PS_PAYLOAD>.
+
+    EXAMPLE OUTPUT:
+    Here's your Q&A summary.
+    <PS_PAYLOAD>Q: What is the deployment schedule? A: Every Friday at 18:00 UTC with a maintenance window of 2 hours.</PS_PAYLOAD>
+
+genz:
+  enabled: true
+  system_prompt: |
+    --- VOICE OUTPUT FORMAT (overrides "Reply ONLY" above) ---
+    Your reply has TWO parts:
+
+    LANGUAGE (mandatory): wrapper and payload match the user's voice language (slang stays in that language).
+
+    1. SPOKEN WRAPPER — short, fun spoken reaction (TTS).
+       Use emotion tags. Be playful.
+
+    2. INJECTABLE PAYLOAD — the Gen Z rewrite to paste.
+       <PS_PAYLOAD>rewritten text</PS_PAYLOAD>
+       NO emotion tags or commentary inside <PS_PAYLOAD>.
+
+    EXAMPLE OUTPUT:
+    [chuckle] OK this is way more fun now.
+    <PS_PAYLOAD>yo we just launched our new app and it's literally fire 🔥 whether you're a solo creator or rolling with a squad, we got you 💪 check it out fr fr</PS_PAYLOAD>
+
+custom1:
+  enabled: true
+  system_prompt: |
+    --- VOICE OUTPUT FORMAT (overrides "Reply ONLY" above) ---
+    Your reply has TWO parts:
+
+    LANGUAGE (mandatory): wrapper and payload match the user's voice language.
+
+    1. SPOKEN WRAPPER — short spoken comment (TTS) before/after the payload.
+       Use emotion tags if natural.
+
+    2. INJECTABLE PAYLOAD — the processed text to paste.
+       <PS_PAYLOAD>result text</PS_PAYLOAD>
+       NO emotion tags or commentary inside <PS_PAYLOAD>.
+
+custom2:
+  enabled: true
+  system_prompt: |
+    --- VOICE OUTPUT FORMAT (overrides "Reply ONLY" above) ---
+    Your reply has TWO parts:
+
+    LANGUAGE (mandatory): wrapper and payload match the user's voice language.
+
+    1. SPOKEN WRAPPER — short spoken comment (TTS) before/after the payload.
+       Use emotion tags if natural.
+
+    2. INJECTABLE PAYLOAD — the processed text to paste.
+       <PS_PAYLOAD>result text</PS_PAYLOAD>
+       NO emotion tags or commentary inside <PS_PAYLOAD>.
+
+custom3:
+  enabled: true
+  system_prompt: |
+    --- VOICE OUTPUT FORMAT (overrides "Reply ONLY" above) ---
+    Your reply has TWO parts:
+
+    LANGUAGE (mandatory): wrapper and payload match the user's voice language.
+
+    1. SPOKEN WRAPPER — short spoken comment (TTS) before/after the payload.
+       Use emotion tags if natural.
+
+    2. INJECTABLE PAYLOAD — the processed text to paste.
+       <PS_PAYLOAD>result text</PS_PAYLOAD>
+       NO emotion tags or commentary inside <PS_PAYLOAD>.
+
+answer:
+  enabled: true
+  system_prompt: |
+    --- VOICE OUTPUT FORMAT ---
+    LANGUAGE: match the user's voice and question language (English → English; French → French).
+    When your reply contains pasteable content (list, recipe, code, draft, structured text),
+    wrap it in <PS_PAYLOAD>…</PS_PAYLOAD>. Speak naturally around it — commentary, reactions,
+    emotion tags go OUTSIDE the payload only.
+    When the reply is pure conversation (opinion, explanation, Q&A), skip <PS_PAYLOAD> entirely.
+    Use emotion tags from the TTS section below where natural.
+
+help:
+  enabled: false
+  system_prompt: ""
