@@ -1,5 +1,9 @@
 ## 📋 Changelog
 
+### Beta 0.29.0 (April 2026) — shipped
+- **In-app update fix:** `download_and_stage_app_update` used a non-existent **`Paths.data_dir`** → **`AttributeError`** when clicking **Update**. Now uses **`paths.cache`** (`Data/Cache/updates/…`) as intended.
+- **Docs / version:** `APP_VERSION` **Beta 0.29.0**, `common.window_title` (16 locales), KB headers, `README.md`, `ARCHITECTURE.md`, `GETTING_STARTED` / `TROUBLESHOOTING` tag examples — bump so installs on **0.28.9** can verify the full update path against **GitHub tag `v0.29.0`**.
+
 ### Beta 0.28.9 (April 2026) — shipped
 - **In-app updates (GitHub):** `check_updates_from_github` no longer relies only on `/releases/latest` (404 when there are no stable releases). Uses **`/releases`** (incl. prereleases), picks a sensible **`.zip`** asset when present, otherwise falls back to the **tag source archive** `…/archive/refs/tags/<tag>.zip` when the tag name contains a semver. Optional **`PERKYSUE_UPDATE_REPO=owner/repo`** for forks. Clearer errors when the repo has no tags/releases yet.
 - **Update install scope:** After extracting the bundle, copies **`App/`** as before **and** syncs portable-root **`*.bat`**, **`*.md`**, and **`LICENSE`** from the same bundle root so `install.bat`, `start.bat`, `CHANGELOG.md`, etc. match the shipped version (`orchestrator.download_and_stage_app_update`, `paths.py` doc).

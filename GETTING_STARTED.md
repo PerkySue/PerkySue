@@ -233,17 +233,17 @@ PUBLISHING A VERSION SO “CHECK FOR UPDATES” WORKS (MAINTAINERS)
 
 The in-app updater reads **public GitHub** data for **`PerkySue/PerkySue`** (or **`PERKYSUE_UPDATE_REPO=owner/repo`** if set). Until at least one **semver** appears in a **tag name** or **release**, the API returns nothing useful and About → **Check for updates** shows an error (same idea as GitHub’s **404** on “latest release” when no release exists).
 
-**Minimum to ship a new version (e.g. 0.28.9):**
+**Minimum to ship a new version (e.g. 0.29.0):**
 
 1. Bump **`APP_VERSION`** and docs (see **`CHANGELOG.md`** for the usual file list).
 2. Commit and **`git push`** to **`main`** (or your default branch).
-3. Create a **tag** whose name includes the version, e.g. **`v0.28.9`** or **`Beta-0.28.9`**:  
-   `git tag v0.28.9`  
-   `git push origin v0.28.9`  
+3. Create a **tag** whose name includes the version, e.g. **`v0.29.0`** or **`Beta-0.29.0`**:  
+   `git tag v0.29.0`  
+   `git push origin v0.29.0`  
    → Users can update from the **automatic tag zip** (`Source code` archive) without you uploading a separate `.zip` to Releases, as long as the archive contains **`App/`** at the usual tree path.
 4. *(Optional)* Create a **GitHub Release** (even **prerelease**) and attach a **`.zip`** if you distribute a custom bundle; the app prefers a sensible **`.zip`** attachment when several exist.
 
-**Test locally:** keep an older folder (lower **`APP_VERSION`**), then About → **Check for updates** → **Update** → restart; confirm **`App/`**, **`install.bat`**, **`CHANGELOG.md`** at the portable root match the new tag.
+**Test locally:** keep an older folder (lower **`APP_VERSION`**, e.g. **0.28.9**), then About → **Check for updates** → **Update** → restart; confirm **`App/`**, **`install.bat`**, **`CHANGELOG.md`** at the portable root match the new tag.
 
 ---
 

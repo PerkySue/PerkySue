@@ -409,7 +409,7 @@ class Orchestrator:
                 "error": (
                     "No GitHub Release or version tag was found for this repository. "
                     "GitHub’s “latest release” API returns 404 until at least one Release exists; "
-                    "push a tag whose name includes the version (e.g. v0.28.9) or publish a Release with a .zip asset."
+                    "push a tag whose name includes the version (e.g. v0.29.0) or publish a Release with a .zip asset."
                 ),
                 "repo": repo,
                 "current_version": cur or getattr(self, "APP_VERSION", ""),
@@ -476,7 +476,7 @@ class Orchestrator:
         if not dl_url:
             return False, "No downloadable .zip asset found on the latest GitHub release."
         latest_v = (info or {}).get("latest_version") or ""
-        cache_dir = self.paths.data_dir / "Cache" / "updates" / (str(latest_v) or "latest")
+        cache_dir = self.paths.cache / "updates" / (str(latest_v) or "latest")
         try:
             cache_dir.mkdir(parents=True, exist_ok=True)
         except Exception:
@@ -754,7 +754,7 @@ class Orchestrator:
 
     # ─── Help mode (Alt+H) — params + KB collection & injection ──────
 
-    APP_VERSION = "Beta 0.28.9"
+    APP_VERSION = "Beta 0.29.0"
 
     # ─── Plugin extension point ───────────────────────────────────────
 

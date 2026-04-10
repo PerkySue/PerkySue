@@ -1439,7 +1439,7 @@ class PerkySueWidget:
         return ""
 
     def _default_window_title(self) -> str:
-        return s("common.window_title", default="PerkySue — Beta 0.28.9")
+        return s("common.window_title", default="PerkySue — Beta 0.29.0")
 
     def _ui_flag_stem(self) -> str:
         """Which lang-flags/*.png is selected."""
