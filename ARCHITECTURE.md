@@ -1,6 +1,6 @@
 # PerkySue — Architecture
 
-*Version 1.52 — April 2026 — Beta 0.28.8 — Pro licensing: `license.json` + strict `install_id` match; optional **Ed25519** `license_payload` / `license_signature` from `GET /check` (`App/utils/license_signature.py`, `cryptography`); offline max **30 days** after signed `issued_at`; legacy unsigned cache still accepted until refresh; `POST /billing-portal`; link wizard; `_license_http_headers()`; plan UI; header banner (see plan management docs). **Pro TTS:** Chatterbox / OmniVoice, `tts_prompt_extension.yaml`, LLM appendix for Answer+Help when TTS enabled; **PyTorch CUDA** pip from Voice tab or root `.bat` files — **no in-process torch reload** after pip (**full app restart** required). **(Shipped 0.28.7) OmniVoice portable —** `windows_ffmpeg_dlls.py` registers **`Python/`** + **`Data/Tools/ffmpeg-shared/bin/`** for FFmpeg **shared** DLLs (TorchCodec on Windows); `omnivoice_tts.py` patches **`torchaudio.load`/`save`** for local **`.wav`** via **soundfile**; **`ref_text=""`** when no transcript (avoids Whisper ASR + avoids prepending dummy words — OmniVoice **`_combine_text`** prefixes **`ref_text`**); optional **`voice_ref.txt`** / **`audios/voice_sample/<code>.txt`**. **Alpha 0.28.4:** CMD UTF-8; `start.bat` fixes; **`feedback.debug_mode`**; Alt+A / Alt+Q / thinking default off / TTS tag display strip. **Beta 0.28.8:** Chat + Help GUI refresh (pill nav, input bar, bubbles); sidebar statuses **`generating`** / **`speaking`**; main avatar ring modulated by TTS + mic PCM (`TTSManager`, `AudioRecorder`); TTS Markdown strip **`strip_basic_markdown_for_tts`** (`tag_sanitize.py`); README banner **`App/assets/Github/banner.webp`**.*
+*Version 1.53 — April 2026 — Beta 0.28.9 — Pro licensing: `license.json` + strict `install_id` match; optional **Ed25519** `license_payload` / `license_signature` from `GET /check` (`App/utils/license_signature.py`, `cryptography`); offline max **30 days** after signed `issued_at`; legacy unsigned cache still accepted until refresh; `POST /billing-portal`; link wizard; `_license_http_headers()`; plan UI; header banner (see plan management docs). **Pro TTS:** Chatterbox / OmniVoice, `tts_prompt_extension.yaml`, LLM appendix for Answer+Help when TTS enabled; **PyTorch CUDA** pip from Voice tab or root `.bat` files — **no in-process torch reload** after pip (**full app restart** required). **(Shipped 0.28.7) OmniVoice portable —** `windows_ffmpeg_dlls.py` registers **`Python/`** + **`Data/Tools/ffmpeg-shared/bin/`** for FFmpeg **shared** DLLs (TorchCodec on Windows); `omnivoice_tts.py` patches **`torchaudio.load`/`save`** for local **`.wav`** via **soundfile**; **`ref_text=""`** when no transcript (avoids Whisper ASR + avoids prepending dummy words — OmniVoice **`_combine_text`** prefixes **`ref_text`**); optional **`voice_ref.txt`** / **`audios/voice_sample/<code>.txt`**. **Alpha 0.28.4:** CMD UTF-8; `start.bat` fixes; **`feedback.debug_mode`**; Alt+A / Alt+Q / thinking default off / TTS tag display strip. **Beta 0.28.9:** In-app updates — GitHub **`/releases`** + prerelease-aware zip pick + **tag archive** fallback (`…/archive/refs/tags/<tag>.zip`); **`PERKYSUE_UPDATE_REPO`**; post-download sync of **`App/`** and portable-root **`*.bat`**, **`*.md`**, **`LICENSE`**. Licensing — passive **`GET /check`** cooldown **15 min**; cooldown reset + immediate sync on Plan checkout / trial & link wizards / Stripe Continue / billing portal; post-Stripe **restart** hint (`widget.py`). **Beta 0.28.8:** Chat + Help GUI refresh (pill nav, input bar, bubbles); sidebar statuses **`generating`** / **`speaking`**; main avatar ring modulated by TTS + mic PCM (`TTSManager`, `AudioRecorder`); TTS Markdown strip **`strip_basic_markdown_for_tts`** (`tag_sanitize.py`); README banner **`App/assets/Github/banner.webp`**.*
 
 ---
 
@@ -555,7 +555,7 @@ Verification flow (typical):
 
 ---
 
-## Skins — layout, IDs, resolution (Beta 0.28.8)
+## Skins — layout, IDs, resolution (Beta 0.28.9)
 
 **Canonical config id:** `skin.active` = **`Default`** or **`Character/Locale`** (e.g. **`Mike/FR`**). Legacy **`Locale/Character`** on disk or in old configs is normalized when possible (`App/utils/skin_paths.py`).
 
@@ -620,7 +620,7 @@ This design requires no PerkySue-hosted backend for skin distribution.
 
 **Known bug (v19.3, still open):** `config.yaml` may ship with `skin: Sue` but GitHub/Basic tiers don't include Sue audio files → silence. The per-event fallback in `sounds_manager.py` addresses this.
 
-### Pro TTS — engines, PyTorch CUDA, voice ref, LLM prompt extension (0.28.3–0.28.8)
+### Pro TTS — engines, PyTorch CUDA, voice ref, LLM prompt extension (0.28.3–0.28.9)
 
 - **Engines:** `TTSManager` selects **`chatterbox`** or **`omnivoice`** (`tts.preferred_engine_id` in merged config). Weights under **`Data/Models/TTS/`** + Hugging Face cache (`paths.models_tts`, `paths.huggingface`). Install and tests from the **Voice** sidebar tab (Pro).
 - **PyTorch CUDA vs CPU-only (portable bundle):** TTS stacks (**Chatterbox**, **OmniVoice**) require **torch** with CUDA on NVIDIA when you want GPU synthesis. The embedded environment may have shipped with **CPU-only** wheels. **`App/services/tts/pytorch_cuda.py`** implements **`torch_gpu_runs_basic_kernels()`** (tiny matmul on device 0) because **`torch.cuda.is_available()`** alone is insufficient on some cards (e.g. **Blackwell / RTX 50xx** without matching SASS). **`nvidia_needs_pytorch_cu128()`** / compute-cap heuristics and **`pytorch_pip_index_url()`** choose **`https://download.pytorch.org/whl/cu128`** vs **`cu124`**. **`TTSManager._refresh_pytorch_cuda_install_offer`** surfaces the **Install PyTorch CUDA** action on the Voice tab when appropriate (including **cu124 present but kernel probe fails**).
@@ -691,6 +691,11 @@ This design requires no PerkySue-hosted backend for skin distribution.
 
 The canonical **full** changelog (all releases) is [`CHANGELOG.md`](CHANGELOG.md) at the repo root. Below is a technical summary kept in sync; the README shows **only the latest** release notes.
 
+### Beta 0.28.9 (April 2026) — shipped
+- **GitHub updates:** `Orchestrator.check_updates_from_github` — `/releases` list, asset zip preference, tag-archive fallback; env **`PERKYSUE_UPDATE_REPO`**; `download_and_stage_app_update` syncs **`App/`** + bundle-root **`*.bat`**, **`*.md`**, **`LICENSE`** to `paths.root` (`paths.py` header updated).
+- **Licensing HTTP cadence:** `_LICENSE_REMOTE_SYNC_MIN_GAP_SEC` **900**; `_reset_license_sync_cooldown` / `_on_plan_stripe_continue` / checkout & wizard hooks (`widget.py`); localized **`settings.plan_management.checkout.post_stripe_*`** (us/gb/fr).
+- **Docs:** `GETTING_STARTED.md` § publishing tags for updates; `TROUBLESHOOTING.md` § in-app update errors; `APP_VERSION` **Beta 0.28.9**.
+
 ### Beta 0.28.8 (April 2026) — shipped
 - **Chat + Help GUI:** Pill-style Chat/Help navigation, unified input bar, refreshed bubbles and model line (`widget.py` and related).
 - **Status model:** **`generating`** during LLM and TTS prep (avoids **Ready** before speech); **`speaking`** during playback (`_tts_speaking_poll`); i18n **`common.statuses.*`** (16 locales).
@@ -701,7 +706,7 @@ The canonical **full** changelog (all releases) is [`CHANGELOG.md`](CHANGELOG.md
 ### Beta 0.28.7 (April 2026) — shipped
 - **Skins / disk layout:** **`Data/Skins/<Character>/<Locale>/`**, config **`Character/Locale`**, **`App/utils/skin_paths.py`**; TTS refs **`voice_ref.wav`**, **`audios/voice_sample/voice_sample.wav`**, transcripts **`voice_ref.txt`** / **`voice_sample.txt`**; **Appearance** filter defaults to **UI language**.
 - **OmniVoice portable (Windows):** **`windows_ffmpeg_dlls.py`**; **`install_ffmpeg_shared_windows.bat`**; **`torchaudio` WAV patch** (**soundfile**) in **`omnivoice_tts.py`**; **`ref_text` / `ref_transcript`** when no dummy prefix; installer log hint (**`installer.py`**).
-- **Docs / version:** `CHANGELOG.md`, README, this file, **`GETTING_STARTED.md`**, **`TROUBLESHOOTING.md`**, KB + `perkysue_kb.md`, `APP_VERSION` was **Beta 0.28.7** (superseded by 0.28.8).
+- **Docs / version:** `CHANGELOG.md`, README, this file, **`GETTING_STARTED.md`**, **`TROUBLESHOOTING.md`**, KB + `perkysue_kb.md`, `APP_VERSION` was **Beta 0.28.7** (superseded by 0.28.8, then **0.28.9**).
 
 ### Alpha 0.28.4 (April 2026)
 - **Launcher / CMD:** UTF-8 bootstrap (`main.py`, `start.bat`); **`start.bat`** fixes for **`if ()` / `echo`** (no trailing `\`, ASCII-safe echoes); **`PerkySue Launch.bat`** aligned.

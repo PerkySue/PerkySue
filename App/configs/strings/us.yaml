@@ -196,7 +196,7 @@
       url: ''
     credit: Created by Jérôme Corbiau  ·  Licensed under Apache 2.0
 common:
-  window_title: PerkySue — Beta 0.28.8
+  window_title: PerkySue — Beta 0.28.9
   header_banner:
     free_invite: PerkySue Beta — Free · Try Pro (30 days, no card)
     free_after_trial: PerkySue Beta — Free
@@ -480,6 +480,8 @@ settings:
       yearly_line1: One payment per year
       yearly_line2: Same features as monthly
       yearly_cta: Continue
+      post_stripe_hint: After paying in the browser, come back to this window — your plan refreshes automatically. If Pro does not show, restart the app.
+      post_stripe_restart: Restart PerkySue
     link_subscription:
       wizard_title: Link your subscription
       cta: I already have a subscription

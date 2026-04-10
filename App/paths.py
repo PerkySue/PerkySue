@@ -20,9 +20,10 @@ Architecture:
     │   └── Cache/
     │
     ├── Python/              ← RUNTIME (updated independently)
-    └── start.bat
+    └── start.bat, install.bat, *.md, LICENSE, …
 
-Update process: Replace App/ folder. Data/ and Python/ are untouched.
+Update process: Overwrite App/ and selected portable-root files (*.bat, *.md, LICENSE).
+    Data/ and Python/ are not modified by the in-app updater.
 """
 
 import os

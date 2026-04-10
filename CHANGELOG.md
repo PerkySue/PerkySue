@@ -1,5 +1,11 @@
 ## 📋 Changelog
 
+### Beta 0.28.9 (April 2026) — shipped
+- **In-app updates (GitHub):** `check_updates_from_github` no longer relies only on `/releases/latest` (404 when there are no stable releases). Uses **`/releases`** (incl. prereleases), picks a sensible **`.zip`** asset when present, otherwise falls back to the **tag source archive** `…/archive/refs/tags/<tag>.zip` when the tag name contains a semver. Optional **`PERKYSUE_UPDATE_REPO=owner/repo`** for forks. Clearer errors when the repo has no tags/releases yet.
+- **Update install scope:** After extracting the bundle, copies **`App/`** as before **and** syncs portable-root **`*.bat`**, **`*.md`**, and **`LICENSE`** from the same bundle root so `install.bat`, `start.bat`, `CHANGELOG.md`, etc. match the shipped version (`orchestrator.download_and_stage_app_update`, `paths.py` doc).
+- **Licensing / Worker load:** Passive **`GET /check`** (focus + Settings) uses a **15-minute** cooldown instead of 12 seconds; opening Plan checkout, trial/link wizards, Stripe **Continue**, or billing portal **resets** the cooldown and triggers an immediate sync where appropriate. After opening Stripe (monthly/yearly), a **restart** hint + button helps if Pro does not appear before the next passive sync (`widget.py`; strings `checkout.post_stripe_*` in us/gb/fr).
+- **Docs / version:** `README.md`, `ARCHITECTURE.md`, `GETTING_STARTED.md` (GitHub publish steps for updates), `TROUBLESHOOTING.md` (update errors), `KNOWN_ISSUES.md`, KB + `perkysue_kb.md`, `App/configs/kb_help_*.md`, `APP_VERSION` **Beta 0.28.9**, all **`common.window_title`** locales.
+
 ### Beta 0.28.8 (April 2026) — shipped
 - **Chat + Help (GUI):** Major **Chat** tab redesign — pill-style Chat/Help header, unified input bar (mic + field + send), refreshed assistant/user bubbles and compact model line (internal milestone chain 0.28.7c–0.28.7j).
 - **Status UX:** New **`generating`** (⚙️) while the LLM runs and while auto‑TTS is being prepared after injection — avoids a misleading **Ready** flash before speech. **`speaking`** (🔊) while TTS plays (`widget._tts_speaking_poll`). i18n **`common.statuses.generating`** and **`speaking`** in **16** locales (short sidebar labels).

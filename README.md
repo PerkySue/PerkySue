@@ -5,7 +5,7 @@
 </p>
 
 **Voice-to-text with AI superpowers. 100% local. 100% private.**  
-*Created by Jérôme Corbiau | Apache 2.0 | 0.28.8*
+*Created by Jérôme Corbiau | Apache 2.0 | 0.28.9*
 
 Press a hotkey, speak, and polished text appears wherever your cursor is — in any app, any window, any text field. No cloud. No account. No data leaves your machine. Ever.
 
@@ -199,6 +199,11 @@ PerkySue started as a **personal productivity** tool — voice → **local STT**
 ---
 
 ## 📋 Changelog
+
+### Beta 0.28.9 (April 2026) — shipped
+- **Updates:** GitHub checker handles **no “latest” release**, **prereleases**, and **tag archives**; optional **`PERKYSUE_UPDATE_REPO`**. Installer syncs root **`*.bat`** / **`*.md`** / **`LICENSE`** with **`App/`**.
+- **Licensing UX:** Longer passive **`/check`** interval; immediate sync after checkout / wizards / Stripe; optional **Restart** hint after paying.
+- **Details:** **[CHANGELOG.md](CHANGELOG.md)**.
 
 ### Beta 0.28.8 (April 2026) — shipped
 - **Chat + Help UI:** redesigned Chat tab (pills, input bar, bubbles, model line). Statuses **`generating`** / **`speaking`** (16 locales).

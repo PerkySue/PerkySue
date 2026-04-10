@@ -16,7 +16,8 @@ import urllib.error
 import urllib.request
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Any, Dict, Optional, Tuple
+from typing import Any, Dict, List, Optional, Tuple
+from urllib.parse import quote
 
 import yaml
 
@@ -223,16 +224,7 @@ class Orchestrator:
         m = re.search(r"(\d+\.\d+\.\d+)", v)
         return m.group(1) if m else ""
 
-    def check_updates_from_github(self) -> dict:
-        """Return update info from GitHub releases (cached a few minutes)."""
-        try:
-            if self._update_cache and (time.monotonic() - float(self._update_cache_time or 0.0)) < 300:
-                return dict(self._update_cache)
-        except Exception:
-            pass
-
-        repo = "PerkySue/PerkySue"
-        url = f"https://api.github.com/repos/{repo}/releases/latest"
+    def _github_request_json(self, url: str) -> Any:
         req = urllib.request.Request(
             url,
             method="GET",
@@ -241,42 +233,205 @@ class Orchestrator:
                 "User-Agent": f"PerkySueDesktop/{self._current_app_semver() or '0.0.0'}",
             },
         )
-        with urllib.request.urlopen(req, timeout=20) as resp:
-            data = json.loads(resp.read().decode("utf-8", errors="replace"))
+        with urllib.request.urlopen(req, timeout=25) as resp:
+            return json.loads(resp.read().decode("utf-8", errors="replace"))
 
-        tag = str(data.get("tag_name") or data.get("name") or "").strip()
-        latest_semver = ""
-        m = re.search(r"(\d+\.\d+\.\d+)", tag)
-        if m:
-            latest_semver = m.group(1)
-
-        cur = self._current_app_semver()
-        cur_t = self._parse_version_tuple(cur)
-        lat_t = self._parse_version_tuple(latest_semver)
-        update_available = bool(latest_semver and (lat_t > cur_t))
-
-        assets = data.get("assets") or []
-        zip_url = ""
-        zip_name = ""
-        for a in assets:
+    def _pick_zip_from_assets(self, assets: Any) -> Tuple[str, str]:
+        """Pick best ``browser_download_url`` from release assets (prefer app-style bundles)."""
+        zips: List[Tuple[str, str]] = []
+        for a in assets or []:
             try:
-                name = str(a.get("name") or "")
-                dl = str(a.get("browser_download_url") or "")
+                name = str((a or {}).get("name") or "")
+                dl = str((a or {}).get("browser_download_url") or "")
             except Exception:
                 continue
-            if not dl or not name:
+            if not dl or not name or not name.lower().endswith(".zip"):
                 continue
-            if name.lower().endswith(".zip"):
-                zip_url = dl
-                zip_name = name
+            zips.append((name, dl))
+        if not zips:
+            return "", ""
+        prefs = ("perkysue", "windows", "desktop", "bundle", "full", "app", "portable")
+        for pref in prefs:
+            for name, dl in zips:
+                if pref in name.lower():
+                    return dl, name
+        return zips[0][1], zips[0][0]
+
+    def _max_semver_from_git_tags(self, repo: str) -> Optional[Tuple[Tuple[int, int, int], str, str]]:
+        """Return (version_tuple, semver_str, tag_name) for the newest tag whose name contains a semver."""
+        try:
+            tags = self._github_request_json(
+                f"https://api.github.com/repos/{repo}/tags?per_page=100"
+            )
+        except Exception:
+            return None
+        if not isinstance(tags, list):
+            return None
+        best_t = (0, 0, 0)
+        best_sem = ""
+        best_name = ""
+        for t in tags:
+            name = str((t or {}).get("name") or "").strip()
+            if not name:
+                continue
+            m = re.search(r"(\d+\.\d+\.\d+)", name)
+            if not m:
+                continue
+            tup = self._parse_version_tuple(m.group(1))
+            if tup > best_t:
+                best_t = tup
+                best_sem = m.group(1)
+                best_name = name
+        if best_t == (0, 0, 0):
+            return None
+        return (best_t, best_sem, best_name)
+
+    def check_updates_from_github(self) -> dict:
+        """Return update info from GitHub (releases + optional tag zipball). Cached a few minutes."""
+        try:
+            if self._update_cache and (time.monotonic() - float(self._update_cache_time or 0.0)) < 300:
+                return dict(self._update_cache)
+        except Exception:
+            pass
+
+        raw_repo = (os.environ.get("PERKYSUE_UPDATE_REPO") or "PerkySue/PerkySue").strip().strip("/")
+        repo = raw_repo if "/" in raw_repo else "PerkySue/PerkySue"
+        api = f"https://api.github.com/repos/{repo}"
+        cur = self._current_app_semver()
+        cur_t = self._parse_version_tuple(cur)
+
+        try:
+            meta = self._github_request_json(api)
+        except urllib.error.HTTPError as e:
+            if e.code == 404:
+                return {
+                    "error": f"GitHub repository not found (check PERKYSUE_UPDATE_REPO): {repo}",
+                    "repo": repo,
+                    "current_version": cur or getattr(self, "APP_VERSION", ""),
+                    "latest_version": "",
+                    "tag": "",
+                    "html_url": f"https://github.com/{repo}",
+                    "zip_url": "",
+                    "zip_name": "",
+                    "update_available": False,
+                }
+            return {
+                "error": f"GitHub API HTTP {e.code}",
+                "repo": repo,
+                "current_version": cur or getattr(self, "APP_VERSION", ""),
+                "latest_version": "",
+                "tag": "",
+                "html_url": f"https://github.com/{repo}",
+                "zip_url": "",
+                "zip_name": "",
+                "update_available": False,
+            }
+        except Exception as e:
+            return {
+                "error": str(e),
+                "repo": repo,
+                "current_version": cur or getattr(self, "APP_VERSION", ""),
+                "latest_version": "",
+                "tag": "",
+                "html_url": f"https://github.com/{repo}",
+                "zip_url": "",
+                "zip_name": "",
+                "update_available": False,
+            }
+
+        html_base = str((meta or {}).get("html_url") or f"https://github.com/{repo}")
+
+        releases: list = []
+        try:
+            rel = self._github_request_json(f"{api}/releases?per_page=35")
+            if isinstance(rel, list):
+                releases = rel
+        except urllib.error.HTTPError:
+            releases = []
+        except Exception:
+            releases = []
+
+        best_t = (0, 0, 0)
+        best_semver = ""
+        best_tag = ""
+        for rel in releases:
+            tag = str((rel or {}).get("tag_name") or "").strip()
+            m = re.search(r"(\d+\.\d+\.\d+)", tag)
+            if m:
+                t = self._parse_version_tuple(m.group(1))
+                if t > best_t:
+                    best_t = t
+                    best_semver = m.group(1)
+                    best_tag = tag
+
+        gt = self._max_semver_from_git_tags(repo)
+        if gt:
+            gt_t, gt_sv, gt_nm = gt
+            if gt_t > best_t:
+                best_t = gt_t
+                best_semver = gt_sv
+                best_tag = gt_nm
+
+        zip_url = ""
+        zip_name = ""
+        for rel in releases:
+            u, n = self._pick_zip_from_assets((rel or {}).get("assets"))
+            if u:
+                zip_url, zip_name = u, n
                 break
+
+        if not zip_url and best_tag and best_semver:
+            zip_url = f"https://github.com/{repo}/archive/refs/tags/{quote(best_tag, safe='')}.zip"
+            zip_name = f"{best_tag}.zip"
+
+        update_available = bool(best_semver and best_t > cur_t)
+
+        if update_available and not zip_url:
+            out = {
+                "error": (
+                    f"Version {best_semver} exists on GitHub but no .zip download was found. "
+                    "Publish a Release with a .zip that contains the App/ folder, or push a git tag "
+                    f"so the archive https://github.com/{repo}/archive/refs/tags/… can be used."
+                ),
+                "repo": repo,
+                "current_version": cur or getattr(self, "APP_VERSION", ""),
+                "latest_version": best_semver,
+                "tag": best_tag,
+                "html_url": releases and str((releases[0] or {}).get("html_url") or "") or html_base,
+                "zip_url": "",
+                "zip_name": "",
+                "update_available": False,
+            }
+            return out
+
+        if not best_semver:
+            out = {
+                "error": (
+                    "No GitHub Release or version tag was found for this repository. "
+                    "GitHub’s “latest release” API returns 404 until at least one Release exists; "
+                    "push a tag whose name includes the version (e.g. v0.28.9) or publish a Release with a .zip asset."
+                ),
+                "repo": repo,
+                "current_version": cur or getattr(self, "APP_VERSION", ""),
+                "latest_version": "",
+                "tag": "",
+                "html_url": html_base,
+                "zip_url": "",
+                "zip_name": "",
+                "update_available": False,
+            }
+            return out
+
+        rel_html = ""
+        if releases:
+            rel_html = str((releases[0] or {}).get("html_url") or "")
 
         out = {
             "repo": repo,
-            "current_version": cur or self.APP_VERSION,
-            "latest_version": latest_semver or tag,
-            "tag": tag,
-            "html_url": str(data.get("html_url") or ""),
+            "current_version": cur or getattr(self, "APP_VERSION", ""),
+            "latest_version": best_semver,
+            "tag": best_tag,
+            "html_url": rel_html or html_base,
             "zip_url": zip_url,
             "zip_name": zip_name,
             "update_available": update_available,
@@ -288,8 +443,35 @@ class Orchestrator:
             pass
         return out
 
+    def _sync_portable_root_from_bundle(self, bundle_root: Path, dst_root: Path) -> None:
+        """Copy launcher/docs from release root (sibling of App/ in zip) onto portable root.
+
+        Keeps install.bat / start.bat / other *.bat and *.md (CHANGELOG, README, …) aligned
+        with the shipped version. Only regular files at bundle root; no directories (no Data/Python).
+        """
+        import shutil
+
+        if not bundle_root.is_dir():
+            return
+        for src in bundle_root.iterdir():
+            if not src.is_file():
+                continue
+            name = src.name
+            low = name.lower()
+            suf = src.suffix.lower()
+            if suf not in (".bat", ".md") and low not in ("license", "license.txt"):
+                continue
+            dst_f = dst_root / name
+            try:
+                shutil.copy2(str(src), str(dst_f))
+            except Exception:
+                try:
+                    shutil.copy(str(src), str(dst_f))
+                except Exception:
+                    pass
+
     def download_and_stage_app_update(self, info: dict, progress_cb=None) -> Tuple[bool, str]:
-        """Download latest zip, extract, and overwrite App/ in-place. Returns (ok, message)."""
+        """Download latest zip, extract, overwrite App/ and portable-root *.bat / *.md / LICENSE."""
         dl_url = (info or {}).get("zip_url") or ""
         if not dl_url:
             return False, "No downloadable .zip asset found on the latest GitHub release."
@@ -309,7 +491,8 @@ class Orchestrator:
                 pass
 
         _progress(0.08, i18n_s("about.updates.body_downloading", default="Downloading update…"))
-        req = urllib.request.Request(dl_url, method="GET", headers={"User-Agent": "PerkySue"})
+        ua = f"PerkySueDesktop/{self._current_app_semver() or '0.0.0'}"
+        req = urllib.request.Request(dl_url, method="GET", headers={"User-Agent": ua})
         with urllib.request.urlopen(req, timeout=90) as resp, open(zip_path, "wb") as f:
             total = int(resp.headers.get("Content-Length") or "0") or 0
             read = 0
@@ -347,8 +530,9 @@ class Orchestrator:
         if app_src is None:
             return False, "Update zip does not contain an App/ folder."
 
+        bundle_root = app_src.parent
         app_dst = self.paths.app_dir
-        _progress(0.80, "Installing App/…")
+        _progress(0.78, "Installing App/…")
         for root, _dirs, files in os.walk(str(app_src)):
             rel = os.path.relpath(root, str(app_src))
             dst_root = app_dst / rel if rel != "." else app_dst
@@ -363,6 +547,12 @@ class Orchestrator:
                         shutil.copy(str(src_f), str(dst_f))
                     except Exception:
                         pass
+
+        _progress(0.90, "Updating launcher & docs…")
+        try:
+            self._sync_portable_root_from_bundle(bundle_root, self.paths.root)
+        except Exception:
+            pass
 
         _progress(1.0, i18n_s("about.updates.body_ready_restart", default="Update installed. Restart to apply."))
         return True, i18n_s("about.updates.body_ready_restart", default="Update installed. Restart to apply.")
@@ -564,7 +754,7 @@ class Orchestrator:
 
     # ─── Help mode (Alt+H) — params + KB collection & injection ──────
 
-    APP_VERSION = "Beta 0.28.8"
+    APP_VERSION = "Beta 0.28.9"
 
     # ─── Plugin extension point ───────────────────────────────────────
 

@@ -1279,12 +1279,16 @@ class PerkySueWidget:
         except Exception:
             pass
 
+    def _reset_license_sync_cooldown(self):
+        """Next passive sync (focus / Settings) may run immediately; use after explicit commerce / verify actions."""
+        self._last_license_sync_time = None
+
     def _request_license_remote_sync(self, ignore_cooldown: bool = False):
         """GET /check → license.json, puis rafraîchit plan / bannière / e-mail facturation."""
         orch = getattr(self, "orch", None)
         if orch is None or not hasattr(orch, "refresh_license_from_remote"):
             return
-        min_gap = 12.0
+        min_gap = float(getattr(self, "_LICENSE_REMOTE_SYNC_MIN_GAP_SEC", 15 * 60))
         if not ignore_cooldown and self._last_license_sync_time is not None:
             if (time.monotonic() - self._last_license_sync_time) < min_gap:
                 return
@@ -1331,7 +1335,7 @@ class PerkySueWidget:
         threading.Thread(target=_run, daemon=True).start()
 
     def _bind_license_sync_on_focus(self):
-        """Quand l’utilisateur revient du navigateur après paiement, un FocusIn relance /check (avec cooldown)."""
+        """FocusIn relance GET /check avec cooldown long (réduit la charge Worker); après Stripe, le cooldown est réinitialisé."""
 
         def _debounced_focus(_evt=None):
             jid = getattr(self, "_license_focus_after_id", None)
@@ -1435,7 +1439,7 @@ class PerkySueWidget:
         return ""
 
     def _default_window_title(self) -> str:
-        return s("common.window_title", default="PerkySue — Beta 0.28.8")
+        return s("common.window_title", default="PerkySue — Beta 0.28.9")
 
     def _ui_flag_stem(self) -> str:
         """Which lang-flags/*.png is selected."""
@@ -8690,6 +8694,8 @@ class PerkySueWidget:
     }
     # 3 equal grid columns: per-card width unchanged vs padx 4 everywhere; +4 px between cards; 4 px less outer inset.
     _PLAN_ROW_THREE_COL_PADX = ((0, 8), (4, 4), (8, 0))
+    # Passive GET /check (window focus + opening Settings): keep Worker traffic low. Commerce wizards / Stripe reset this.
+    _LICENSE_REMOTE_SYNC_MIN_GAP_SEC = 15 * 60
 
     def _plan_co_s(self, key: str, default_en: str) -> str:
         """Checkout row strings; YAML may be missing in some locales → English default."""
@@ -8764,6 +8770,70 @@ class PerkySueWidget:
             q.append(f"install_id={quote(iid)}")
         return f"{origin}/pro?" + "&".join(q)
 
+    def _hide_plan_post_stripe_hint(self):
+        fr = getattr(self, "_plan_post_stripe_hint_frame", None)
+        if fr is None:
+            return
+        try:
+            fr.pack_forget()
+        except (tk.TclError, ValueError):
+            pass
+
+    def _show_plan_post_stripe_hint(self):
+        """Plan B after opening Stripe: user sees restart option if focus /check is still on cooldown."""
+        fr = getattr(self, "_plan_post_stripe_hint_frame", None)
+        if fr is None:
+            return
+        try:
+            fr.pack(fill="x", pady=(12, 0))
+        except (tk.TclError, ValueError):
+            pass
+
+    def _relaunch_desktop_after_commerce(self):
+        """Relaunch PerkySue without requiring Save & Restart (same mechanism as settings restart)."""
+        try:
+            stt_device = "auto"
+            st = (self.cfg.get("stt") or {}) if isinstance(getattr(self, "cfg", None), dict) else {}
+            if isinstance(st, dict):
+                d = st.get("device")
+                if isinstance(d, str) and d.strip():
+                    stt_device = d.strip().lower()
+        except Exception:
+            stt_device = "auto"
+        app_root = Path(__file__).resolve().parent.parent.parent
+        main_py = app_root / "App" / "main.py"
+        python_exe = app_root / "Python" / "python.exe"
+        if not python_exe.exists():
+            python_exe = sys.executable
+        try:
+            self.root.destroy()
+        except Exception:
+            pass
+
+        if stt_device == "cuda" and getattr(self, "_is_nvidia_stt", False):
+            install_bat = app_root / "install.bat"
+            if install_bat.exists():
+                subprocess.Popen(["cmd", "/c", str(install_bat)], cwd=str(app_root), shell=False)
+                sys.exit(0)
+        subprocess.Popen([str(python_exe), str(main_py)], cwd=str(app_root))
+        sys.exit(0)
+
+    def _on_plan_stripe_continue(self, url_fn):
+        """Stripe monthly/yearly: reset passive /check cooldown, sync now, open browser, show restart hint."""
+        try:
+            self._reset_license_sync_cooldown()
+            self._request_license_remote_sync(ignore_cooldown=True)
+        except Exception:
+            pass
+        try:
+            webbrowser.open(url_fn())
+        except Exception:
+            pass
+        try:
+            self._show_plan_post_stripe_hint()
+        except Exception:
+            pass
+
     def _plan_show_checkout_view(self, from_manage_upgrade: bool = False):
         """Replace the 3 plan cards with Pro checkout choices (trial / monthly / yearly)."""
         if not getattr(self, "_plan_checkout_grid", None):
@@ -8781,6 +8851,15 @@ class PerkySueWidget:
             except Exception:
                 pass
             return
+        try:
+            self._hide_plan_post_stripe_hint()
+        except Exception:
+            pass
+        try:
+            self._reset_license_sync_cooldown()
+            self._request_license_remote_sync(ignore_cooldown=True)
+        except Exception:
+            pass
         self._plan_checkout_upgrading_from_trial = bool(from_manage_upgrade)
         self._plan_checkout_visible = True
         try:
@@ -8803,6 +8882,7 @@ class PerkySueWidget:
     def _plan_hide_checkout_view(self):
         if not getattr(self, "_plan_checkout_grid", None):
             return
+        self._hide_plan_post_stripe_hint()
         self._plan_checkout_upgrading_from_trial = False
         self._plan_checkout_visible = False
         try:
@@ -8954,7 +9034,7 @@ class PerkySueWidget:
                 cta_cmd = self._open_trial_request_wizard
             else:
                 url_fn = spec["url_fn"]
-                cta_cmd = lambda fn=url_fn: webbrowser.open(fn())
+                cta_cmd = lambda fn=url_fn: self._on_plan_stripe_continue(fn)
             cta_btn = CTkButton(
                 inner,
                 text=spec["cta"],
@@ -8970,6 +9050,42 @@ class PerkySueWidget:
             if spec.get("use_trial_wizard"):
                 self._plan_checkout_trial_card = card
                 self._plan_checkout_trial_btn = cta_btn
+
+        self._plan_post_stripe_hint_frame = CTkFrame(parent, fg_color="transparent")
+        hint_box = CTkFrame(
+            self._plan_post_stripe_hint_frame,
+            fg_color="#1e1e26",
+            corner_radius=10,
+            border_width=1,
+            border_color="#3A3A42",
+        )
+        hint_box.pack(fill="x", padx=0, pady=0)
+        hint_inner = CTkFrame(hint_box, fg_color="transparent")
+        hint_inner.pack(fill="x", padx=14, pady=12)
+        CTkLabel(
+            hint_inner,
+            text=self._plan_co_s(
+                "post_stripe_hint",
+                "After paying in the browser, come back to this window — your plan refreshes automatically. "
+                "If Pro does not show, restart the app.",
+            ),
+            font=("Segoe UI", 12),
+            text_color=TXT2,
+            justify="left",
+            anchor="w",
+            wraplength=720,
+        ).pack(fill="x", pady=(0, 10))
+        CTkButton(
+            hint_inner,
+            text=self._plan_co_s("post_stripe_restart", "Restart PerkySue"),
+            font=("Segoe UI", 12, "bold"),
+            fg_color=ACCENT,
+            hover_color="#9b6fe8",
+            text_color="#FFFFFF",
+            corner_radius=8,
+            height=32,
+            command=self._relaunch_desktop_after_commerce,
+        ).pack(anchor="w")
 
     def _refresh_plan_checkout_trial_dimmed(self):
         """Grey out the trial checkout card when user is already on Pro trial (upgrade path: monthly/yearly only)."""
@@ -9571,7 +9687,7 @@ class PerkySueWidget:
         except Exception:
             pass
 
-        # After local JSON tamper, tier can read Free until GET /check overwrites; 12s focus cooldown could block recovery.
+        # After local JSON tamper, tier can read Free until GET /check overwrites; long passive cooldown could block recovery.
         try:
             orch = getattr(self, "orch", None)
             if (
@@ -9641,6 +9757,11 @@ class PerkySueWidget:
 
             def _ui():
                 if ok:
+                    try:
+                        self._reset_license_sync_cooldown()
+                        self._request_license_remote_sync(ignore_cooldown=True)
+                    except Exception:
+                        pass
                     try:
                         webbrowser.open(url_or_err)
                     except Exception:
@@ -9728,6 +9849,12 @@ class PerkySueWidget:
             except Exception:
                 pass
             return
+
+        try:
+            self._reset_license_sync_cooldown()
+            self._request_license_remote_sync(ignore_cooldown=True)
+        except Exception:
+            pass
 
         if getattr(self, "_trial_req_wizard_dlg", None):
             try:
@@ -10303,6 +10430,11 @@ class PerkySueWidget:
         orch = getattr(self, "orch", None)
         if orch is None or not hasattr(orch, "link_subscription_start"):
             return
+        try:
+            self._reset_license_sync_cooldown()
+            self._request_license_remote_sync(ignore_cooldown=True)
+        except Exception:
+            pass
         if getattr(self, "_link_sub_wizard_dlg", None):
             try:
                 if self._link_sub_wizard_dlg.winfo_exists():

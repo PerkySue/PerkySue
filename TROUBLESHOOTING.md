@@ -81,7 +81,7 @@ The embedded Python bundle may ship with a **CPU-only** PyTorch build. **Chatter
 - Use **Settings → Voice → Install PyTorch CUDA** when the app offers it, or run **`install_pytorch_cuda_cu128.bat`** (recommended for **RTX 50xx / Blackwell**) or **`install_pytorch_cuda_cu124.bat`** from the repo root.
 - **After any CUDA pip install, fully quit PerkySue and start it again.** The app does not reload PyTorch safely inside the same process; staying in the same session can break TTS with errors mentioning **einops**, **`_has_torch_function`**, or failed imports until you restart.
 
-### OmniVoice on Windows — TorchCodec / FFmpeg DLLs (Beta 0.28.8)
+### OmniVoice on Windows — TorchCodec / FFmpeg DLLs (Beta 0.28.9)
 
 **Chatterbox** is the most portable default TTS engine. **OmniVoice** pulls in **TorchAudio** paths that use **TorchCodec**, which loads native **FFmpeg** libraries on Windows.
 
@@ -93,7 +93,7 @@ PerkySue also patches **`torchaudio.load`/`save`** for **local `.wav` files** to
 
 **Weird extra words in OmniVoice output?** The engine **prepends** **`ref_text`** to the sentence it speaks. Use a real transcript in **`voice_ref.txt`** (next to **`voice_ref.wav`**) or **`voice_sample.txt`** (next to **`audios/voice_sample/voice_sample.wav`**), or leave empty (no dummy English sentence).
 
-See [ARCHITECTURE.md](ARCHITECTURE.md) (*Pro TTS — engines…*) and [CHANGELOG.md](CHANGELOG.md) (Beta 0.28.8 / 0.28.7).
+See [ARCHITECTURE.md](ARCHITECTURE.md) (*Pro TTS — engines…*) and [CHANGELOG.md](CHANGELOG.md) (Beta 0.28.9 / 0.28.8 / 0.28.7).
 
 ---
 
@@ -112,7 +112,24 @@ If direct mode fails (missing dependencies, incompatible GPU), PerkySue falls ba
 
 PerkySue separates system files (replaced on update) from user data (preserved forever). See [ARCHITECTURE.md](ARCHITECTURE.md) for the full folder layout.
 
-**To update PerkySue:** replace the `App/` folder. Your settings, models, and unlocked skins are safe in `Data/`.
+**To update PerkySue:** use **About → Check for updates** when available, or manually replace the **`App/`** folder from a newer zip. **In-app update (Beta 0.28.9+)** also overwrites portable-root **`*.bat`**, **`*.md`**, and **`LICENSE`** from the downloaded bundle so `install.bat`, `start.bat`, and `CHANGELOG.md` stay aligned. Your settings, models, and unlocked skins stay in **`Data/`** (not replaced).
+
+---
+
+## 📦 In-app update — “Could not check updates” / GitHub message
+
+**Symptom:** About → **Check for updates** fails with text like *No GitHub Release or version tag was found* (or HTTP 404 in logs).
+
+**Cause:** The GitHub repo has **no published release** and **no git tag** whose name contains a semver (**`x.y.z`**), or you are pointing at the wrong repo.
+
+**Fix:**
+
+1. On **https://github.com/PerkySue/PerkySue** (or your fork), ensure a tag exists, e.g. **`v0.28.9`**, on the commit you want users to receive:  
+   `git tag v0.28.9 && git push origin v0.28.9`
+2. Wait a minute, retry **Check for updates** (the app caches the GitHub response for a few minutes).
+3. To test against a **fork**, set environment variable **`PERKYSUE_UPDATE_REPO=YourLogin/PerkySue`** before starting the app.
+
+See **[GETTING_STARTED.md](GETTING_STARTED.md)** (*Publishing a version so “Check for updates” works*).
 
 ---
 
