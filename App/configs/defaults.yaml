@@ -164,12 +164,17 @@ hotkeys:
   custom3: "alt+n"
   # Stop recording / cancel LLM (global). Letter Q is free (S = Summarize). Do not use alt+escape.
   stop_recording: "alt+q"
+  # Paste again the last PerkySue injectable result into the foreground window (not an LLM mode).
+  reinject_last: "alt+r"
 
 # --- Text Injection ---
 injection:
   method: "clipboard"
   restore_clipboard: true
   delay_ms: 100
+  # After auto-paste: wait this many seconds before restoring the user's previous clipboard,
+  # only if the clipboard still holds the injected payload (see injector delayed restore).
+  clipboard_restore_delay_sec: 5
 
 # --- Feedback ---
 feedback:

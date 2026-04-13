@@ -23,7 +23,7 @@ PerkySue is more than dictation — it’s a **local AI layer on top of your who
 | 🎯 **Smart Focus** | Trigger in one app, work in another — the result injects **where you started**. |
 | 🗣️ **Voice-to-voice (Pro)** | Sue can **speak back**: explains rewrites, comments on email tone, answers aloud. |
 | 🧠 **AI voice layer** | Dictate prompts straight into ChatGPT, Claude, Cursor, VS Code — same workflow, less typing. |
-| 📨 **Instant emails & rewrites** | `Alt+M`, `Alt+I`, and 10+ other modes — see hotkey table below. |
+| 📨 **Instant emails & rewrites** | `Alt+M`, `Alt+I`, and the other Pro transforms — see hotkey table below. |
 | 🛡️ **Private by design** | STT + LLM on **your** CPU/GPU. Core pipeline: no audio sent to PerkySue for dictation. |
 
 ---
@@ -75,6 +75,8 @@ See **[GETTING_STARTED.md](GETTING_STARTED.md)** for the full step-by-step.
 2. Add an LLM: **Settings → Recommended Models**, or drop a **`.gguf`** in **`Data/Models/LLM/`** (first-run download may need network).
 3. Run **`PerkySue Launch.bat`** — Whisper may fetch weights on first launch; then **`Alt+T`** to transcribe.
 
+**Update behavior (important):** About → Check for updates now stages `App/` + portable root launch/docs files, then runs a post-update consistency check at next startup. If critical runtime pieces are missing/broken, PerkySue can auto-start `install.bat` and stop normal startup so repair happens first.
+
 **Requirements:** Windows **10/11** · **8 GB** RAM minimum (**16 GB** recommended) · Microphone · **NVIDIA GPU** optional (often **5–10×** faster) — **`Alt+T`** is great on CPU with **`tiny`** / **`small`** Whisper.
 
 Stuck? **[TROUBLESHOOTING.md](TROUBLESHOOTING.md)** · partial install → *Manual recovery* in **GETTING_STARTED.md**.
@@ -99,7 +101,7 @@ Three **editable** slots in the GUI. Pattern: *select text → hotkey → short 
 
 - **`Alt+I`** — selection + voice instruction → replaced in place.  
 - **`Alt+M`** — cursor in compose window → professional email from your intent.  
-- **`Alt+A`** — local voice Q&A. **Free:** Chat tab in-app, standalone questions. **Pro:** history, Smart Focus injection, optional voice answers.
+- **`Alt+A`** — local voice Q&A. **Free:** Chat tab in-app, standalone questions (no multi-turn). **Pro:** cursor injection, conversation history, optional **voice-to-voice** (Sue speaks back via Pro TTS).
 
 ---
 
@@ -120,12 +122,16 @@ Three **editable** slots in the GUI. Pattern: *select text → hotkey → short 
 | `Alt+S` | Summarize | Condense to key points | Pro |
 | `Alt+G` | GenZ | Casual modern rewrite | Pro |
 | `Alt+V` / `B` / `N` | Custom | Your prompts (GUI) | Pro |
+| `Alt+Q` | Stop | Stops listening, generation, and voice output | ✅ |
+| `Alt+R` | Re-inject | Pastes the **latest finalized result** again (any time this session) | ✅ |
 
-*\* Free Ask = in-app only, no multi-turn. Pro Ask = cursor injection + conversation history.*
+*\* Free Ask = in-app only, no multi-turn. Pro Ask = cursor injection + conversation history + voice-to-voice (TTS).*
 
-**Stop recording:** **`Alt+Q`** globally. Hotkeys work with **left Alt** and **AltGr** (EU keyboards).
+**Stop (`Alt+Q`):** cancels **microphone listening**, ongoing **LLM generation**, and **TTS playback** — globally. Hotkeys work with **left Alt** and **AltGr** (EU keyboards).
 
-**Pro:** **30-day email trial** (once per address), then **$9.90/mo** via Stripe when live. Billing uses **Stripe / Brevo / perkysue.com** for **licensing only** — not your voice or transcripts ([PRIVACY.md](PRIVACY.md)).
+**Clipboard paste window (`Ctrl+V` after auto-paste):** After PerkySue injects text, your **previous** clipboard is restored after a delay (factory default **5 seconds**) **unless** you copy something else first — so **Ctrl+V** can still paste the PerkySue result during that window. Change the duration under **Settings → Performance → Clipboard paste delay (s)** (`0` = restore immediately, legacy behavior). **Re-inject (`Alt+R`)** re-pastes the latest finalized PerkySue result for this session (not Help mode), independent from that 5-second window.
+
+**Pro:** **30-day email trial** (once per address), then **$9.90/mo** or **yearly** billing on **[perkysue.com/pro](https://perkysue.com/pro)** via Stripe when live. Billing uses **Stripe / Brevo / perkysue.com** for **licensing only** — not your voice or transcripts ([PRIVACY.md](PRIVACY.md)).
 
 ---
 
@@ -168,7 +174,11 @@ hotkeys:
   transcribe: "ctrl+shift+t"
 ```
 
-Most options are in **Settings** in the GUI. Factory reference: `App/configs/defaults.yaml`. Custom voice mode overlays: `Data/Configs/modes.yaml`.
+Most options are in **Settings** in the GUI. Factory reference: `App/configs/defaults.yaml`. Custom voice mode overlays: `Data/Configs/modes.yaml`. **Injection:** `injection.clipboard_restore_delay_sec` (UI: **Performance → Clipboard paste delay**) controls how long the PerkySue result stays in the clipboard before restore; **`Alt+R`** / `reinject_last` hotkey is listed under **Settings → Shortcuts**.
+
+**TTS model governance:** PerkySue ships a pinned TTS model registry spec (`App/configs/model_registry.yaml`) and keeps a deterministic local status under `Data/Models/TTS/registry.json`. This reduces surprise redownloads and keeps model updates tied to PerkySue releases.
+
+**Custom avatars/skins:** user-created content belongs under `Data/Skins/...` (portable user data). You do not need to add custom avatars into app-bundled skin folders.
 
 ---
 
@@ -178,7 +188,7 @@ Most options are in **Settings** in the GUI. Factory reference: `App/configs/def
 🚧 **macOS** — coming soon (Apple Silicon). Contributors welcome.  
 🚧 **Linux** — planned. Contributors welcome.
 
-**Roadmap highlights:** TTS (Pro) shipped — Chatterbox / OmniVoice; **Enterprise** KB & deployment — [hello@perkysue.com](mailto:hello@perkysue.com); **plugin architecture** — planned.
+**Roadmap highlights:** TTS (Pro) shipped — Chatterbox / OmniVoice; **Enterprise** KB & deployment — [hello@perkysue.com](mailto:hello@perkysue.com); **Avatar Creator page** (easy custom avatar generation in-app) — planned; **plugin architecture** — planned.
 
 ---
 
@@ -199,6 +209,11 @@ PerkySue started as a **personal productivity** tool — voice → **local STT**
 ---
 
 ## 📋 Changelog
+
+### Beta 0.29.1 (April 2026) — shipped
+- **Hotkeys:** `Alt+R` re-inject reliability fixes + shortcuts reset persistence fix + arrow-key hotkey parsing support.
+- **Docs:** Clipboard default remains **5s**, Data-owned custom avatar guidance, and release ops updates.
+- **Details:** **[CHANGELOG.md](CHANGELOG.md)**.
 
 ### Beta 0.29.0 (April 2026) — shipped
 - **Updates:** Fix **Update** button crash (`Paths.cache` instead of invalid `data_dir`). Use tag **`v0.29.0`** to re-test the full download + install from **0.28.9**.

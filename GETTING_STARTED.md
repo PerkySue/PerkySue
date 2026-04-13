@@ -25,6 +25,8 @@ WHICH BUILD DO YOU HAVE?
 
 **To start PerkySue after setup:** Double-click **`PerkySue Launch.bat`** (or `start.bat`). Use **`install.bat`** only for first-time setup or repair — not every launch.
 
+**After an in-app update:** PerkySue runs a post-update runtime check on next start. If critical files/deps are missing, it can auto-launch **`install.bat`** and stop normal startup; complete the installer, then launch PerkySue again.
+
 **PerkySue Pro (Stripe) — important:** You can open **`https://perkysue.com/pro`** **with or without** an **`install_id`** in the URL. **With** `install_id` (from the app’s **Go Pro** flow), checkout can attach that UUID and the Worker stores state under **`install:<uuid>`**. **Without** it, you can still subscribe in the browser; the Worker may store state under **`sub:<subscription_id>`** until an in-app **“link this PC / I already paid”** flow connects **`Data/Configs/install.id`**. On first launch, the app creates **`install.id`** locally if missing — the website does not write that file. **Safest path** when the app is already installed: start checkout from the app so the URL includes the correct id. If you delete **`Data`**, you get a **new** UUID. Details: `ARCHITECTURE.md` (install_id lifecycle).
 
 ---
@@ -78,6 +80,16 @@ Place a `.gguf` file under **`Data\Models\LLM\`**.
 
 If the console says **backend not found**, see **Troubleshooting** → *Manual recovery (llama-server backend)* below.
 
+### 4b. Post-update repair flow (new)
+
+If you just applied an in-app update and PerkySue says it started repair automatically:
+
+1. Let `install.bat` finish (do not cancel halfway).
+2. Close the old console/app window if still open.
+3. Relaunch with **`PerkySue Launch.bat`**.
+
+This happens only when runtime consistency checks detect a real mismatch (backend/dependencies), not on every update.
+
 ---
 
 STEP-BY-STEP (SHORT)
@@ -113,8 +125,11 @@ Customize in **`Data/Configs/config.yaml`** or **Settings → Shortcuts**.
 | Alt+H | Help | PerkySue help (in-app) | Yes |
 | Alt+V / B / N | Custom | User-defined prompts (Prompt Modes) | Yes |
 | Alt+Q | Stop | Stop recording / cancel LLM | — |
+| Alt+R | Re-inject | Paste the **last injected result** again (same session, foreground window) | — |
 
 Press **Ctrl+C** in the console to quit the app.
+
+**Clipboard after injection:** For a configurable time (default **5 s**, **Settings → Performance → Clipboard paste delay**), **Ctrl+V** can still paste the PerkySue result; then your previous copy is restored **unless** you copied something else in between. **`0`** = immediate restore (old behavior). **`Alt+R`** re-pastes the latest finalized result **any time until you restart** the app (not limited to that window); configure the key under **Settings → Shortcuts**.
 
 **AltGr:** On European layouts, **AltGr** is treated like **Ctrl+Alt** for many shortcuts — see `App/utils/hotkeys.py`.
 
@@ -131,6 +146,8 @@ VOICE SKINS (PATREON SUPPORTER PACK)
 ------------------------------------
 
 Default skin is built-in. **Sue** and **Mike** are optional Patreon skins: subscribe → download **`.perky`** → **Settings → Import Skin** with the published password. Extracted assets live under **`Data/Skins/<Character>/<Locale>/`** (example: **`Data/Skins/Mike/FR/`** for the French Mike pack). Optional **`Data/Skins/<Character>/tts_personality.yaml`** applies to all locales of that character. **Settings → Appearance** opens with a language filter matching your **UI language** so you do not see every locale at once; use the **All** chip if you want the full grid.
+
+You can also create your own local avatar/skin packs directly in **`Data/Skins/...`** without editing app-bundled skin folders.
 
 ---
 

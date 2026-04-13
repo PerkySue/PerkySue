@@ -1,4 +1,4 @@
-﻿about:
+about:
   support_patreon_label: ❤ Support on Patreon
   updates:
     title: Updates
@@ -196,7 +196,7 @@
       url: ''
     credit: Created by Jérôme Corbiau  ·  Licensed under Apache 2.0
 common:
-  window_title: PerkySue — Beta 0.29.0
+  window_title: PerkySue — Beta 0.29.1
   header_banner:
     free_invite: PerkySue Beta — Free · Try Pro (30 days, no card)
     free_after_trial: PerkySue Beta — Free
@@ -346,6 +346,10 @@ shortcuts:
   col_hotkey_altgr: Hotkey (AltGr)
   edit: Edit
   stop_task: Stop Task
+  reinject_last_task: Paste last result
+  reinject_empty: Nothing yet — dictate first, then Alt+R.
+  reinject_ok: Pasted
+  reinject_fail: Failed — Console or Ctrl+V
   restore_defaults: Restore Default Shortcuts
   restart_note: Changes require Save & Restart (sidebar).
 settings:
@@ -398,6 +402,7 @@ settings:
     llm_request_timeout: LLM request timeout (s)
     thinking_allow: Allow thinking
     thinking_budget: Thinking token budget
+    clipboard_paste_delay: Clipboard paste delay (s)
     no_gguf: No .gguf in Data/Models/LLM
     auto: Auto
   save_restart: Save & Restart

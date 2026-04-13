@@ -43,8 +43,9 @@ _VK_MAP = {
     "f5": 0x74, "f6": 0x75, "f7": 0x76, "f8": 0x77,
     "f9": 0x78, "f10": 0x79, "f11": 0x7A, "f12": 0x7B,
     "space": 0x20, "enter": 0x0D, "tab": 0x09, "escape": 0x1B,
-    # Navigation (VK_HOME / VK_END) — utile pour stop_recording sans toucher à Escape (réservé Windows)
+    # Navigation / arrows
     "home": 0x24, "end": 0x23,
+    "left": 0x25, "up": 0x26, "right": 0x27, "down": 0x28,
 }
 
 # Reverse map: physical keycode (VK) -> key name, for capture (keysym is layout-dependent, keycode is physical)

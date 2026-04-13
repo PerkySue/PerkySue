@@ -1,7 +1,21 @@
 ## 📋 Changelog
 
+### Beta 0.29.1 (April 2026) — shipped
+- **Alt+R re-inject stability:** `reinject_last` is hardened to re-paste the latest finalized result reliably and prevent accidental mode-trigger side effects right after re-injection. Re-inject remains independent from the temporary Ctrl+V clipboard window.
+- **Shortcuts reset persistence fix:** **Restore default shortcuts** now overwrites the `hotkeys` section in `Data/Configs/config.yaml` instead of leaving stale keys merged from older sessions.
+- **Hotkey parser coverage:** Arrow keys (`left`, `up`, `right`, `down`) are now recognized in hotkey parsing so `Ctrl+Alt+Down/Right` style bindings no longer fail registration.
+- **Clipboard default updated:** `injection.clipboard_restore_delay_sec` factory default remains documented and enforced at **5 seconds** across runtime and public docs.
+- **Avatar customization path clarified:** User-created avatars/skins are documented as **Data-owned content** (`Data/Skins/...`) and do not require listing under app-bundled skin folders.
+- **Release ops docs:** Release procedure now explicitly includes Hugging Face model publication checks and final distributable ZIP packaging flow for GitHub + website upload.
+
 ### Beta 0.29.0 (April 2026) — shipped
+- **Deterministic TTS model registry:** Added pinned TTS manifest flow under `Data/Models/TTS/registry.json` with engine entries (`repo_id`, `revision`, resolved snapshot path, file list, install metadata). Boot now validates manifest first, attempts local-only migration/repair from `Data/HuggingFace/hub`, and blocks implicit online fetch when manifest/snapshot is invalid (Voice tab install/repair remains the explicit recovery path). New config spec: `App/configs/model_registry.yaml`; diagnostics helper: `App/tools/model_registry_status.py`.
+- **Post-update maintenance marker:** In-app updater now writes `Data/Cache/updates/post_update_pending.json`; next app start runs idempotent post-update tasks (currently TTS registry migration) and clears the marker.
+- **Post-update runtime consistency check:** Added targeted validation at first restart after update (backend binary + embedded Python dependency probe). If critical runtime pieces are missing, PerkySue writes a diagnostic marker under `Data/Cache/updates/` and recommends running `install.bat` instead of executing a blind full reinstall on every update.
+- **Post-update auto-repair trigger:** When the targeted post-update runtime check detects critical mismatches, PerkySue now auto-launches `install.bat` and stops normal app startup so users repair first, then relaunch.
+- **Clipboard paste window + re-inject:** After auto-injection, the previous clipboard is restored after **`injection.clipboard_restore_delay_sec`** (default **5 s**) unless the user copied something else — **Ctrl+V** can paste the PerkySue result during that window. **Settings → Performance → Clipboard paste delay (s)** (`0` = immediate restore). **`Alt+R` (`reinject_last`)** pastes the last injected payload again **any time in the session** (immediate clipboard restore after that paste). Documented in README, GETTING_STARTED, ARCHITECTURE; strings in **16** locales.
 - **In-app update fix:** `download_and_stage_app_update` used a non-existent **`Paths.data_dir`** → **`AttributeError`** when clicking **Update**. Now uses **`paths.cache`** (`Data/Cache/updates/…`) as intended.
+- **Restart after update:** About → Update → **Restart to apply** called **`_restart_app`**, which only destroyed the window. It now **`subprocess.Popen`**’s **`Python/python.exe App/main.py --data <Data>`** and **`sys.exit(0)`** (same path as post-Stripe restart); **`_relaunch_desktop_after_commerce`** delegates to **`_restart_app`**.
 - **Docs / version:** `APP_VERSION` **Beta 0.29.0**, `common.window_title` (16 locales), KB headers, `README.md`, `ARCHITECTURE.md`, `GETTING_STARTED` / `TROUBLESHOOTING` tag examples — bump so installs on **0.28.9** can verify the full update path against **GitHub tag `v0.29.0`**.
 
 ### Beta 0.28.9 (April 2026) — shipped
@@ -40,7 +54,7 @@
 - **TTS vs new input:** Any **toggle** hotkey, **push-to-talk** key-down, **Chat/Help microphone** button, or **Ask/Help** text send calls **`Orchestrator.stop_voice_output()`** so ongoing TTS playback/synthesis is stopped immediately (same stack as Alt+Q on voice output).
 - **Default TTS engine (NVIDIA):** Factory **`tts.engine: auto`** in **`defaults.yaml`** resolves to **OmniVoice** when **`nvidia-smi`** reports a GPU, else **Chatterbox** (**`TTSManager.load_config`**). Voice tab labels **OmniVoice** with a localized **(recommended)** suffix in that case (**`voice.engine.recommended_suffix`**, 16 locales). User **`config.yaml`** **`engine:`** still overrides when set explicitly.
 - **Plan management (Pro):** Fourth marketing bullet **Voice-to-Voice** / **Voix-à-Voix** (and localized equivalents) on the Pro card in Settings → Plan management (**`settings.plan_management.pro.features`** in all **16** string YAMLs).
-- **Release closure:** Beta **0.28.7** is **closed** for this cycle — skins path migration, TTS/docs/handoff updates, Appearance filter, plan copy, NVIDIA TTS defaults, and input-driven TTS stop are in this tag.
+- **Release closure:** Beta **0.28.7** is **closed** for this cycle — skins path migration, TTS/docs updates, Appearance filter, plan copy, NVIDIA TTS defaults, and input-driven TTS stop are in this tag.
 
 ### Beta 0.28.6 (April 2026)
 - **Sue speaks (Pro TTS):** Sue now **comments on what she injects**. Dictate an email (`Alt+M`)? Sue writes it at your cursor and explains her choices aloud. Rewrite text (`Alt+I`)? She tells you what she changed. Ask a question (`Alt+A`)? She answers by voice. The LLM decides when to inject, when to speak, or both — based on context. Default voice included in Pro; additional voice packs on Patreon. Toggle in Settings.

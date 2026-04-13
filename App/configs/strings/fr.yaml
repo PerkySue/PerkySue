@@ -1,4 +1,4 @@
-﻿about:
+about:
   support_patreon_label: ❤ Soutenir sur Patreon
   updates:
     title: Mises à jour
@@ -196,7 +196,7 @@
       url: ''
     credit: Créé par Jérôme Corbiau  ·  Licence Apache 2.0
 common:
-  window_title: PerkySue — Beta 0.29.0
+  window_title: PerkySue — Beta 0.29.1
   header_banner:
     free_invite: PerkySue Beta — Gratuit · Essai Pro (30 j · sans CB)
     free_after_trial: PerkySue Beta — Gratuit
@@ -346,6 +346,10 @@ shortcuts:
   col_hotkey_altgr: Raccourci (AltGr)
   edit: Éditer
   stop_task: Arrêter la tâche
+  reinject_last_task: Coller dernier résultat
+  reinject_empty: Rien — dictée puis Alt+R.
+  reinject_ok: Collé
+  reinject_fail: Échec — Console ou Ctrl+V
   restore_defaults: Restaurer les raccourcis par défaut
   restart_note: Enregistre & redémarre (barre latérale) pour appliquer.
 settings:
@@ -397,7 +401,8 @@ settings:
     max_output: Sortie max (tokens)
     llm_request_timeout: Délai de requête LLM (s)
     thinking_allow: Autoriser le raisonnement
-    thinking_budget: Budget tokens de raisonnement
+    thinking_budget: Tokens max raisonnement
+    clipboard_paste_delay: Délai collage pr.-papier (s)
     no_gguf: Aucun .gguf dans Data/Models/LLM
     auto: Auto
   save_restart: Enregistrer & Redémarrer

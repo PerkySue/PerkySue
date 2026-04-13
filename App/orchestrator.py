@@ -9,6 +9,7 @@ import logging
 import importlib.util
 import os
 import re
+import subprocess
 import sys
 import threading
 import time
@@ -92,6 +93,8 @@ class Orchestrator:
         self._lock = threading.Lock()
         self._current_mode: Optional[str] = None
         self._target_window = None  # Handle de la fenêtre active au moment du hotkey
+        self._last_inject_payload: Optional[str] = None  # Dernier texte injecté (hors Help) — raccourci reinject_last
+        self._suppress_mode_hotkeys_until: float = 0.0
         self.last_stt_text = ""   # Dernière transcription Whisper (pour page Console)
         self.last_llm_text = ""   # Dernier texte produit par le LLM (pour page Console)
         self.last_llm_reasoning = ""  # Raisonnement séparé (API) — Console uniquement, jamais injecté
@@ -181,6 +184,21 @@ class Orchestrator:
         # Updates (GitHub public releases) — cached per process/session
         self._update_cache: Optional[dict] = None
         self._update_cache_time: float = 0.0
+        self._pending_post_update_info: Optional[dict] = self._read_post_update_marker()
+        self._post_update_install_started: bool = False
+        self._post_update_install_reason: str = ""
+
+        # Deterministic TTS registry maintenance (safe, local-only migration from existing HF cache).
+        try:
+            mig = self.tts_manager.run_startup_maintenance()
+            if mig:
+                logger.info("TTS registry startup maintenance: %s", mig)
+        except Exception as e:
+            logger.warning("TTS registry startup maintenance failed: %s", e)
+        try:
+            self._run_pending_post_update_tasks()
+        except Exception as e:
+            logger.warning("Post-update tasks failed: %s", e)
 
     def _load_merged_config(self) -> dict:
         """
@@ -256,6 +274,142 @@ class Orchestrator:
                 if pref in name.lower():
                     return dl, name
         return zips[0][1], zips[0][0]
+
+    def _post_update_marker_path(self) -> Path:
+        return self.paths.cache / "updates" / "post_update_pending.json"
+
+    def _read_post_update_marker(self) -> Optional[dict]:
+        p = self._post_update_marker_path()
+        if not p.is_file():
+            return None
+        try:
+            obj = json.loads(p.read_text(encoding="utf-8"))
+            return obj if isinstance(obj, dict) else None
+        except Exception:
+            return None
+
+    def _write_post_update_marker(self, payload: dict) -> None:
+        p = self._post_update_marker_path()
+        p.parent.mkdir(parents=True, exist_ok=True)
+        p.write_text(json.dumps(payload, ensure_ascii=True, indent=2, sort_keys=True), encoding="utf-8")
+
+    def _clear_post_update_marker(self) -> None:
+        p = self._post_update_marker_path()
+        try:
+            if p.exists():
+                p.unlink()
+        except Exception:
+            pass
+
+    def _run_pending_post_update_tasks(self) -> None:
+        marker = self._pending_post_update_info or self._read_post_update_marker()
+        if not marker:
+            return
+        logger.info("Post-update tasks detected: %s", marker)
+        tasks = marker.get("tasks") if isinstance(marker, dict) else None
+        if not isinstance(tasks, list):
+            tasks = []
+        done: Dict[str, str] = {}
+        if "tts_registry_migration" in tasks:
+            try:
+                status = self.tts_manager.run_startup_maintenance()
+                done["tts_registry_migration"] = f"ok:{status}"
+            except Exception as e:
+                done["tts_registry_migration"] = f"error:{e}"
+        if "runtime_consistency_check" in tasks:
+            try:
+                status = self._run_post_update_runtime_consistency_check(marker)
+                done["runtime_consistency_check"] = status
+            except Exception as e:
+                done["runtime_consistency_check"] = f"error:{e}"
+        self._clear_post_update_marker()
+        logger.info("Post-update tasks completed: %s", done)
+
+    def get_model_registry_status(self) -> Dict[str, Any]:
+        """Diagnostic helper for About/Support."""
+        try:
+            return self.tts_manager.get_model_registry_status()
+        except Exception as e:
+            return {"error": str(e)}
+
+    def _run_post_update_runtime_consistency_check(self, marker: dict) -> str:
+        """Post-update targeted runtime checks with install.bat fallback trigger.
+
+        We do not run install.bat on every update. We only trigger it when critical
+        runtime pieces are missing/incompatible for this installation.
+        """
+        root = self.paths.root
+        install_bat = root / "install.bat"
+        python_exe = self.paths.python_dir / "python.exe"
+        backend = (os.environ.get("PERKYSUE_BACKEND") or "").strip().lower() or "cpu"
+        backend_bin = self.paths.data / "Tools" / backend / "llama-server.exe"
+
+        missing: List[str] = []
+        if not backend_bin.is_file():
+            missing.append(f"backend_missing:{backend}")
+        if not python_exe.is_file():
+            missing.append("python_missing")
+        else:
+            try:
+                dep_probe = subprocess.run(
+                    [
+                        str(python_exe),
+                        "-c",
+                        "import yaml,numpy,requests,pygame,faster_whisper,psutil; print('ok')",
+                    ],
+                    capture_output=True,
+                    text=True,
+                    timeout=45,
+                )
+                if dep_probe.returncode != 0:
+                    missing.append("python_deps_incomplete")
+            except Exception:
+                missing.append("python_dep_probe_failed")
+
+        if not missing:
+            return "ok"
+
+        latest_v = str((marker or {}).get("latest_version") or "").strip() or "unknown"
+        fail_marker = self.paths.cache / "updates" / f"post_update_runtime_issue_{latest_v}.json"
+        try:
+            fail_marker.parent.mkdir(parents=True, exist_ok=True)
+            fail_marker.write_text(
+                json.dumps(
+                    {
+                        "latest_version": latest_v,
+                        "issues": missing,
+                        "detected_at": datetime.now(timezone.utc).isoformat(),
+                        "suggested_action": "run_install_bat",
+                    },
+                    ensure_ascii=True,
+                    indent=2,
+                    sort_keys=True,
+                ),
+                encoding="utf-8",
+            )
+        except Exception:
+            pass
+
+        if install_bat.is_file():
+            self._post_update_install_reason = ",".join(missing)
+            try:
+                cmd = f'cmd /c start "" "{install_bat}"'
+                subprocess.Popen(cmd, shell=True, cwd=str(root))
+                self._post_update_install_started = True
+                logger.warning(
+                    "Post-update runtime check detected issues (%s). Auto-launching install.bat and requesting app exit.",
+                    ", ".join(missing),
+                )
+                return f"auto_install_started:{','.join(missing)}"
+            except Exception as e:
+                logger.warning(
+                    "Post-update runtime check detected issues (%s) but could not auto-launch install.bat: %s",
+                    ", ".join(missing),
+                    e,
+                )
+                return f"needs_install_bat:{','.join(missing)}"
+
+        return f"runtime_issues_no_install_bat:{','.join(missing)}"
 
     def _max_semver_from_git_tags(self, repo: str) -> Optional[Tuple[Tuple[int, int, int], str, str]]:
         """Return (version_tuple, semver_str, tag_name) for the newest tag whose name contains a semver."""
@@ -554,6 +708,20 @@ class Orchestrator:
         except Exception:
             pass
 
+        try:
+            self._write_post_update_marker(
+                {
+                    "created_at": datetime.now(timezone.utc).isoformat(),
+                    "latest_version": str(latest_v or ""),
+                    "tasks": [
+                        "tts_registry_migration",
+                        "runtime_consistency_check",
+                    ],
+                }
+            )
+        except Exception:
+            pass
+
         _progress(1.0, i18n_s("about.updates.body_ready_restart", default="Update installed. Restart to apply."))
         return True, i18n_s("about.updates.body_ready_restart", default="Update installed. Restart to apply.")
 
@@ -754,7 +922,7 @@ class Orchestrator:
 
     # ─── Help mode (Alt+H) — params + KB collection & injection ──────
 
-    APP_VERSION = "Beta 0.29.0"
+    APP_VERSION = "Beta 0.29.1"
 
     # ─── Plugin extension point ───────────────────────────────────────
 
@@ -1145,6 +1313,7 @@ class Orchestrator:
             "custom2": "alt+b",
             "custom3": "alt+n",
             "stop_recording": "alt+q",
+            "reinject_last": "alt+r",
         }
         t_user = (user_text or "").strip().lower()
         want_hotkeys = bool(re.search(r"\b(hotkey|hotkeys|raccourci|raccourcis|alt\+|ctrl\+|altgr|shortcut)\b", t_user))
@@ -2245,6 +2414,11 @@ class Orchestrator:
             return True  # Can't test, assume OK
 
     def initialize(self) -> bool:
+        if self._post_update_install_started:
+            print("\n⚠️  Post-update runtime mismatch detected.")
+            print("   install.bat was started automatically to repair this installation.")
+            print("   Please complete install.bat, then relaunch PerkySue.")
+            return False
         print("\n" + "=" * 50)
         print("  🎙️  PerkySue — Initializing")
         print("=" * 50)
@@ -2467,6 +2641,12 @@ class Orchestrator:
         hk_stop_altgr = (hotkeys_config.get("stop_recording_altgr") or "").lower().strip()
         if hk_stop_altgr:
             self.hotkey_manager.register(hk_stop_altgr, lambda: self._on_escape_hotkey(), skip_altgr=True)
+        hk_reinject = (hotkeys_config.get("reinject_last") or "alt+r").lower().strip()
+        if hk_reinject:
+            self.hotkey_manager.register(hk_reinject, lambda: self._on_reinject_last_hotkey(), skip_altgr=False)
+        hk_reinject_altgr = (hotkeys_config.get("reinject_last_altgr") or "").lower().strip()
+        if hk_reinject_altgr:
+            self.hotkey_manager.register(hk_reinject_altgr, lambda: self._on_reinject_last_hotkey(), skip_altgr=True)
         print("   ✅ Hotkeys registered (full list prints after startup banner)")
 
         # Message final si pas de LLM
@@ -2511,6 +2691,14 @@ class Orchestrator:
         hk_stop_altgr = (hotkeys_config.get("stop_recording_altgr") or "").lower().strip()
         if hk_stop_altgr:
             print(f"  {hk_stop_altgr + ' (AltGr)':18s} → Stop recording / Cancel")
+        hk_reinject = (hotkeys_config.get("reinject_last") or "alt+r").lower().strip()
+        if hk_reinject:
+            label = "Re-inject last result"
+            print(f"  {hk_reinject:18s} → {label}")
+        hk_reinject_altgr = (hotkeys_config.get("reinject_last_altgr") or "").lower().strip()
+        if hk_reinject_altgr:
+            label = "Re-inject last result"
+            print(f"  {hk_reinject_altgr + ' (AltGr)':18s} → {label}")
         print("\n  AltGr is supported (international keyboards).")
 
     def reload_stt_keywords(self):
@@ -2712,6 +2900,105 @@ class Orchestrator:
             except Exception:
                 pass
 
+    def _mode_hotkeys_suppressed(self) -> bool:
+        return time.monotonic() < float(getattr(self, "_suppress_mode_hotkeys_until", 0.0) or 0.0)
+
+    def _on_reinject_last_hotkey(self) -> None:
+        """Hotkey reinject_last (défaut Alt+R) : colle à nouveau le dernier résultat PerkySue (fenêtre active)."""
+        with self._lock:
+            if self._is_recording:
+                return
+        # Guard window: ignore accidental mode hotkeys while reinject sends synthetic Ctrl+V.
+        self._suppress_mode_hotkeys_until = time.monotonic() + 1.2
+        logger.info("Hotkey reinject_last triggered")
+        t = threading.Thread(target=self._reinject_last_worker, daemon=True)
+        t.start()
+
+    def _reinject_last_worker(self) -> None:
+        try:
+            self._sync_strings_locale_from_config()
+        except Exception:
+            pass
+        w = getattr(self, "widget", None)
+        payload = ""
+
+        def _notify_safe(msg: str, ok: bool):
+            if not w or not getattr(w, "root", None):
+                return
+            try:
+                if ok:
+
+                    def _ok():
+                        w._notify(msg, restore_after_ms=2200)
+
+                    w.root.after(0, _ok)
+                else:
+
+                    def _bad():
+                        w._notify(
+                            msg,
+                            restore_after_ms=4000,
+                            blink_times=3,
+                            blink_on_ms=300,
+                            blink_off_ms=300,
+                        )
+
+                    w.root.after(0, _bad)
+            except Exception:
+                pass
+
+        # Reinject source of truth: latest non-empty finalized log entry from widget console.
+        if w is not None:
+            try:
+                entries = getattr(w, "_console_entries", None) or []
+                for entry in reversed(entries):
+                    txt = (entry.get("text") or "").strip()
+                    if txt:
+                        payload = txt
+                        # Keep memory cache aligned for diagnostics/legacy reads.
+                        self._last_inject_payload = txt
+                        break
+            except Exception:
+                pass
+
+        # Defensive fallback only if widget/logs are unavailable.
+        if not payload and w is None:
+            payload = (getattr(self, "_last_inject_payload", None) or "").strip()
+
+        if not payload:
+            _notify_safe(i18n_s("shortcuts.reinject_empty"), False)
+            return
+
+        # Hotkey is triggered while Alt may still be physically down.
+        # Give modifiers a brief time to release before sending Ctrl+V.
+        time.sleep(0.18)
+
+        try:
+            self._target_window = get_active_window()
+        except Exception:
+            self._target_window = None
+
+        inj = self.config.get("injection", {}) if isinstance(self.config, dict) else {}
+        try:
+            reinject_restore_delay = float(inj.get("clipboard_restore_delay_sec", 5))
+        except (TypeError, ValueError):
+            reinject_restore_delay = 5.0
+        try:
+            ok = inject_text(
+                text=payload,
+                method=inj.get("method", "clipboard"),
+                restore_clipboard=inj.get("restore_clipboard", True),
+                delay_ms=inj.get("delay_ms", 100),
+                target_window=self._target_window,
+                # Reinject is independent from clipboard source, but transport still uses Ctrl+V.
+                # Keep same restore window as standard injection for reliability across apps.
+                clipboard_restore_delay_sec=reinject_restore_delay,
+            )
+            _notify_safe(i18n_s("shortcuts.reinject_ok") if ok else i18n_s("shortcuts.reinject_fail"), ok)
+        except Exception as e:
+            logger.error("reinject_last worker failed: %s", e)
+            _notify_safe(i18n_s("shortcuts.reinject_fail"), False)
+
     def _register_mode_hotkey(self, mode_id, hotkey_str, behavior, skip_altgr: bool = False):
         if behavior == "push_to_talk":
             self.hotkey_manager.register(
@@ -2819,6 +3106,8 @@ class Orchestrator:
 
     def _on_hotkey_toggle(self, mode_id, from_chat_ui: bool = False):
         try:
+            if self._mode_hotkeys_suppressed():
+                return
             self.stop_voice_output()
             with self._lock:
                 if self._is_processing:
@@ -2881,6 +3170,8 @@ class Orchestrator:
 
     def _on_hotkey_press(self, mode_id):
         try:
+            if self._mode_hotkeys_suppressed():
+                return
             self.stop_voice_output()
             with self._lock:
                 if self._is_processing:
@@ -3741,15 +4032,23 @@ class Orchestrator:
                         skip_injection_answer_into_app = True
             except Exception:
                 pass
+        if (mode_id or "").strip().lower() != "help" and (injected_text or "").strip():
+            self._last_inject_payload = (injected_text or "").strip()
+
         if skip_injection_answer_into_app:
             success = True  # Résultat déjà dans le chat, pas d'injection dans le type-in
         else:
+            try:
+                delay_sec = float(inj.get("clipboard_restore_delay_sec", 5))
+            except (TypeError, ValueError):
+                delay_sec = 5.0
             success = inject_text(
                 text=injected_text,
                 method=inj.get("method", "clipboard"),
                 restore_clipboard=inj.get("restore_clipboard", True),
                 delay_ms=inj.get("delay_ms", 100),
                 target_window=self._target_window,
+                clipboard_restore_delay_sec=delay_sec,
             )
         _wants_auto_tts = (
             bool(success)

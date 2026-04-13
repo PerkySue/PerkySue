@@ -37,6 +37,7 @@ from .tag_sanitize import (
     shield_paralinguistic_tags_for_tts_chunking,
 )
 from .voice_sample_paths import resolve_voice_sample_wav
+from .model_registry import TTSModelRegistry
 
 try:
     from utils.skin_paths import iter_voice_ref_pack_dirs
@@ -89,6 +90,12 @@ class TTSManager:
         self.models_dir = models_dir
         self.cache_dir = cache_dir
         self.paths = paths
+        self.model_registry = TTSModelRegistry(
+            paths=paths,
+            models_tts_dir=models_dir,
+            hf_cache_dir=cache_dir,
+            app_version="",
+        )
 
         # Config (stored in Data/Configs/config.yaml under "tts:" key)
         self.enabled: bool = True
@@ -128,6 +135,7 @@ class TTSManager:
 
         # Last failed engine load (stops Voice tab from auto-retrying in a tight loop)
         self._engine_load_error: Optional[str] = None
+        self._model_registry_last_reason: str = ""
 
         # PyTorch CUDA offer (CPU-only torch + NVIDIA + Chatterbox/OmniVoice)
         self.pytorch_cuda_offer_never: bool = False
@@ -149,6 +157,29 @@ class TTSManager:
             self._install_state,
             "yes" if _SD_AVAILABLE else "NO",
         )
+
+    def run_startup_maintenance(self) -> Dict[str, str]:
+        """Migrate/create deterministic manifests from existing local HF cache."""
+        out: Dict[str, str] = {}
+        for engine_id in (CHATTERBOX_ID, OMNIVOICE_ID):
+            ok, reason = self.model_registry.validate_entry(engine_id)
+            if ok:
+                out[engine_id] = "ok"
+                continue
+            fallback = self.omnivoice_repo if engine_id == OMNIVOICE_ID else None
+            mig_ok, mig_reason = self.model_registry.refresh_from_cache(
+                engine_id=engine_id,
+                fallback_repo=fallback,
+                reason=f"startup_migration:{reason}",
+                local_files_only=True,
+            )
+            out[engine_id] = "migrated" if mig_ok else f"missing:{mig_reason}"
+            if not mig_ok:
+                logger.info("TTS model registry [%s]: %s", engine_id, mig_reason)
+        return out
+
+    def get_model_registry_status(self) -> Dict:
+        return self.model_registry.status()
 
     # ─── Config integration ───────────────────────────────────
 
@@ -281,10 +312,40 @@ class TTSManager:
 
         eid = self.preferred_engine_id
         try:
+            fallback_repo = self.omnivoice_repo if eid == OMNIVOICE_ID else None
+            ok_manifest, reason = self.model_registry.validate_entry(eid)
+            if not ok_manifest:
+                self._model_registry_last_reason = reason
+                logger.info("TTS model registry invalid for %s: reason=%s", eid, reason)
+                # Deterministic path first: do not network-fetch at boot.
+                mig_ok, mig_reason = self.model_registry.refresh_from_cache(
+                    engine_id=eid,
+                    fallback_repo=fallback_repo,
+                    reason=f"boot_repair:{reason}",
+                    local_files_only=True,
+                )
+                if not mig_ok:
+                    logger.warning(
+                        "TTS model load blocked: engine=%s reason=%s repair=%s",
+                        eid,
+                        reason,
+                        mig_reason,
+                    )
+                    self._engine_load_error = (
+                        f"Model manifest invalid ({reason}) and no local snapshot available ({mig_reason}). "
+                        "Open Voice tab and run Repair/Install."
+                    )
+                    logger.warning("TTS load blocked for %s: %s", eid, self._engine_load_error)
+                    return False
+            entry = self.model_registry.get_entry(eid) or {}
+            local_snapshot = entry.get("resolved_snapshot")
+
             if eid == CHATTERBOX_ID:
                 engine = ChatterboxTTS(
                     models_dir=self.models_dir / CHATTERBOX_ID,
                     cache_dir=self.cache_dir,
+                    model_local_dir=Path(local_snapshot) if local_snapshot else None,
+                    allow_online_fetch=False,
                 )
                 engine.warmup(paths=self.paths)
             elif eid == OMNIVOICE_ID:
@@ -292,6 +353,8 @@ class TTSManager:
                     models_dir=self.models_dir / OMNIVOICE_ID,
                     cache_dir=self.cache_dir,
                     get_options=self._omnivoice_options,
+                    model_local_dir=Path(local_snapshot) if local_snapshot else None,
+                    allow_online_fetch=False,
                 )
                 engine.warmup(paths=self.paths)
             else:

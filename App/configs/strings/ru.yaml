@@ -196,7 +196,7 @@
       url: ''
     credit: Создано Jérôme Corbiau  ·  Лицензия Apache 2.0
 common:
-  window_title: PerkySue — Beta 0.29.0
+  window_title: PerkySue — Beta 0.29.1
   header_banner:
     free_invite: PerkySue Beta — Бесплатно · Pro 30 дн. без карты
     free_after_trial: PerkySue Beta — Бесплатно
@@ -300,6 +300,10 @@ shortcuts:
   col_hotkey_altgr: Хоткей (AltGr)
   edit: Изменить
   stop_task: Стоп
+  reinject_last_task: Вставить последнее
+  reinject_empty: Пусто — режим, потом Alt+R.
+  reinject_ok: Вставлено
+  reinject_fail: Ошибка — Консоль или Ctrl+V
   restore_defaults: Сбросить хоткеи
   restart_note: Изменения требуют перезапуска
 settings:
@@ -346,6 +350,7 @@ settings:
     max_input: Макс. ввод (контекст)
     max_output: Макс. вывод (токены)
     llm_request_timeout: Таймаут запроса LLM (с)
+    clipboard_paste_delay: Буфер обмена (с)
     no_gguf: Нет .gguf в Data/Models/LLM
     auto: Авто
   save_restart: Сохранить и перезапустить

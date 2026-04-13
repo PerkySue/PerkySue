@@ -196,7 +196,7 @@
       url: ''
     credit: তৈরি করেছেন Jérôme Corbiau  ·  Apache 2.0 লাইসেন্স
 common:
-  window_title: PerkySue — Beta 0.29.0
+  window_title: PerkySue — Beta 0.29.1
   header_banner:
     free_invite: PerkySue Beta — ফ্রি · Pro ৩০ দিন, কার্ড ছাড়া
     free_after_trial: PerkySue Beta — ফ্রি
@@ -300,6 +300,10 @@ shortcuts:
   col_hotkey_altgr: শর্টকাট (AltGr)
   edit: এডিট
   stop_task: টাস্ক থামাও
+  reinject_last_task: শেষ পেস্ট
+  reinject_empty: কিছু নেই — মোড, তারপর Alt+R
+  reinject_ok: পেস্ট হয়েছে
+  reinject_fail: ব্যর্থ — কনসোল বা Ctrl+V
   restore_defaults: ডিফল্ট শর্টকাট ফিরিয়ে আনো
   restart_note: পরিবর্তনের জন্য রিস্টার্ট দরকার
 settings:
@@ -346,6 +350,7 @@ settings:
     max_input: সর্বোচ্চ ইনপুট (কনটেক্সট)
     max_output: সর্বোচ্চ আউটপুট (টোকেন)
     llm_request_timeout: LLM রিকোয়েস্ট টাইমআউট (সে)
+    clipboard_paste_delay: পেস্ট বিলম্ব (সে)
     no_gguf: Data/Models/LLM-এ কোনো .gguf নেই
     auto: অটো
   save_restart: সেভ ও রিস্টার্ট

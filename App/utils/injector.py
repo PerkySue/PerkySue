@@ -8,11 +8,98 @@ On utilise AttachThreadInput pour contourner cette restriction.
 
 import logging
 import platform
+import threading
 import time
+from typing import Optional
 
 logger = logging.getLogger("perkysue.injector")
 
 SYSTEM = platform.system()
+
+# Delayed clipboard restore: cancel previous timer when a new injection runs.
+_clipboard_restore_lock = threading.Lock()
+_clipboard_restore_timer: Optional[threading.Timer] = None
+
+
+def _wait_modifier_keys_release(timeout_sec: float = 0.8, poll_ms: int = 10) -> None:
+    """Best-effort wait until Alt/Ctrl/Win are released (Windows)."""
+    if SYSTEM != "Windows":
+        return
+    try:
+        import ctypes
+
+        user32 = ctypes.windll.user32
+        # Alt, Ctrl, Win (generic + left/right variants)
+        watch_vks = (0x12, 0xA4, 0xA5, 0x11, 0xA2, 0xA3, 0x5B, 0x5C)
+        deadline = time.time() + max(0.0, float(timeout_sec))
+        while time.time() < deadline:
+            any_down = False
+            for vk in watch_vks:
+                if user32.GetAsyncKeyState(vk) & 0x8000:
+                    any_down = True
+                    break
+            if not any_down:
+                return
+            time.sleep(max(1, int(poll_ms)) / 1000.0)
+    except Exception:
+        return
+
+
+def _normalize_clipboard_text(value: Optional[str]) -> str:
+    if value is None:
+        return ""
+    return (value or "").replace("\r\n", "\n").replace("\r", "\n")
+
+
+def _clipboard_still_has_injected_payload(current: str, injected: str) -> bool:
+    """True if clipboard text still matches what we injected (user has not copied something else)."""
+    return _normalize_clipboard_text(current) == _normalize_clipboard_text(injected)
+
+
+def _cancel_clipboard_restore_timer() -> None:
+    global _clipboard_restore_timer
+    with _clipboard_restore_lock:
+        if _clipboard_restore_timer is not None:
+            try:
+                _clipboard_restore_timer.cancel()
+            except Exception:
+                pass
+            _clipboard_restore_timer = None
+
+
+def _schedule_clipboard_restore(old_clipboard: str, injected_text: str, delay_sec: float) -> None:
+    """After delay_sec, restore old_clipboard only if clipboard still equals injected_text."""
+
+    def _fire():
+        global _clipboard_restore_timer
+        with _clipboard_restore_lock:
+            _clipboard_restore_timer = None
+        try:
+            import pyperclip
+
+            try:
+                current = pyperclip.paste()
+            except Exception as e:
+                logger.debug("Delayed clipboard restore: could not read clipboard: %s", e)
+                return
+            if not _clipboard_still_has_injected_payload(current, injected_text):
+                logger.info("Delayed clipboard restore skipped: user clipboard changed")
+                return
+            pyperclip.copy(old_clipboard)
+            logger.debug("Delayed clipboard restore applied")
+        except Exception as e:
+            logger.warning("Delayed clipboard restore failed: %s", e)
+
+    global _clipboard_restore_timer
+    with _clipboard_restore_lock:
+        if _clipboard_restore_timer is not None:
+            try:
+                _clipboard_restore_timer.cancel()
+            except Exception:
+                pass
+        _clipboard_restore_timer = threading.Timer(delay_sec, _fire)
+        _clipboard_restore_timer.daemon = True
+        _clipboard_restore_timer.start()
 
 
 # ─── Focus tracking (Windows) ───────────────────────────────
@@ -293,7 +380,8 @@ def grab_selection(timeout_ms: int = 500) -> str:
 
 def inject_text(text: str, method: str = "clipboard",
                 restore_clipboard: bool = True, delay_ms: int = 100,
-                target_window=None) -> bool:
+                target_window=None,
+                clipboard_restore_delay_sec: float = 5.0) -> bool:
     """
     Injecte du texte à la position du curseur.
 
@@ -303,6 +391,9 @@ def inject_text(text: str, method: str = "clipboard",
         restore_clipboard: Restaurer le presse-papier original après
         delay_ms: Délai avant paste (ms)
         target_window: Handle de la fenêtre cible (optionnel)
+        clipboard_restore_delay_sec: Si > 0 et restore_clipboard, restaurer l'ancien presse-papiers
+            après ce délai (secondes) seulement si l'utilisateur n'a pas copié autre chose.
+            Si 0, comportement immédiat après collage (legacy).
 
     Returns:
         True si l'injection a réussi
@@ -319,7 +410,12 @@ def inject_text(text: str, method: str = "clipboard",
             restore_window(target_window)
 
         if method == "clipboard":
-            return _inject_via_clipboard(text, restore_clipboard, delay_ms)
+            return _inject_via_clipboard(
+                text,
+                restore_clipboard,
+                delay_ms,
+                clipboard_restore_delay_sec=clipboard_restore_delay_sec,
+            )
         elif method == "keystrokes":
             return _inject_via_keystrokes(text, delay_ms)
         else:
@@ -330,7 +426,12 @@ def inject_text(text: str, method: str = "clipboard",
         return False
 
 
-def _inject_via_clipboard(text: str, restore: bool, delay_ms: int) -> bool:
+def _inject_via_clipboard(
+    text: str,
+    restore: bool,
+    delay_ms: int,
+    clipboard_restore_delay_sec: float = 5.0,
+) -> bool:
     """Injection via copier-coller."""
     import pyperclip
     from pynput.keyboard import Controller, Key
@@ -345,9 +446,13 @@ def _inject_via_clipboard(text: str, restore: bool, delay_ms: int) -> bool:
         except Exception:
             old_clipboard = None
 
+    # Nouvelle injection : annuler une restauration différée en attente (évite d'écraser le presse-papiers plus tard).
+    _cancel_clipboard_restore_timer()
+
     # Copier le texte
     pyperclip.copy(text)
     time.sleep(delay_ms / 1000.0)
+    _wait_modifier_keys_release()
 
     # Ctrl+V (ou Cmd+V sur macOS)
     if SYSTEM == "Darwin":
@@ -363,13 +468,17 @@ def _inject_via_clipboard(text: str, restore: bool, delay_ms: int) -> bool:
 
     time.sleep(0.1)
 
-    # Restaurer le presse-papier
+    # Restaurer le presse-papier : immédiat (delay 0) ou différé si l'utilisateur n'a pas recopié autre chose
     if restore and old_clipboard is not None:
-        time.sleep(0.2)
-        try:
-            pyperclip.copy(old_clipboard)
-        except Exception:
-            pass
+        delay_sec = float(clipboard_restore_delay_sec or 0)
+        if delay_sec > 0:
+            _schedule_clipboard_restore(old_clipboard, text, delay_sec)
+        else:
+            time.sleep(0.2)
+            try:
+                pyperclip.copy(old_clipboard)
+            except Exception:
+                pass
 
     logger.info(f"Text injected ({len(text)} chars) via clipboard")
     return True

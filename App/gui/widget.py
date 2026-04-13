@@ -41,7 +41,9 @@ try:
     from ..utils.strings import load_strings, merge_strings_at, s, s_list
     from ..utils.skin_paths import (
         normalize_skin_id,
+        resolve_character_root,
         resolve_locale_skin_dir,
+        iter_data_skins_for_appearance,
         iter_teaser_skin_entries,
         unlocked_skin,
         skin_pack_lang_from_ui,
@@ -54,7 +56,9 @@ except ImportError:
     from App.utils.strings import load_strings, merge_strings_at, s, s_list
     from App.utils.skin_paths import (
         normalize_skin_id,
+        resolve_character_root,
         resolve_locale_skin_dir,
+        iter_data_skins_for_appearance,
         iter_teaser_skin_entries,
         unlocked_skin,
         skin_pack_lang_from_ui,
@@ -704,8 +708,9 @@ def split_skin_id(skin_id):
 
 def get_avatar_path(skin_id, use_teaser_if_locked=True, paths: Optional[Paths] = None):
     """
-    Chemin profile.png : Default, ``Data/Skins/<Character>/<Locale>/``, ancien ``<Locale>/<Character>``,
-    ou Teaser (nouveau / legacy selon plaquette).
+    Chemin profile.png : Default, ``Data/Skins/<Character>/<Locale>/`` (ou ``images/profile.png``),
+    ancien ``<Locale>/<Character>``, puis **racine personnage** ``Data/Skins/<Character>/profile.png``
+    (avatar partagé si le dossier locale n’en a pas), ou Teaser si pack verrouillé.
     """
     if paths is None:
         try:
@@ -741,6 +746,19 @@ def get_avatar_path(skin_id, use_teaser_if_locked=True, paths: Optional[Paths] =
             base_dir / "Data" / "Skins" / loc / character,
         ):
             got = _try_dir(skin_dir)
+            if got:
+                return got
+        # Avatar au niveau personnage (ex. tts_personality.yaml + profile.png sous <Character>/, locale dans <Character>/EN/)
+        char_root = None
+        if paths is not None:
+            try:
+                char_root = resolve_character_root(paths, skin_id)
+            except Exception:
+                char_root = None
+        if char_root is None:
+            char_root = base_dir / "Data" / "Skins" / character
+        if char_root.is_dir():
+            got = _try_dir(char_root)
             if got:
                 return got
 
@@ -786,22 +804,37 @@ def skin_folder_exists(skin_id, paths: Optional[Paths] = None):
 
 def discover_skins(paths: Paths):
     """
-    Scan Teaser (tout ``Teaser/<a>/<b>/profile.png`` canonicalisé).
-    Retourne [{"id": "Mike/FR", "lang": "FR", "name": "Mike", "unlocked": bool}, ...].
+    Skins pour Apparence : ``App/Skin/Teaser`` (plaquette) **et** packs **uniquement** sous
+    ``Data/Skins`` (``tts_personality.yaml`` + ``profile.png`` à la racine personnage + au moins un sous-dossier locale).
+    Dédupliqués par id canonique ; ``unlocked`` passe à True si le pack existe sous ``Data/Skins`` (même id déjà vu via Teaser).
     """
     if paths is None:
         return []
-    result = []
+    by_id: dict[str, dict] = {}
+
+    def _append(char: str, loc: str) -> None:
+        sid = normalize_skin_id(paths, f"{char}/{loc}")
+        if sid == "Default" or "/" not in sid:
+            return
+        name, lang = sid.split("/", 1)
+        unlocked = unlocked_skin(paths, name, lang)
+        if sid in by_id:
+            if unlocked:
+                by_id[sid]["unlocked"] = True
+            return
+        by_id[sid] = {
+            "id": sid,
+            "lang": lang,
+            "name": name,
+            "unlocked": unlocked,
+        }
+
     for char, loc, _profile in iter_teaser_skin_entries(paths):
-        sid = f"{char}/{loc}"
-        result.append(
-            {
-                "id": sid,
-                "lang": loc,
-                "name": char,
-                "unlocked": unlocked_skin(paths, char, loc),
-            }
-        )
+        _append(char, loc)
+    for char, loc, _profile in iter_data_skins_for_appearance(paths):
+        _append(char, loc)
+
+    result = list(by_id.values())
     result.sort(key=lambda x: ((x.get("name") or "").upper(), (x.get("lang") or "").upper()))
     return result
 
@@ -1292,7 +1325,12 @@ class PerkySueWidget:
         if not ignore_cooldown and self._last_license_sync_time is not None:
             if (time.monotonic() - self._last_license_sync_time) < min_gap:
                 return
-        self._last_license_sync_time = time.monotonic()
+        # Forced sync (Stripe / wizards) must not start a 15 min passive throttle window, or return-from-browser
+        # FocusIn would be blocked until the user restarts. Passive syncs record the throttle timestamp only.
+        if ignore_cooldown:
+            self._last_license_sync_time = None
+        else:
+            self._last_license_sync_time = time.monotonic()
 
         def _run():
             try:
@@ -1439,7 +1477,7 @@ class PerkySueWidget:
         return ""
 
     def _default_window_title(self) -> str:
-        return s("common.window_title", default="PerkySue — Beta 0.29.0")
+        return s("common.window_title", default="PerkySue — Beta 0.29.1")
 
     def _ui_flag_stem(self) -> str:
         """Which lang-flags/*.png is selected."""
@@ -1697,6 +1735,14 @@ class PerkySueWidget:
                 thinking_budget = int(_tb_raw)
             except (TypeError, ValueError):
                 thinking_budget = 512
+        inj_prev = dict(self.cfg.get("injection") or {})
+        _cbd_om = getattr(self, "_perf_clipboard_paste_delay", None)
+        try:
+            clip_delay = int(_cbd_om.get()) if _cbd_om else int(inj_prev.get("clipboard_restore_delay_sec", 5))
+        except (TypeError, ValueError, AttributeError):
+            clip_delay = 10
+        clip_delay = max(0, min(clip_delay, 60))
+        inj_prev["clipboard_restore_delay_sec"] = clip_delay
         out = {
             "stt": {"model": stt_model, "device": stt_device},
             "llm": {
@@ -1709,6 +1755,7 @@ class PerkySueWidget:
             },
             "audio": {"silence_timeout": sil_timeout, "max_duration": max_duration},
             "identity": ident,
+            "injection": inj_prev,
         }
         tts = getattr(getattr(self, "orch", None), "tts_manager", None)
         if tts is not None:
@@ -1771,7 +1818,24 @@ class PerkySueWidget:
         cur_fb = self.cfg.get("feedback") or {}
         new_fb = updates.get("feedback") or {}
         feedback_changed = bool(cur_fb.get("debug_mode")) != bool(new_fb.get("debug_mode"))
-        return llm_changed and (not stt_changed) and (not audio_changed) and (not ident_changed) and (not feedback_changed)
+        cur_inj = self.cfg.get("injection") or {}
+        new_inj = updates.get("injection") or {}
+
+        def _clip_delay_sec(d: dict) -> float:
+            try:
+                return float(d.get("clipboard_restore_delay_sec", 5))
+            except (TypeError, ValueError):
+                return 5.0
+
+        injection_changed = _clip_delay_sec(cur_inj) != _clip_delay_sec(new_inj)
+        return (
+            llm_changed
+            and (not stt_changed)
+            and (not audio_changed)
+            and (not ident_changed)
+            and (not feedback_changed)
+            and (not injection_changed)
+        )
 
     def _on_apply_llm(self):
         """Save LLM-only settings and hot-reload LLM provider without full restart."""
@@ -4185,7 +4249,16 @@ class PerkySueWidget:
             hotkeys_cfg = dict(self.orch.config.get("hotkeys", {}))
         else:
             hotkeys_cfg = dict(self.cfg.get("hotkeys", {}))
-        for k, v in [("help", "alt+h"), ("custom1", "alt+v"), ("custom2", "alt+b"), ("custom3", "alt+n"), ("stop_recording", "alt+q"), ("message", "alt+d"), ("social", "alt+x")]:
+        for k, v in [
+            ("help", "alt+h"),
+            ("custom1", "alt+v"),
+            ("custom2", "alt+b"),
+            ("custom3", "alt+n"),
+            ("stop_recording", "alt+q"),
+            ("reinject_last", "alt+r"),
+            ("message", "alt+d"),
+            ("social", "alt+x"),
+        ]:
             if k not in hotkeys_cfg:
                 hotkeys_cfg[k] = v
 
@@ -4315,6 +4388,24 @@ class PerkySueWidget:
         mode_cell.pack(side="left")
         mode_cell.pack_propagate(False)
         CTkLabel(mode_cell, text=s("shortcuts.stop_task"), font=("Segoe UI", 13), text_color=TXT).place(relx=0.5, rely=0.5, anchor="center")
+
+        CTkFrame(inner, height=1, fg_color="#4A4A52").pack(fill="x", pady=(12, 6))
+        mode_id = "reinject_last"
+        hk_main = hotkeys_cfg.get(mode_id, "alt+r")
+        hk_altgr = hotkeys_cfg.get(mode_id + "_altgr", "")
+        altgr_display = _format_display_hotkey(hk_altgr) if hk_altgr else _derive_altgr_display(hk_main)
+        row = CTkFrame(inner, fg_color="transparent", height=45)
+        row.pack(fill="x", pady=0)
+        row.pack_propagate(False)
+        main_btn, main_edit = _cell(row, _format_display_hotkey(hk_main), mode_id, "main", editable=True, pack_padx=(0, 0))
+        altgr_btn, altgr_edit = _cell(row, altgr_display, mode_id, "altgr", editable=True, pack_padx=(4, 0))
+        self._shortcuts_hotkey_btns[mode_id] = {"main": (main_btn, main_edit), "altgr": (altgr_btn, altgr_edit)}
+        mode_cell = CTkFrame(row, fg_color="transparent", width=col_w, height=45)
+        mode_cell.pack(side="left")
+        mode_cell.pack_propagate(False)
+        CTkLabel(mode_cell, text=s("shortcuts.reinject_last_task"), font=("Segoe UI", 13), text_color=TXT).place(
+            relx=0.5, rely=0.5, anchor="center"
+        )
 
         # Hint when listening
         self._shortcuts_listen_hint = CTkLabel(pg, text="", font=("Segoe UI", 13), text_color=MUTED)
@@ -7195,6 +7286,8 @@ class PerkySueWidget:
                 base = other_id.replace("_altgr", "")
                 if base == "stop_recording":
                     other_name = "Stop Task"
+                elif base == "reinject_last":
+                    other_name = s("shortcuts.reinject_last_task")
                 elif getattr(self, "orch", None) and getattr(self.orch, "modes", None) and base in self.orch.modes:
                     other_name = self.orch.modes[base].name
                 else:
@@ -7264,7 +7357,20 @@ class PerkySueWidget:
             default_hk = data.get("hotkeys") or {}
             if not isinstance(default_hk, dict):
                 return
-            self._save_config({"hotkeys": dict(default_hk)})
+            # Replace hotkeys section atomically (not deep-merge), so removed keys from defaults
+            # do not persist in Data/Configs/config.yaml.
+            p = self.paths.user_config_file
+            p.parent.mkdir(parents=True, exist_ok=True)
+            current = {}
+            if p.exists():
+                try:
+                    with open(p, "r", encoding="utf-8") as f:
+                        current = yaml.safe_load(f) or {}
+                except Exception:
+                    current = {}
+            current["hotkeys"] = dict(default_hk)
+            with open(p, "w", encoding="utf-8") as f:
+                yaml.dump(current, f, default_flow_style=False, allow_unicode=True, sort_keys=False)
             self.cfg = self._load_cfg()
             # Affichage instantané des valeurs par défaut (avant Save & Restart)
             for mode_id in list(self._shortcuts_hotkey_btns.keys()):
@@ -7285,7 +7391,7 @@ class PerkySueWidget:
         except Exception:
             tier = "free"
         tier_l = str(tier).lower()
-        if mode_id == "stop_recording":
+        if mode_id in ("stop_recording", "reinject_last"):
             return True  # Always editable
         if tier_l == "free":
             return mode_id in ("transcribe", "help")
@@ -8355,6 +8461,22 @@ class PerkySueWidget:
         for i, entry in enumerate(getattr(self, "_console_entries", [])):
             self._append_finalized_entry_card(entry, show_separator=(i > 0))
 
+    def _sync_last_reinject_payload_from_console(self) -> None:
+        """
+        Alt+R (`reinject_last`) should paste the latest **Finalized log** block (STT / reasoning / LLM / summary),
+        i.e. the chronologically last non-empty entry in `_console_entries`, not only the last external injection
+        (which can be Q+A formatting or voice-payload plain text while the log ends with the model reply).
+        """
+        entries = getattr(self, "_console_entries", None)
+        orch = getattr(self, "orch", None)
+        if not entries or orch is None:
+            return
+        for entry in reversed(entries):
+            txt = (entry.get("text") or "").strip()
+            if txt:
+                orch._last_inject_payload = txt
+                return
+
     def append_console_finalized_entries(
         self, raw_text: str, final_text: str, mode_id: str = "", reasoning_text: str = ""
     ):
@@ -8368,11 +8490,13 @@ class PerkySueWidget:
             hk = resolve_hotkey_string(self.orch.config.get("hotkeys") or {}, mode_id)
             shortcut = format_hotkey_display(hk)
         first = True
+        appended = False
         if (raw_text or "").strip():
             entry = {"type": "stt", "text": (raw_text or "").strip(), "timestamp": ts, "shortcut": shortcut, "mode_id": mode_id}
             entries.append(entry)
             self._append_finalized_entry_card(entry, show_separator=not first)
             first = False
+            appended = True
         if (reasoning_text or "").strip():
             entry = {
                 "type": "llm_reasoning",
@@ -8384,10 +8508,14 @@ class PerkySueWidget:
             entries.append(entry)
             self._append_finalized_entry_card(entry, show_separator=not first)
             first = False
+            appended = True
         if (final_text or "").strip() and final_text != raw_text:
             entry = {"type": "llm", "text": (final_text or "").strip(), "timestamp": ts, "shortcut": shortcut, "mode_id": mode_id}
             entries.append(entry)
             self._append_finalized_entry_card(entry, show_separator=not first)
+            appended = True
+        if appended:
+            self._sync_last_reinject_payload_from_console()
 
     def append_previous_answers_summary(self, text: str):
         """Ajoute une entrée PreviousAnswersSummary unique dans Finalized / Temporary Logs."""
@@ -8404,6 +8532,8 @@ class PerkySueWidget:
         entries.append(entry)
         # Toujours dessiner un séparateur avant un summary pour le démarquer.
         self._append_finalized_entry_card(entry, show_separator=True)
+        if (entry.get("text") or "").strip():
+            self._sync_last_reinject_payload_from_console()
 
     def _go(self, name):
         if self._page == name: return
@@ -8790,33 +8920,8 @@ class PerkySueWidget:
             pass
 
     def _relaunch_desktop_after_commerce(self):
-        """Relaunch PerkySue without requiring Save & Restart (same mechanism as settings restart)."""
-        try:
-            stt_device = "auto"
-            st = (self.cfg.get("stt") or {}) if isinstance(getattr(self, "cfg", None), dict) else {}
-            if isinstance(st, dict):
-                d = st.get("device")
-                if isinstance(d, str) and d.strip():
-                    stt_device = d.strip().lower()
-        except Exception:
-            stt_device = "auto"
-        app_root = Path(__file__).resolve().parent.parent.parent
-        main_py = app_root / "App" / "main.py"
-        python_exe = app_root / "Python" / "python.exe"
-        if not python_exe.exists():
-            python_exe = sys.executable
-        try:
-            self.root.destroy()
-        except Exception:
-            pass
-
-        if stt_device == "cuda" and getattr(self, "_is_nvidia_stt", False):
-            install_bat = app_root / "install.bat"
-            if install_bat.exists():
-                subprocess.Popen(["cmd", "/c", str(install_bat)], cwd=str(app_root), shell=False)
-                sys.exit(0)
-        subprocess.Popen([str(python_exe), str(main_py)], cwd=str(app_root))
-        sys.exit(0)
+        """Relaunch PerkySue without requiring Save & Restart (same as post-update restart)."""
+        self._restart_app()
 
     def _on_plan_stripe_continue(self, url_fn):
         """Stripe monthly/yearly: reset passive /check cooldown, sync now, open browser, show restart hint."""
@@ -11313,6 +11418,26 @@ class PerkySueWidget:
             False,
         )
 
+        _clipboard_paste_delay_opts = ["0", "1", "2", "3", "4", "5", "10", "15", "20", "25", "30", "45", "60"]
+        try:
+            _cbd_cfg = float((self.cfg.get("injection") or {}).get("clipboard_restore_delay_sec", 5))
+        except (TypeError, ValueError):
+            _cbd_cfg = 5.0
+        _cbd_snap = int(round(_cbd_cfg))
+        if str(_cbd_snap) not in _clipboard_paste_delay_opts:
+            _cbd_snap = min(
+                (int(x) for x in _clipboard_paste_delay_opts),
+                key=lambda t: abs(t - _cbd_snap),
+            )
+        self._perf_clipboard_paste_delay = tk.StringVar(value=str(_cbd_snap))
+        _row_perf_option(
+            s("settings.performance.clipboard_paste_delay", default="Clipboard paste delay (s)"),
+            "📋",
+            self._perf_clipboard_paste_delay,
+            _clipboard_paste_delay_opts,
+            False,
+        )
+
         def _sync_thinking_budget_menu(*_a):
             try:
                 on = self._perf_thinking.get() == "On"
@@ -11340,6 +11465,7 @@ class PerkySueWidget:
             self._perf_max_duration,
             self._perf_llm_request_timeout,
             self._perf_thinking_budget,
+            self._perf_clipboard_paste_delay,
         ):
             var.trace_add("write", lambda *a: self._trigger_save())
 
@@ -12635,13 +12761,36 @@ class PerkySueWidget:
                 pass
 
     def _restart_app(self):
+        """Start a new PerkySue process and exit this one (update wizard, post-Stripe hint, etc.)."""
         try:
-            self.root.after(50, lambda: self.root.destroy())
+            stt_device = "auto"
+            st = (self.cfg.get("stt") or {}) if isinstance(getattr(self, "cfg", None), dict) else {}
+            if isinstance(st, dict):
+                d = st.get("device")
+                if isinstance(d, str) and d.strip():
+                    stt_device = d.strip().lower()
         except Exception:
-            try:
-                self.root.destroy()
-            except Exception:
-                pass
+            stt_device = "auto"
+        app_root = Path(__file__).resolve().parent.parent.parent
+        main_py = app_root / "App" / "main.py"
+        python_exe = app_root / "Python" / "python.exe"
+        if not python_exe.exists():
+            python_exe = sys.executable
+        data_dir = str(self.paths.data.resolve())
+        try:
+            self.root.destroy()
+        except Exception:
+            pass
+        if stt_device == "cuda" and getattr(self, "_is_nvidia_stt", False):
+            install_bat = app_root / "install.bat"
+            if install_bat.exists():
+                subprocess.Popen(["cmd", "/c", str(install_bat)], cwd=str(app_root), shell=False)
+                sys.exit(0)
+        subprocess.Popen(
+            [str(python_exe), str(main_py), "--data", data_dir],
+            cwd=str(app_root),
+        )
+        sys.exit(0)
 
     def _maybe_auto_check_updates(self):
         if getattr(self, "_update_auto_checked", False):

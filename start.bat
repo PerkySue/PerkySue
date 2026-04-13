@@ -225,6 +225,9 @@ echo  =============================================
 echo   Launching PerkySue
 echo  =============================================
 echo.
+if exist "%DATA_DIR%\Cache\updates\post_update_pending.json" (
+  echo  [INFO] Post-update maintenance will run on startup...
+)
 
 REM Server is now managed by Python - no need to pre-launch here.
 REM Pass detected backend info to Python via environment variable

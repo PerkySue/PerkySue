@@ -15,8 +15,8 @@ PerkySue is a portable, local voice-to-text assistant with AI-powered text enhan
 - Dual LLM mode (direct for speed, server for compatibility)
 - Antivirus-friendly (uses %TEMP% for temporary files)
 - GUI widget (CustomTkinter) for non-technical users
-- Open Core model: Alt+T free, 8 LLM modes Pro ($9.90/mo via Stripe post-alpha), skins via Patreon
-- Pro gating: post-alpha Stripe license with monthly verification
+- Open Core model: Alt+T free; Help + Ask (limited) free in-app; Pro ($9.90/mo via Stripe when live) unlocks remaining LLM transform modes, full Ask (injection + multi-turn + TTS), custom Alt+V/B/N, and Pro TTS — skins / voice packs via Patreon
+- Pro gating: Stripe license + periodic `/check` (see licensing sections below)
 
 ### GUI strings (i18n)
 
@@ -72,7 +72,8 @@ The GUI exposes **16** flag buttons (`FLAG_STEMS_ORDER` in `App/gui/widget.py`).
 │  Data/Configs/modes.yaml        ← Custom/override modes     │
 │  Data/Models/LLM/               ← GGUF model files          │
 │  Data/Models/Whisper/           ← Whisper models (auto)     │
-│  Data/Models/TTS/               ← TTS engine weights (Pro; on demand) │
+│  Data/Models/TTS/               ← TTS deterministic manifests + engine model metadata │
+│  Data/HuggingFace/hub/          ← HF snapshot cache (internal backend storage) │
 │  Data/Tools/                    ← llama-server.exe + DLLs   │
 │  Data/Skins/                    ← Pro skins (Sue, Mike)     │
 │  Data/Logs/                     ← Application logs          │
@@ -91,7 +92,8 @@ The GUI exposes **16** flag buttons (`FLAG_STEMS_ORDER` in `App/gui/widget.py`).
 │    │   ├── header_tips.yaml       ← Optional stub / overrides (defaults in strings/<lang>.yaml → header_tips) │
 │    │   ├── modes.yaml             ← 9 built-in modes       │
 │    │   ├── recommended_models.yaml  ← LLM catalog (GUI + optional CLI downloader) │
-│    │   └── tts_prompt_extension.yaml ← TTS tag palettes + default personality (LLM appendix) │
+│    │   ├── tts_prompt_extension.yaml ← TTS tag palettes + default personality (LLM appendix) │
+│    │   └── model_registry.yaml     ← pinned TTS repositories/revisions shipped with app release │
 │    ├── gui/                                                 │
 │    │   └── widget.py              ← CustomTkinter GUI (NEW v19.7) │
 │    ├── services/                                            │
@@ -205,6 +207,8 @@ Saves active window handle before recording:
 - Uses `AttachThreadInput` trick for `SetForegroundWindow`
 - Restores focus after LLM processing
 - Injects text via clipboard + Ctrl+V
+- **Clipboard policy:** Saves the user’s clipboard, pastes the payload, then restores the old clipboard after **`injection.clipboard_restore_delay_sec`** (default **5** from `App/configs/defaults.yaml`) **only if** the clipboard still equals the injected text (normalized newlines) — if the user copied something else, restore is skipped. **`0`** = restore right after paste (legacy). **GUI:** Settings → Performance → **Clipboard paste delay (s)**.
+- **`reinject_last` hotkey (default `Alt+R`):** Re-injects the **latest finalized result** into the **current** foreground window; independent from the delayed-restore window used for normal auto-injection. Designed as a dedicated re-paste action (not an LLM mode). **GUI:** Settings → Shortcuts.
 - **NEW v19:** Selection grab via WM_COPY
 
 ### 5. Backend Launcher (`start.bat`)
@@ -238,9 +242,9 @@ PerkySueWidget (CTk window)
 ├── Content (scrollable CTkFrame per tab)
 │   ├── [Console]    Finalized / Temporary Logs + Full Console + status indicator
 │   ├── [Settings]   Appearance + Performance + Models
-│   ├── [Shortcuts]  hotkeys read-only (Transcribe, 8 LLM modes, Custom 1/2/3)
-│   ├── [Prompt Modes] (TODO)
-│   └── [About / Pro] (TODO)
+│   ├── [Shortcuts]  hotkeys read-only (Transcribe, LLM modes per README, Custom V/B/N)
+│   ├── [Prompt Modes]  Prompt editing + test samples + identity/keywords
+│   └── [About / Pro]   Product/about content + plan management entries
 └── Footer (CTkFrame)           ← GitHub link + version badge
 ```
 
@@ -515,7 +519,7 @@ Tips shown in rotation in the title bar at startup. **Source of truth:** `startu
 
 ### Pro License System
 
-Pro features (8 LLM modes) are gated.
+Pro features (LLM transform modes beyond Free Help/Ask, full Ask with injection + TTS, custom prompts, and Pro TTS engines) are gated — see [README.md](README.md) hotkey table.
 
 **Stripe License (`Data/Configs/license.json`)**
 
@@ -693,6 +697,8 @@ The canonical **full** changelog (all releases) is [`CHANGELOG.md`](CHANGELOG.md
 
 ### Beta 0.29.0 (April 2026) — shipped
 - **In-app update:** `download_and_stage_app_update` — **`self.paths.cache / "updates"`** (fixes **`Paths` has no attribute `data_dir`**).
+- **Post-update orchestration:** updater writes `Data/Cache/updates/post_update_pending.json`; next startup runs idempotent tasks (TTS registry migration + runtime consistency check). If critical runtime mismatch is detected, app auto-launches `install.bat` and stops normal startup until repair is complete.
+- **Deterministic TTS models:** release-pinned spec in `App/configs/model_registry.yaml`; runtime registry in `Data/Models/TTS/registry.json`; boot avoids implicit online fetch when manifest/snapshot is invalid.
 - **Docs / version:** `APP_VERSION` **Beta 0.29.0**; tag **`v0.29.0`** for retesting update from **0.28.9** installs.
 
 ### Beta 0.28.9 (April 2026) — shipped
@@ -775,7 +781,7 @@ The canonical **full** changelog (all releases) is [`CHANGELOG.md`](CHANGELOG.md
 - **Chat vs Help (orchestrator):** In-app redirect from **Answer** when `_is_perkysue_app_question()` matches, then `_llm_intent_should_redirect_to_help()` (HELP/NOHELP); `_should_force_help_redirect()` for PerkySue + machine/LLM sizing. `_on_hotkey_toggle(..., from_chat_ui=True)` from Chat mic threads `from_chat_ui` through `_record_and_process` → `_process_audio_impl`.
 - **Help params:** `utils/nvidia_stats.get_nvidia_smi_snapshot()` adds `system.gpu.live` to `_collect_help_params()` when `nvidia-smi` succeeds. Help mode `modes.yaml` instructs the LLM to prefer **Current settings** for hardware and to treat NVIDIA VRAM as relevant for local LLM.
 - **Help KB truncation:** For `max_input_tokens` ≤ 2048, KB compact file truncated at **1350** chars (see `_build_help_system_prompt()`).
-- **Free vs Pro Ask:** `is_effective_pro()` gates `_build_llm_input_with_context()` — Free has **no** prior Q/A in the LLM prompt (standalone questions); Pro gets rolling history + `PreviousAnswersSummary`. UI copy: `chat.free_answer_notice` (**multi-turn context** + Smart Focus = Pro).
+- **Free vs Pro Ask:** `is_effective_pro()` gates `_build_llm_input_with_context()` — Free has **no** prior Q/A in the LLM prompt (standalone questions); Pro gets rolling history + `PreviousAnswersSummary`. Pro also enables **cursor injection** and optional **voice-to-voice** (TTS) for answers when TTS is enabled. UI copy: `chat.free_answer_notice` (**multi-turn context** + Smart Focus + spoken answers = Pro).
 - **Docs / version (at ship):** `README.md` (Free local Chat vs Pro), KB headers, `APP_VERSION` **Alpha 0.27.2**.
 
 ### Alpha 0.27.0 (March 2026)

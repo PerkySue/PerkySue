@@ -4,7 +4,7 @@ Use this to answer user questions about PerkySue (Alt+H, you!), when context win
 
 ## What it is
 
-PerkySue is a portable, open-source (Apache 2.0) Windows voice-to-text application with local AI. Press a global hotkey anywhere (Word, Gmail, Notepad, any app), speak naturally, and polished text appears at your cursor. Speech recognition (OpenAI Whisper via faster-whisper) and text transformation (llama.cpp local LLM) run **on-device** — your **voice and prompts are not sent to PerkySue** for dictation. Pro trial/subscription (when live) uses email/Stripe/Brevo for billing only — see PRIVACY.md. Audio is captured in RAM, processed locally, and discarded. **Pro TTS (Voice tab):** optional local text-to-speech for **Answer** and **Help** (engines **Chatterbox** or **OmniVoice**). Optional **`voice_sample.txt`** next to **`voice_ref.wav`** or **`audios/voice_sample/voice_sample.wav`** (OmniVoice). **OmniVoice on Windows:** TorchCodec may need **FFmpeg shared DLLs** in **Python/** or **Data/Tools/ffmpeg-shared/bin/** — see **`install_ffmpeg_shared_windows.bat`**; **`pip install ffmpeg-python`** is not enough. When TTS is enabled, the app may append LLM instructions listing supported **bracket audio tags** and a **speaking personality**; skin packs can override personality via `tts_personality.yaml`. **CUDA PyTorch for GPU TTS:** install from Voice tab or **`install_pytorch_cuda_cu128.bat`** / **`cu124`**; **restart PerkySue fully** afterward. Created by Jérôme Corbiau; Beta 0.29.0 (April 2026). Chat/Help UI refresh; **generating**/**speaking** statuses; avatar ring follows TTS/mic; TTS Markdown strip. Alt+Q stops TTS during prep or playback. Thinking models (llama-server) default off (Performance). TTS [bracket] tags are stripped from external paste unless Settings → Advanced → Debug mode. Chat = Ask conversation; PerkySue/app questions → Help tab only.
+PerkySue is a portable, open-source (Apache 2.0) Windows voice-to-text application with local AI. Press a global hotkey anywhere (Word, Gmail, Notepad, any app), speak naturally, and polished text appears at your cursor. Speech recognition (OpenAI Whisper via faster-whisper) and text transformation (llama.cpp local LLM) run **on-device** — your **voice and prompts are not sent to PerkySue** for dictation. Pro trial/subscription (when live) uses email/Stripe/Brevo for billing only — see PRIVACY.md. Audio is captured in RAM, processed locally, and discarded. **Pro TTS (Voice tab):** optional local text-to-speech for **Answer** and **Help** (engines **Chatterbox** or **OmniVoice**). Optional **`voice_sample.txt`** next to **`voice_ref.wav`** or **`audios/voice_sample/voice_sample.wav`** (OmniVoice). **OmniVoice on Windows:** TorchCodec may need **FFmpeg shared DLLs** in **Python/** or **Data/Tools/ffmpeg-shared/bin/** — see **`install_ffmpeg_shared_windows.bat`**; **`pip install ffmpeg-python`** is not enough. When TTS is enabled, the app may append LLM instructions listing supported **bracket audio tags** and a **speaking personality**; skin packs can override personality via `tts_personality.yaml`. **CUDA PyTorch for GPU TTS:** install from Voice tab or **`install_pytorch_cuda_cu128.bat`** / **`cu124`**; **restart PerkySue fully** afterward. Created by Jérôme Corbiau; Beta 0.29.1 (April 2026). Chat/Help UI refresh; **generating**/**speaking** statuses; avatar ring follows TTS/mic; TTS Markdown strip. Alt+Q stops TTS during prep or playback. Thinking models (llama-server) default off (Performance). TTS [bracket] tags are stripped from external paste unless Settings → Advanced → Debug mode. Chat = Ask conversation; PerkySue/app questions → Help tab only.
 
 ## Name
 
@@ -22,7 +22,7 @@ Header banner: the purple plan line is from the local app (translations), not fe
 
 ## Settings — available values
 
-Max input (context): Settings → Performance → 1024, 2048, 4096, 8192, 16384, or Auto. Max output tokens: 256, 512, 1024, 2048, 4096, 8192. STT model: tiny, base, small, medium, large-v3. STT device: auto, cpu, cuda.
+Max input (context): Settings → Performance → 1024, 2048, 4096, 8192, 16384, or Auto. Max output tokens: 256, 512, 1024, 2048, 4096, 8192. STT model: tiny, base, small, medium, large-v3. STT device: auto, cpu, cuda. **Clipboard paste delay (Performance):** seconds the PerkySue result stays in clipboard before old clipboard restores (default **5**); **0** = immediate. **Alt+R** re-pastes the latest finalized result anytime this session (Shortcuts).
 
 ## Recommended settings (short)
 
@@ -34,7 +34,7 @@ Max input (context): Settings → Performance → 1024, 2048, 4096, 8192, 16384,
 ## Hotkeys (Windows)
 
 - **API:** Win32 `RegisterHotKey` — consumed keystrokes, no “ding”. Code: `App/utils/hotkeys.py`.
-- **Stop / cancel:** default **`alt+q`** (`hotkeys.stop_recording`); change in **Shortcuts** or `Data/Configs/config.yaml`. **AltGr** (e.g. AZERTY) maps to **Ctrl+Alt** — PerkySue registers both so **AltGr+Q** still fires stop; do not strip dual registration for `stop_recording`.
+- **Stop / cancel:** default **`alt+q`** (`hotkeys.stop_recording`); change in **Shortcuts** or `Data/Configs/config.yaml`. **Re-paste latest finalized result:** **`alt+r`** (`reinject_last`). **AltGr** (e.g. AZERTY) maps to **Ctrl+Alt** — PerkySue registers both so **AltGr+Q** still fires stop; do not strip dual registration for `stop_recording`.
 - **Prefer** `Alt+letter` for custom bindings. **Avoid** `alt+escape` (Windows reserves it) and `alt+shift+escape` on some setups.
 - **Do not** add app-level **low-level keyboard hooks** (`WH_KEYBOARD_LL`) for Escape-style shortcuts — can freeze the whole keyboard if buggy.
 - **Esc** works when PerkySue has focus; **Alt+Q** works globally.
@@ -60,7 +60,7 @@ Free: Alt+T + Alt+H + Smart Focus, forever. Pro Preview (alpha): all modes free 
 
 ## Hardware & installation
 
-Windows 10/11; 6 GB RAM min, 16 GB recommended; mic required. NVIDIA optional (faster); CUDA 12.4 for RTX 20xx–50xx. AMD/Intel: Vulkan for LLM; Whisper on CPU (no Vulkan in ctranslate2). GitHub: install.bat → llama-server → add LLM (GUI Recommended Models or manual .gguf) → start.bat. Patreon: run start.bat. Python 3.11 embedded. Portable: works from USB stick, no system installation. macOS (Apple Silicon Metal) and Linux on the roadmap, not yet available.
+Windows 10/11; 6 GB RAM min, 16 GB recommended; mic required. NVIDIA optional (faster); CUDA 12.4 for RTX 20xx–50xx. AMD/Intel: Vulkan for LLM; Whisper on CPU (no Vulkan in ctranslate2). GitHub: install.bat (Python + deps + llama-server backends) → add LLM (GUI Recommended Models or manual .gguf) → start.bat. Patreon: run start.bat. Python 3.11 embedded. Portable: works from USB stick, no system installation. In-app update runs post-update runtime checks; if critical mismatch is detected, PerkySue may auto-run install.bat and then ask to relaunch. TTS model revisions are release-governed via model_registry.yaml + Data/Models/TTS/registry.json. macOS (Apple Silicon Metal) and Linux on the roadmap, not yet available.
 
 ## Privacy
 

@@ -196,7 +196,7 @@
       url: ''
     credit: Gemaakt door Jérôme Corbiau  ·  Apache 2.0-licentie
 common:
-  window_title: PerkySue — Beta 0.29.0
+  window_title: PerkySue — Beta 0.29.1
   header_banner:
     free_invite: PerkySue Beta — Gratis · Pro proberen (30 dgn · geen kaart)
     free_after_trial: PerkySue Beta — Gratis
@@ -300,6 +300,10 @@ shortcuts:
   col_hotkey_altgr: Sneltoets (AltGr)
   edit: Bewerk.
   stop_task: Taak stoppen
+  reinject_last_task: Plak laatste
+  reinject_empty: Nog niets — modus, dan Alt+R.
+  reinject_ok: Geplakt
+  reinject_fail: Mislukt — Console of Ctrl+V
   restore_defaults: Standaard sneltoetsen herstellen
   restart_note: Wijzigingen vereisen Opslaan en herstarten (zijbalk).
 settings:
@@ -346,6 +350,7 @@ settings:
     max_input: Max. invoer (context)
     max_output: Max. uitvoer (tokens)
     llm_request_timeout: LLM-verzoektime-out (s)
+    clipboard_paste_delay: Klembord-delay (s)
     no_gguf: Geen .gguf in Data/Models/LLM
     auto: Auto
   save_restart: Opslaan en herstarten

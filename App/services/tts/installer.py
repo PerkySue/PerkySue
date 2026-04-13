@@ -11,11 +11,15 @@ but driven from the GUI instead of a batch script.
 import logging
 import os
 import re
+import json
 import subprocess
 import sys
 import threading
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Callable, Optional, Tuple
+
+import yaml
 
 logger = logging.getLogger("perkysue.tts.installer")
 
@@ -106,6 +110,69 @@ class TTSInstaller:
         self._cancel = False
         self.state = STATE_IDLE
         self._restart_required = False
+        self._registry_file = self.models_dir / "registry.json"
+
+    def _load_model_registry_spec(self) -> dict:
+        app_dir = Path(__file__).resolve().parents[2]
+        spec = app_dir / "configs" / "model_registry.yaml"
+        if not spec.is_file():
+            return {}
+        try:
+            obj = yaml.safe_load(spec.read_text(encoding="utf-8")) or {}
+            return obj if isinstance(obj, dict) else {}
+        except Exception:
+            return {}
+
+    def _model_spec_for_engine(self, engine_id: str, fallback_repo: str) -> Tuple[str, str, list]:
+        spec = self._load_model_registry_spec()
+        row = ((spec.get("tts_engines") or {}).get(engine_id) or {}) if isinstance(spec, dict) else {}
+        repo_id = str(row.get("repo_id") or "").strip() if isinstance(row, dict) else ""
+        revision = str(row.get("revision") or "").strip() if isinstance(row, dict) else ""
+        allow_patterns = row.get("allow_patterns") if isinstance(row, dict) else None
+        if not repo_id:
+            repo_id = fallback_repo
+        if not revision:
+            revision = "main"
+        if not isinstance(allow_patterns, list) or not allow_patterns:
+            allow_patterns = ["*"]
+        return repo_id, revision, [str(x) for x in allow_patterns]
+
+    def _write_registry_entry(
+        self, engine_id: str, repo_id: str, revision: str, snapshot_path: Path, reason: str
+    ) -> None:
+        try:
+            files = [str(p.relative_to(snapshot_path)) for p in snapshot_path.rglob("*") if p.is_file()]
+            if not files:
+                return
+            data = {"schema_version": 1, "engines": {}}
+            if self._registry_file.is_file():
+                try:
+                    data = json.loads(self._registry_file.read_text(encoding="utf-8"))
+                except Exception:
+                    data = {"schema_version": 1, "engines": {}}
+            if not isinstance(data, dict):
+                data = {"schema_version": 1, "engines": {}}
+            data.setdefault("schema_version", 1)
+            data.setdefault("engines", {})
+            if not isinstance(data["engines"], dict):
+                data["engines"] = {}
+            data["engines"][engine_id] = {
+                "engine_id": engine_id,
+                "repo_id": repo_id,
+                "revision": revision,
+                "resolved_snapshot": str(snapshot_path),
+                "files": sorted(files),
+                "installed_at": datetime.now(timezone.utc).isoformat(),
+                "app_version": "",
+                "reason": reason,
+            }
+            self.models_dir.mkdir(parents=True, exist_ok=True)
+            self._registry_file.write_text(
+                json.dumps(data, ensure_ascii=True, indent=2, sort_keys=True),
+                encoding="utf-8",
+            )
+        except Exception as e:
+            logger.warning("TTS installer: could not write model registry entry for %s: %s", engine_id, e)
 
     @property
     def is_running(self) -> bool:
@@ -381,10 +448,15 @@ class TTSInstaller:
         if self._cancel:
             return
 
-        code = r"""
+        repo_id, revision, _allow_patterns = self._model_spec_for_engine(
+            "chatterbox",
+            "ResembleAI/chatterbox",
+        )
+        code = rf"""
 import os
 import torch
 from chatterbox.tts_turbo import ChatterboxTurboTTS
+from huggingface_hub import snapshot_download
 try:
     from App.services.tts.pytorch_cuda import torch_gpu_runs_basic_kernels
 except Exception:
@@ -400,7 +472,12 @@ elif hasattr(torch.backends, "mps") and torch.backends.mps.is_available():
 else:
     device = "cpu"
 
-model = ChatterboxTurboTTS.from_pretrained(device=device)
+local_path = snapshot_download(
+    repo_id={repo_id!r},
+    revision={revision!r},
+    allow_patterns=["*.safetensors","*.json","*.txt","*.pt","*.model"],
+)
+model = ChatterboxTurboTTS.from_local(local_path, device=device)
 wav = model.generate("Test.")
 ok = (wav is not None) and (getattr(wav, "numel", lambda: 0)() > 0)
 print("ok" if ok else "empty")
@@ -522,6 +599,31 @@ print("ok" if ok else "empty")
             _report(STATE_DONE, 100, "Installation complete — please restart PerkySue to finish setup.")
         else:
             _report(STATE_DONE, 100, "Installation complete — engine loads from the Voice tab.")
+        try:
+            from huggingface_hub import snapshot_download
+
+            repo_id, revision, allow_patterns = self._model_spec_for_engine(
+                "chatterbox",
+                "ResembleAI/chatterbox",
+            )
+            local_snapshot = Path(
+                snapshot_download(
+                    repo_id=repo_id,
+                    revision=revision,
+                    allow_patterns=allow_patterns,
+                    cache_dir=str((self.cache_dir.resolve() / "hub")) if self.cache_dir else None,
+                    local_files_only=True,
+                )
+            )
+            self._write_registry_entry(
+                engine_id="chatterbox",
+                repo_id=repo_id,
+                revision=revision,
+                snapshot_path=local_snapshot,
+                reason="installer_verify",
+            )
+        except Exception as e:
+            logger.warning("TTS installer: chatterbox registry refresh skipped: %s", e)
 
     def _verify_omnivoice_import(self, on_progress, _report) -> None:
         import importlib
@@ -536,6 +638,7 @@ print("ok" if ok else "empty")
 
         _apply_hf_cache(self.cache_dir)
         import torch
+        from huggingface_hub import snapshot_download
         from omnivoice import OmniVoice
 
         if torch.cuda.is_available():
@@ -553,8 +656,20 @@ print("ok" if ok else "empty")
         if self._cancel:
             return
 
-        model = OmniVoice.from_pretrained(
+        repo_id, revision, allow_patterns = self._model_spec_for_engine(
+            "omnivoice",
             "k2-fsa/OmniVoice",
+        )
+        local_snapshot = Path(
+            snapshot_download(
+                repo_id=repo_id,
+                revision=revision,
+                allow_patterns=allow_patterns,
+                cache_dir=str((self.cache_dir.resolve() / "hub")) if self.cache_dir else None,
+            )
+        )
+        model = OmniVoice.from_pretrained(
+            str(local_snapshot),
             torch_dtype=torch_dtype,
             device_map=device_map,
         )
@@ -567,6 +682,13 @@ print("ok" if ok else "empty")
         del audios
         if torch.cuda.is_available():
             torch.cuda.empty_cache()
+        self._write_registry_entry(
+            engine_id="omnivoice",
+            repo_id=repo_id,
+            revision=revision,
+            snapshot_path=local_snapshot,
+            reason="installer_verify",
+        )
 
     def _install_omnivoice_impl(
         self,

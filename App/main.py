@@ -276,6 +276,10 @@ J/                   "t"   ""     :   ;
     app = Orchestrator(paths=paths)
 
     if not app.initialize():
+        if getattr(app, "_post_update_install_started", False):
+            print("\n🔧 Runtime repair was started (install.bat).")
+            print("   Close this window after install.bat completes, then launch PerkySue again.")
+            return
         print("\n⚠️  Some services are not available.")
         print("   Run: Python\\python.exe App\\main.py --check\n")
         response = input("Continue anyway? [Y/n] ").strip().lower()

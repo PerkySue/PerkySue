@@ -196,7 +196,7 @@
       url: ''
     credit: 由 Jérôme Corbiau 创作  ·  Apache 2.0 许可证
 common:
-  window_title: PerkySue — Beta 0.29.0
+  window_title: PerkySue — Beta 0.29.1
   header_banner:
     free_invite: PerkySue Beta — 免费 · 试用 Pro（30 天·免卡）
     free_after_trial: PerkySue Beta — 免费
@@ -300,6 +300,10 @@ shortcuts:
   col_hotkey_altgr: 快捷键（AltGr）
   edit: 编辑
   stop_task: 停止任务
+  reinject_last_task: 粘贴上次
+  reinject_empty: 暂无 — 先模式再Alt+R
+  reinject_ok: 已粘贴
+  reinject_fail: 失败 — 控制台或Ctrl+V
   restore_defaults: 恢复默认快捷键
   restart_note: 修改需要重启才能生效
 settings:
@@ -346,6 +350,7 @@ settings:
     max_input: 最大输入（上下文）
     max_output: 最大输出（token）
     llm_request_timeout: LLM 请求超时（秒）
+    clipboard_paste_delay: 剪贴板延迟(秒)
     no_gguf: Data/Models/LLM 中没有 .gguf 文件
     auto: 自动
   save_restart: 保存并重启

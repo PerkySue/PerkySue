@@ -196,7 +196,7 @@
       url: ''
     credit: '제작: Jérôme Corbiau  ·  Apache 2.0 라이선스'
 common:
-  window_title: PerkySue — Beta 0.29.0
+  window_title: PerkySue — Beta 0.29.1
   header_banner:
     free_invite: PerkySue Beta — 무료 · Pro 체험(30일·카드 없음)
     free_after_trial: PerkySue Beta — 무료
@@ -300,6 +300,10 @@ shortcuts:
   col_hotkey_altgr: 단축키 (AltGr)
   edit: 편집
   stop_task: 작업 중지
+  reinject_last_task: 마지막 붙여넣기
+  reinject_empty: 없음 — 모드 후 Alt+R
+  reinject_ok: 붙여넣음
+  reinject_fail: 실패 — 콘솔 또는 Ctrl+V
   restore_defaults: 기본 단축키 복원
   restart_note: 변경 사항은 저장 & 재시작 필요 (사이드바).
 settings:
@@ -346,6 +350,7 @@ settings:
     max_input: 최대 입력 (컨텍스트)
     max_output: 최대 출력 (토큰)
     llm_request_timeout: LLM 요청 타임아웃 (초)
+    clipboard_paste_delay: 클립보드 지연(초)
     no_gguf: Data/Models/LLM에 .gguf 없음
     auto: 자동
   save_restart: 저장 & 재시작

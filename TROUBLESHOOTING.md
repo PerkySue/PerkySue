@@ -47,6 +47,14 @@ PerkySue uses Win32 `RegisterHotKey` — keystrokes are consumed so you won't he
 
 ---
 
+## 📋 Clipboard, Ctrl+V after paste, and Alt+R re-inject
+
+- After PerkySue **auto-pastes** a result, the app **restores your previous clipboard** after a delay (factory default **5 seconds**), **unless** you **copied something else** in between — so **Ctrl+V** can still paste the PerkySue text during that window.
+- Adjust the delay in **Settings → Performance → Clipboard paste delay (s)**. **`0`** restores the old clipboard **immediately** after paste (legacy behavior).
+- **`Alt+R` (`reinject_last`)** pastes the **latest finalized result** again into the **foreground** window, **any time until you restart** the app (session scope). It does **not** use the long paste window above; configure the key under **Settings → Shortcuts** (Save & Restart).
+
+---
+
 ## ⌨️ AltGr on European keyboards (AZERTY, QWERTZ…)
 
 PerkySue supports both **left Alt** and **AltGr** for all hotkeys. For each `Alt+letter` mode, PerkySue also registers `Ctrl+Alt+letter` so AltGr works transparently. No configuration needed.
@@ -130,6 +138,22 @@ PerkySue separates system files (replaced on update) from user data (preserved f
 3. To test against a **fork**, set environment variable **`PERKYSUE_UPDATE_REPO=YourLogin/PerkySue`** before starting the app.
 
 See **[GETTING_STARTED.md](GETTING_STARTED.md)** (*Publishing a version so “Check for updates” works*).
+
+---
+
+## 🔧 After update, `install.bat` starts automatically
+
+**Symptom:** Right after an in-app update/restart, PerkySue opens `install.bat` and does not continue normal startup.
+
+**Cause:** Post-update runtime consistency checks found a critical mismatch (for example: backend binary missing, embedded Python dependency probe failed).
+
+**Expected flow:**
+
+1. Let `install.bat` finish.
+2. Close the old app/console window.
+3. Launch PerkySue again.
+
+**Why this exists:** It avoids running a blind full reinstall on every update, while still auto-repairing when the installation is actually inconsistent.
 
 ---
 

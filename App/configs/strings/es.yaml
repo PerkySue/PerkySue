@@ -196,7 +196,7 @@
       url: ''
     credit: Creado por Jérôme Corbiau  ·  Licencia Apache 2.0
 common:
-  window_title: PerkySue — Beta 0.29.0
+  window_title: PerkySue — Beta 0.29.1
   header_banner:
     free_invite: PerkySue Beta — Gratis · Prueba Pro (30 d. · sin tarjeta)
     free_after_trial: PerkySue Beta — Gratis
@@ -300,6 +300,10 @@ shortcuts:
   col_hotkey_altgr: Atajo (AltGr)
   edit: Editar
   stop_task: Parar tarea
+  reinject_last_task: Pegar último
+  reinject_empty: Nada — modo, luego Alt+R.
+  reinject_ok: Pegado
+  reinject_fail: Error — Consola o Ctrl+V
   restore_defaults: Restaurar atajos por defecto
   restart_note: Guarda y reinicia (barra lateral) para aplicar.
 settings:
@@ -346,6 +350,7 @@ settings:
     max_input: Entrada máx. (contexto)
     max_output: Salida máx. (tokens)
     llm_request_timeout: Timeout de solicitud LLM (s)
+    clipboard_paste_delay: Retardo portapapeles (s)
     no_gguf: Sin .gguf en Data/Models/LLM
     auto: Auto
   save_restart: Guardar y reiniciar

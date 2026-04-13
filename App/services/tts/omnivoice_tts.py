@@ -212,10 +212,14 @@ class OmniVoiceTTS(TTSEngine):
         models_dir: Path,
         cache_dir: Optional[Path],
         get_options: Callable[[], Dict],
+        model_local_dir: Optional[Path] = None,
+        allow_online_fetch: bool = True,
     ):
         self.models_dir = models_dir
         self.cache_dir = cache_dir
         self._get_options = get_options
+        self.model_local_dir = Path(model_local_dir) if model_local_dir else None
+        self.allow_online_fetch = bool(allow_online_fetch)
         self._model = None
         self._device = "cpu"
         self._sample_rate = 24000
@@ -284,8 +288,15 @@ class OmniVoiceTTS(TTSEngine):
             )
             logger.info("OmniVoice: loading %s on %s...", repo, self._device)
             t0 = time.monotonic()
+            load_ref = repo
+            if self.model_local_dir and self.model_local_dir.is_dir():
+                load_ref = str(self.model_local_dir)
+            elif not self.allow_online_fetch:
+                raise RuntimeError(
+                    "OmniVoice model manifest is missing/invalid. Use Voice tab Repair/Install."
+                )
             self._model = OmniVoice.from_pretrained(
-                repo,
+                load_ref,
                 torch_dtype=torch_dtype,
                 device_map=device_map,
             )

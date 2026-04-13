@@ -449,9 +449,17 @@ def is_model_downloaded(models_dir: Path) -> bool:
 class ChatterboxTTS(TTSEngine):
     """Chatterbox Turbo (English) + lazy multilingual model for other ISO codes in ``mtl_tts.SUPPORTED_LANGUAGES``."""
 
-    def __init__(self, models_dir: Path, cache_dir: Optional[Path] = None):
+    def __init__(
+        self,
+        models_dir: Path,
+        cache_dir: Optional[Path] = None,
+        model_local_dir: Optional[Path] = None,
+        allow_online_fetch: bool = True,
+    ):
         self.models_dir = models_dir
         self.cache_dir = cache_dir
+        self.model_local_dir = Path(model_local_dir) if model_local_dir else None
+        self.allow_online_fetch = bool(allow_online_fetch)
         self._model = None
         self._model_mtl = None
         self._device = "cpu"
@@ -509,7 +517,14 @@ class ChatterboxTTS(TTSEngine):
 
             logger.info("Chatterbox Turbo: loading on %s...", device)
             t0 = time.monotonic()
-            self._model = ChatterboxTurboTTS.from_pretrained(device=device)
+            if self.model_local_dir and self.model_local_dir.is_dir():
+                self._model = ChatterboxTurboTTS.from_local(str(self.model_local_dir), device=device)
+            elif self.allow_online_fetch:
+                self._model = ChatterboxTurboTTS.from_pretrained(device=device)
+            else:
+                raise RuntimeError(
+                    "Chatterbox model manifest is missing/invalid. Use Voice tab Repair/Install."
+                )
             self._sample_rate = self._model.sr
 
             # PyTorch may report CUDA available on very new GPUs while kernels/synthesis return silence.
@@ -546,7 +561,14 @@ class ChatterboxTTS(TTSEngine):
                     device = "cpu"
                     self._device = device
                     log_tts_dev_device_diagnostics(paths, "turbo_reload_cpu_after_bad_probe", "chatterbox", chosen_device=device)
-                    self._model = ChatterboxTurboTTS.from_pretrained(device=device)
+                    if self.model_local_dir and self.model_local_dir.is_dir():
+                        self._model = ChatterboxTurboTTS.from_local(str(self.model_local_dir), device=device)
+                    elif self.allow_online_fetch:
+                        self._model = ChatterboxTurboTTS.from_pretrained(device=device)
+                    else:
+                        raise RuntimeError(
+                            "Chatterbox model manifest is missing/invalid. Use Voice tab Repair/Install."
+                        )
                     self._sample_rate = self._model.sr
                     with torch.inference_mode():
                         probe = self._model.generate("Hi.")

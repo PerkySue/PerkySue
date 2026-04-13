@@ -1,0 +1,15 @@
+tts_engines:
+  chatterbox:
+    repo_id: "ResembleAI/chatterbox"
+    revision: "main"
+    allow_patterns:
+      - "*.safetensors"
+      - "*.json"
+      - "*.txt"
+      - "*.pt"
+      - "*.model"
+  omnivoice:
+    repo_id: "k2-fsa/OmniVoice"
+    revision: "main"
+    allow_patterns:
+      - "*"

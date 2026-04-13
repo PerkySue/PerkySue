@@ -196,7 +196,7 @@
       url: ''
     credit: صنعه Jérôme Corbiau  ·  رخصة Apache 2.0
 common:
-  window_title: PerkySue — Beta 0.29.0
+  window_title: PerkySue — Beta 0.29.1
   header_banner:
     free_invite: PerkySue Beta — مجاني · جرّب Pro (٣٠ يومًا، بدون بطاقة)
     free_after_trial: PerkySue Beta — مجاني
@@ -300,6 +300,10 @@ shortcuts:
   col_hotkey_altgr: الاختصار (AltGr)
   edit: تعديل
   stop_task: إيقاف المهمة
+  reinject_last_task: لصق الأخير
+  reinject_empty: لا شيء — وضع ثم Alt+R
+  reinject_ok: تم اللصق
+  reinject_fail: فشل — وحدة التحكم أو Ctrl+V
   restore_defaults: استعادة الاختصارات الافتراضية
   restart_note: التغييرات تتطلب إعادة التشغيل
 settings:
@@ -346,6 +350,7 @@ settings:
     max_input: الإدخال الأقصى (السياق)
     max_output: الإخراج الأقصى (Tokens)
     llm_request_timeout: مهلة طلب LLM (ث)
+    clipboard_paste_delay: تأخير الحافظة (ث)
     no_gguf: لا يوجد .gguf في Data/Models/LLM
     auto: تلقائي
   save_restart: حفظ وإعادة التشغيل
