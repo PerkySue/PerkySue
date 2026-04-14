@@ -5,7 +5,7 @@
 </p>
 
 **Voice-to-text with AI superpowers. 100% local. 100% private.**  
-*Created by Jérôme Corbiau | Apache 2.0 | 0.29.0*
+*Created by Jérôme Corbiau | Apache 2.0 | 0.29.2*
 
 Press a hotkey, speak, and polished text appears wherever your cursor is — in any app, any window, any text field. No cloud. No account. No data leaves your machine. Ever.
 
@@ -210,9 +210,13 @@ PerkySue started as a **personal productivity** tool — voice → **local STT**
 
 ## 📋 Changelog
 
-### Beta 0.29.1 (April 2026) — shipped
-- **Hotkeys:** `Alt+R` re-inject reliability fixes + shortcuts reset persistence fix + arrow-key hotkey parsing support.
-- **Docs:** Clipboard default remains **5s**, Data-owned custom avatar guidance, and release ops updates.
+### Beta 0.29.2 (April 2026) — shipped
+- **Audio capture:** New `audio.capture_mode` paths (**mic**, **system loopback**, **mix**), explicit mic picker, and VAD sensitivity presets with smoothing.
+- **Reliability/UX:** Max listening duration up to **900s** and clearer document-injection messaging when LLM HTTP connection drops.
+- **Pro memory upgrades:** **Remember last Q/A** (2/3/4) + optimized summaries with stronger fact retention (`variable→value`).
+- **Cross-mode follow-up (Pro):** Optional **Inject all modes in chat** now defaults to **On** (`Alt+M/I/P/L/C/D/X/S/G/V/B/N` mirrored into chat memory).
+- **New install defaults:** `Max input = 4096`, `Max output = 4096`, `Remember last Q/A = 2`.
+- **Voice/sample + mix context:** Default skin locale-aware `voice_sample.wav` resolution and source-aware mic/system chronology in mixed Ask context.
 - **Details:** **[CHANGELOG.md](CHANGELOG.md)**.
 
 ### Beta 0.29.0 (April 2026) — shipped

@@ -196,7 +196,7 @@
       url: ''
     credit: Creato da Jérôme Corbiau  ·  Licenza Apache 2.0
 common:
-  window_title: PerkySue — Beta 0.29.1
+  window_title: PerkySue — Beta 0.29.2
   header_banner:
     free_invite: PerkySue Beta — Gratis · Prova Pro (30 gg · senza carta)
     free_after_trial: PerkySue Beta — Gratis
@@ -341,14 +341,26 @@ settings:
       popularity: Popolarità
   performance:
     title: Impostazioni prestazioni
+    capture_mode_label: Sorgente STT
+    capture_mode:
+      mic_only: Microfono
+      system_only: Audio di sistema
+      mix: Sistema + microfono
     stt_model: Modello STT
     stt_device: Dispositivo STT
     silence_timeout: Timeout silenzio (s)
+    vad_sensitivity_label: Rilevamento voce (VAD)
+    vad_sensitivity:
+      quiet_room: Ambiente silenzioso / Microfono basso
+      normal: Normal
+      noisy: Ambiente rumoroso / Suono alto
+    vad_sensitivity_tooltip: Controlla quanto rapidamente PerkySue interrompe la registrazione dopo che smetti di parlare. Ambiente silenzioso è più sensibile (ottimo per microfoni bassi). Rumoroso interrompe più rapidamente in ambienti forti.
     max_duration: Durata max ascolto (s)
     first_language: La tua lingua principale
     llm_model: Modello LLM
     max_input: Input max (contesto)
     max_output: Output max (token)
+    remember_last_qa: Ricorda ultime D/R
     llm_request_timeout: Timeout richiesta LLM (s)
     clipboard_paste_delay: Ritardo clipboard (s)
     no_gguf: Nessun .gguf in Data/Models/LLM
@@ -611,8 +623,8 @@ header_alerts:
     processing_stopped: 🛑 Elaborazione fermata
     tts_stopped: 🛑 Output vocale fermato
     tts_loading: Preparazione voce — configurazione iniziale in corso...
-    omnivoice_requires_nvidia: OmniVoice requires NVIDIA/CUDA (not available on CPU/Vulkan).
-    tts_install_in_progress: Installation already in progress — please wait.
+    omnivoice_requires_nvidia: OmniVoice richiede NVIDIA/CUDA (non disponibile su CPU/Vulkan).
+    tts_install_in_progress: Installazione già in corso — attendi.
     ai_disclaimer: ⚠️ Le risposte dell’IA possono essere inesatte. Verifica i fatti.
     recording_no_audio: Nessun audio catturato — registrazione fermata. Controlla il microfono.
     recording_too_short: Registrazione troppo breve — nessun testo. Controlla il micro o parla più a lungo.
@@ -637,5 +649,5 @@ header_alerts:
     chat_max_output_reached: '⚠️ Risposta troncata: limite output ({max_output}) raggiunto. Aumenta «Output max» in Impostazioni → Prestazioni a {suggested} o più.'
     chat_empty_reply: — Risposta vuota. Riformula o guarda la console.
     trial_request:
-      newsletter_title: Newsletter preference
-      newsletter_question: Get updates, not spam. We'll only email you when something worth knowing happens — new features, tips & tricks, that's it.
+      newsletter_title: Preferenza newsletter
+      newsletter_question: Ricevi aggiornamenti, non spam. Ti scriveremo solo quando c'è qualcosa che vale davvero la pena sapere — nuove funzionalità, consigli e trucchi.

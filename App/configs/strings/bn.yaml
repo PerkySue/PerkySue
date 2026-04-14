@@ -196,7 +196,7 @@
       url: ''
     credit: তৈরি করেছেন Jérôme Corbiau  ·  Apache 2.0 লাইসেন্স
 common:
-  window_title: PerkySue — Beta 0.29.1
+  window_title: PerkySue — Beta 0.29.2
   header_banner:
     free_invite: PerkySue Beta — ফ্রি · Pro ৩০ দিন, কার্ড ছাড়া
     free_after_trial: PerkySue Beta — ফ্রি
@@ -341,14 +341,26 @@ settings:
       popularity: জনপ্রিয়তা
   performance:
     title: পারফরম্যান্স সেটিংস
+    capture_mode_label: STT উৎস
+    capture_mode:
+      mic_only: মাইক্রোফোন
+      system_only: সিস্টেম অডিও
+      mix: সিস্টেম + মাইক
     stt_model: STT মডেল
     stt_device: STT ডিভাইস
     silence_timeout: নীরবতার সময়সীমা (সে)
+    vad_sensitivity_label: ভয়েস ডিটেকশন (VAD)
+    vad_sensitivity:
+      quiet_room: শান্ত ঘর / কম মাইক
+      normal: Normal
+      noisy: কোলাহলপূর্ণ / উচ্চ শব্দের পরিবেশ
+    vad_sensitivity_tooltip: আপনি কথা বলা বন্ধ করার পর PerkySue কত দ্রুত রেকর্ডিং থামাবে তা নিয়ন্ত্রণ করে। শান্ত ঘর বেশি সংবেদনশীল (নরম মাইকের জন্য ভালো)। কোলাহলপূর্ণ মোডে বেশি শব্দে দ্রুত থামে।
     max_duration: সর্বোচ্চ রেকর্ডিং সময় (সে)
     first_language: তোমার মূল ভাষা
     llm_model: LLM মডেল
     max_input: সর্বোচ্চ ইনপুট (কনটেক্সট)
     max_output: সর্বোচ্চ আউটপুট (টোকেন)
+    remember_last_qa: শেষ প্রশ্ন/উত্তর মনে রাখুন
     llm_request_timeout: LLM রিকোয়েস্ট টাইমআউট (সে)
     clipboard_paste_delay: পেস্ট বিলম্ব (সে)
     no_gguf: Data/Models/LLM-এ কোনো .gguf নেই
@@ -611,8 +623,8 @@ header_alerts:
     processing_stopped: 🛑 প্রসেসিং বন্ধ
     tts_stopped: 🛑 ভয়েস আউটপুট বন্ধ
     tts_loading: কণ্ঠস্বর প্রস্তুত করা হচ্ছে — প্রাথমিক সেটআপ চলছে...
-    omnivoice_requires_nvidia: OmniVoice requires NVIDIA/CUDA (not available on CPU/Vulkan).
-    tts_install_in_progress: Installation already in progress — please wait.
+    omnivoice_requires_nvidia: OmniVoice-এর জন্য NVIDIA/CUDA দরকার (CPU/Vulkan-এ উপলভ্য নয়)।
+    tts_install_in_progress: ইনস্টলেশন ইতোমধ্যে চলছে — অনুগ্রহ করে অপেক্ষা করুন।
     ai_disclaimer: ⚠️ AI-এর উত্তর ভুল হতে পারে। তথ্য যাচাই করুন।
     recording_no_audio: কোনো অডিও ধরা যায়নি — রেকর্ডিং বন্ধ। মাইক চেক করো।
     recording_too_short: রেকর্ডিং অনেক ছোট — কোনো টেক্সট নেই। মাইক চেক করো বা বেশিক্ষণ বলো।
@@ -637,5 +649,5 @@ header_alerts:
     chat_max_output_reached: '⚠️ রিপ্লাই কাটা গেছে: max output ({max_output}) সীমা পৌঁছেছে। Settings → Performance-এ {suggested}-এ বাড়াও।'
     chat_empty_reply: — রিপ্লাই খালি। অন্যভাবে জিজ্ঞেস করো বা কনসোল দেখো।
     trial_request:
-      newsletter_title: Newsletter preference
-      newsletter_question: Get updates, not spam. We'll only email you when something worth knowing happens — new features, tips & tricks, that's it.
+      newsletter_title: নিউজলেটার পছন্দ
+      newsletter_question: আপডেট পাবেন, স্প্যাম নয়। সত্যিই দরকারি কিছু হলে তবেই ইমেইল করব — নতুন ফিচার, টিপস ও ট্রিকস।

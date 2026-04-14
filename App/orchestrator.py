@@ -27,7 +27,7 @@ from services.stt import create_stt_provider, STTProvider
 from services.llm import create_llm_provider, LLMProvider
 from modes import load_modes, render_prompt, Mode
 from modes.voice_modes import load_voice_mode_overlays
-from utils.audio import AudioRecorder
+from utils.audio import AudioRecorder, BaseAudioCapture, build_audio_recorder
 from utils.hotkeys import HotkeyManager, resolve_hotkey_string, format_hotkey_display
 from utils.injector import inject_text, get_active_window, grab_selection, get_window_title, restore_window
 from utils.nvidia_stats import get_nvidia_smi_snapshot
@@ -43,6 +43,47 @@ from services.tts.chatterbox_tts import (
 )
 
 logger = logging.getLogger("perkysue")
+
+# In-app Help redirect: skip the extra intent-router LLM call for long pasted text without the app name
+# (avoids back-to-back heavy requests that can destabilize llama-server; typed Chat often contains "LLM"/STT).
+_IN_APP_HELP_ROUTER_SKIP_LEN = 750
+# Router only needs the start of the message to classify HELP vs NOHELP.
+_HELP_INTENT_ROUTER_TEXT_CAP = 800
+
+
+def _document_injection_llm_error_message(widget: Any, llm_error_msg: str) -> str:
+    """User-facing LLM error for chat / injection: 400 vs transport vs generic.
+
+    Connection drops (e.g. llama-server crash, WinError 10054) must not suggest raising Max input.
+    """
+    err = llm_error_msg or ""
+    if "400" in err or "Bad Request" in err:
+        if widget is not None and hasattr(widget, "_get_alert"):
+            return str(widget._get_alert("document_injection.llm_error_400"))
+        return "LLM error (400) — context too large? Increase Max input (context) in Settings."
+    low = err.lower()
+    if any(
+        n in low
+        for n in (
+            "connection aborted",
+            "connection reset",
+            "connection refused",
+            "remote end closed",
+            "broken pipe",
+            "10054",
+            "10061",
+            "forcibly closed",
+        )
+    ):
+        if widget is not None and hasattr(widget, "_get_alert"):
+            return str(widget._get_alert("document_injection.llm_error_connection"))
+        return (
+            "LLM server connection lost — the model process may have crashed or restarted. "
+            "This is not a context limit. Try again; if it repeats, restart PerkySue."
+        )
+    if widget is not None and hasattr(widget, "_get_alert"):
+        return str(widget._get_alert("document_injection.llm_error_generic"))
+    return "LLM error — check console. Increase Max input (context) in Settings if using Alt+A."
 
 
 def skin_character_display_name(skin_active: str) -> Optional[str]:
@@ -103,8 +144,8 @@ class Orchestrator:
 
         # Answer mode (Alt+A) history: list of {"q": question, "a": answer}
         self._answer_history: list[dict] = []
-        # Number of most recent Q/A kept in context; summary is created every this many exchanges (0.25.1: 4 to reduce context usage)
-        self._answer_context_n_qa = 4
+        # Number of most recent Q/A kept in context; summary cadence follows this value.
+        self._answer_context_n_qa = self._answer_context_keep_from_config(self.config)
         # Help mode (Alt+H) history: list of {"q": question, "a": answer} for the Help tab
         self._help_history: list[dict] = []
         # Summaries of previous answers: list of {"end_index": int, "text": str}
@@ -116,7 +157,7 @@ class Orchestrator:
         self._help_context_limit_reached: bool = False
         self.stt: Optional[STTProvider] = None
         self.llm: Optional[LLMProvider] = None
-        self.recorder: Optional[AudioRecorder] = None
+        self.recorder: Optional[BaseAudioCapture] = None
         self.hotkey_manager: Optional[HotkeyManager] = None
         self.modes: dict[str, Mode] = {}
         # Internal: optional extension module under Data/Plugins/dev/.
@@ -149,37 +190,7 @@ class Orchestrator:
             except Exception as e:
                 logger.warning("TTS engine load at boot failed (non-fatal): %s", e)
 
-        # Audio recorder (pour capturer le micro)
-        self._silence_timeout = float(audio_config.get("silence_timeout", 2.0) or 2.0)
-        # Durée max d'enregistrement : dépend du backend et du modèle STT si non configurée
-        max_dur_cfg = audio_config.get("max_duration")
-        if max_dur_cfg is not None:
-            try:
-                max_duration = float(max_dur_cfg) or 0.0
-            except (TypeError, ValueError):
-                max_duration = 0.0
-        else:
-            max_duration = 0.0
-        if max_duration <= 0.0:
-            backend = os.environ.get("PERKYSUE_BACKEND", "").lower()
-            stt_model_name = (stt_conf.get("model") or "").lower()
-            if backend.startswith("nvidia-"):
-                # GPU RTX/ NVIDIA : confortable jusque ~3 min, par défaut 180 s
-                max_duration = 180.0
-            else:
-                # CPU / Vulkan / autres backends : Small peut monter à 120 s, Medium plutôt 90 s
-                if stt_model_name == "small":
-                    max_duration = 120.0
-                else:
-                    max_duration = 90.0
-        self.recorder = AudioRecorder(
-            sample_rate=audio_config.get("sample_rate", 16000),
-            vad_aggressiveness=audio_config.get("vad_aggressiveness", 2),
-            silence_timeout=self._silence_timeout,
-            max_duration=max_duration,
-            on_input_level=self.tts_manager.input_feed_meter,
-            on_input_stop=self.tts_manager.reset_input_meter,
-        )
+        self._rebuild_audio_recorder_from_config()
 
         # Updates (GitHub public releases) — cached per process/session
         self._update_cache: Optional[dict] = None
@@ -879,17 +890,38 @@ class Orchestrator:
         source_lang: Optional[str] = None,
         translate_user_text: bool = False,
         silent: bool = False,
+        *,
+        from_answer_redirect: bool = False,
     ) -> None:
         """Run Help mode with the given text (e.g. from Help tab).
         Same pipeline as Alt+H, no STT. Result shown in Help tab only.
         When source_lang is provided (or can be inferred), we set last_stt_detected_language so the Help LLM
         prompt + language rules align with the user's language.
         If translate_user_text=True, we also translate the *user bubble text* itself into source_lang.
+
+        from_answer_redirect: internal — set True when called from Answer→Help redirect while Answer
+        ``_process_audio`` is still active; skips the user busy check so Help can start after Answer returns.
         """
         q = (question or "").strip()
         if not q:
             return
         self.stop_voice_output()
+
+        if not from_answer_redirect:
+            with self._lock:
+                _busy = self._is_processing or self._is_recording
+            if _busy:
+                try:
+                    w = getattr(self, "widget", None)
+                    _msg = i18n_s(
+                        "chat.pipeline_busy",
+                        default="⏳ Wait for recording or the current reply to finish before sending.",
+                    )
+                    if w and getattr(w, "root", None) and hasattr(w, "_notify"):
+                        w.root.after(0, lambda m=_msg, ww=w: ww._notify(m, restore_after_ms=4500))
+                except Exception:
+                    pass
+                return
 
         # Infer language (used for: 1) Help system prompt language, 2) raw_text_override "result.language").
         lang = (source_lang or "").strip().lower()
@@ -922,7 +954,7 @@ class Orchestrator:
 
     # ─── Help mode (Alt+H) — params + KB collection & injection ──────
 
-    APP_VERSION = "Beta 0.29.1"
+    APP_VERSION = "Beta 0.29.2"
 
     # ─── Plugin extension point ───────────────────────────────────────
 
@@ -1405,21 +1437,25 @@ class Orchestrator:
             return False
         # PerkySue name alone is not enough (often a greeting).
         mentions_app_name = bool(re.search(r"perkysue|perky sue|perky-sue", t))
-        # Long tokens / phrases (avoid short substrings like "plan" in "explanation", "pro" in "problème").
-        phrases = [
-            "whisper",
-            "stt",
-            "llm",
-            "settings",
+        # Short terms as whole words only — substring "llm" matched inside unrelated words / long Chat pastes.
+        word_patterns = [
+            r"\bwhisper\b",
+            r"\bstt\b",
+            r"\bllm\b",
+            r"\bsettings\b",
+            r"\bmicrophone\b",
+        ]
+        if any(re.search(p, t) for p in word_patterns):
+            return True
+        phrase_needles = [
             "alt+",
             "hotkey",
-            "microphone",
             "smart focus",
             "help tab",
             "voice tab",
             "prompt modes",
         ]
-        if any(p in t for p in phrases):
+        if any(p in t for p in phrase_needles):
             return True
         # If it only mentions the app name, require an app-specific cue to avoid false redirects.
         if mentions_app_name:
@@ -1453,6 +1489,13 @@ class Orchestrator:
                 # Fallback to previous behavior when router can't run.
                 return True
 
+            ut_full = (user_text or "").strip()
+            cap = _HELP_INTENT_ROUTER_TEXT_CAP
+            if len(ut_full) > cap:
+                ut = ut_full[:cap].rstrip() + "\n[…]"
+            else:
+                ut = ut_full
+
             system_prompt = (
                 "You are an intent classifier for the Windows app PerkySue (local Whisper STT + local LLM).\n"
                 "Use ONLY the user's message in this turn. Ignore any hypothetical prior chat or summaries "
@@ -1475,7 +1518,7 @@ class Orchestrator:
                 "'Tell me a joke' → NOHELP.\n"
             )
             router_result = self._run_llm_on_main_thread(
-                text=user_text,
+                text=ut,
                 system_prompt=system_prompt,
                 temperature=0.0,
                 max_tokens=8,
@@ -1787,6 +1830,59 @@ class Orchestrator:
             llm["thinking"] = "off"
         if "thinking_budget" not in llm:
             llm["thinking_budget"] = 512
+        try:
+            keep = int(llm.get("answer_context_keep", 4))
+        except (TypeError, ValueError):
+            keep = 4
+        llm["answer_context_keep"] = 4 if keep not in (2, 3, 4) else keep
+        v = llm.get("inject_all_modes_in_chat", False)
+        if isinstance(v, str):
+            llm["inject_all_modes_in_chat"] = v.strip().lower() in ("1", "true", "yes", "on")
+        else:
+            llm["inject_all_modes_in_chat"] = bool(v)
+
+    @staticmethod
+    def _answer_context_keep_from_config(config: dict) -> int:
+        llm = (config or {}).get("llm") or {}
+        try:
+            keep = int(llm.get("answer_context_keep", 4))
+        except (TypeError, ValueError):
+            keep = 4
+        return 4 if keep not in (2, 3, 4) else keep
+
+    def _inject_all_modes_in_chat_enabled(self) -> bool:
+        llm = (self.config.get("llm") or {})
+        v = llm.get("inject_all_modes_in_chat", False)
+        if isinstance(v, str):
+            return v.strip().lower() in ("1", "true", "yes", "on")
+        return bool(v)
+
+    def _chat_cross_mode_ids(self) -> set[str]:
+        """LLM modes that can be mirrored into Chat history when Pro setting is enabled."""
+        return {
+            "improve",
+            "professional",
+            "translate",
+            "console",
+            "email",
+            "message",
+            "social",
+            "summarize",
+            "genz",
+            "custom1",
+            "custom2",
+            "custom3",
+        }
+
+    def _should_capture_mode_into_chat(self, mode_id: str) -> bool:
+        mid = (mode_id or "").strip().lower()
+        if mid == "answer":
+            return True
+        return bool(
+            self.is_effective_pro()
+            and self._inject_all_modes_in_chat_enabled()
+            and mid in self._chat_cross_mode_ids()
+        )
 
     def _normalize_feedback_config(self, config: dict) -> None:
         fb = config.get("feedback")
@@ -1861,9 +1957,14 @@ class Orchestrator:
         text = (current_question or "").strip()
         hit_max_input = False
 
-        # Uniquement pour le mode Answer ; les autres modes reçoivent la question brute.
+        # Answer mode always uses conversation context.
         mode_key = (mode_id or "").strip().lower()
-        if mode_key != "answer":
+        use_shared_context = (mode_key == "answer") or (
+            self.is_effective_pro()
+            and self._inject_all_modes_in_chat_enabled()
+            and mode_key in self._chat_cross_mode_ids()
+        )
+        if not use_shared_context:
             return text, None, hit_max_input
 
         # Free tier: each question is standalone — no summaries / previous Q&A in the LLM prompt.
@@ -1882,7 +1983,8 @@ class Orchestrator:
         if n_prior == 0:
             return text, None, hit_max_input
 
-        n_qa = getattr(self, "_answer_context_n_qa", 4)
+        n_qa = self._answer_context_keep_from_config(self.config)
+        self._answer_context_n_qa = n_qa
         # Construire le bloc contexte : dernier résumé consolidé + les n_qa derniers Q/R (0.25.1: 4).
         # Chaque snapshot dans _answer_summaries est déjà produit en fusionnant les résumés précédents
         # avec le bloc de Q/R courant — n'injecter que le dernier évite la redondance (Summary 1 + 2 + …).
@@ -1917,8 +2019,8 @@ class Orchestrator:
 
         if self.config.get("feedback", {}).get("console_output", True):
             logger.info(
-                "Alt+A: context in SYSTEM prompt (%d chars, %d prior Q/A in context; pending turn excluded; content not logged)",
-                len(system_context), n_prior,
+                "Alt+A: context in SYSTEM prompt (%d chars, %d prior Q/A in context; keep_last=%d; pending turn excluded; content not logged)",
+                len(system_context), n_prior, n_qa,
             )
 
         # Garde Max input (system_context + question actuelle + marge pour system prompt de base)
@@ -1955,7 +2057,8 @@ class Orchestrator:
         Retourne le texte du summary fraîchement créé (pour injection éventuelle),
         ou None si aucun summary n'a été créé à ce tour.
         """
-        n_qa = getattr(self, "_answer_context_n_qa", 4)
+        n_qa = self._answer_context_keep_from_config(self.config)
+        self._answer_context_n_qa = n_qa
         history = getattr(self, "_answer_history", [])
         q_stripped = (question or "").strip()
         if history and (history[-1].get("a") or "").strip() == "" and (history[-1].get("q") or "").strip() == q_stripped:
@@ -2030,12 +2133,31 @@ class Orchestrator:
                 lines.append("")
             block_text = "\n".join(lines).strip()
 
-            # Instruction pour un résumé ÉTOFFÉ (pas une phrase) : suffisant pour suivre la conversation après
-            substantial_instruction = (
-                "TASK: Produce a SUBSTANTIAL summary (about 40-50% of the original length). "
-                "Preserve key arguments, examples, names, and conclusions so the conversation can be followed in later turns. "
-                "Do NOT reduce to one or two short sentences. Include the main ideas and important details.\n\n"
+            keep_last = self._answer_context_keep_from_config(self.config)
+            # If keep_last is low (2), summaries happen more often: ask for a denser/shorter snapshot.
+            factual_guardrails = (
+                "CRITICAL FACT RETENTION RULES:\n"
+                "- Extract and preserve facts as VARIABLE→VALUE pairs whenever possible.\n"
+                "- Keep both sides together: do not keep a variable name without its known value.\n"
+                "- Never replace a known value with a vague placeholder (e.g., 'unspecified', 'unknown').\n"
+                "- If a VARIABLE already has a VALUE in prior context, keep that exact VALUE unless the user explicitly updates it.\n"
+                "- Preserve exact constraints and commitments (timing, counts, deadlines, sequencing).\n"
+                "- Prefer factual completeness and consistency over stylistic brevity.\n\n"
             )
+            if keep_last <= 2:
+                substantial_instruction = (
+                    "TASK: Produce a COMPACT but complete summary (about 35-50% of the original length). "
+                    "Preserve key facts, constraints, and conclusions so later turns remain understandable. "
+                    "Avoid fluff and repetition. Do NOT reduce to one or two short sentences.\n\n"
+                )
+            else:
+                # Instruction pour un résumé ÉTOFFÉ (pas une phrase) : suffisant pour suivre la conversation après
+                substantial_instruction = (
+                    "TASK: Produce a SUBSTANTIAL summary (about 40-50% of the original length). "
+                    "Preserve key arguments, examples, names, and conclusions so the conversation can be followed in later turns. "
+                    "Do NOT reduce to one or two short sentences. Include the main ideas and important details.\n\n"
+                )
+            substantial_instruction = substantial_instruction + factual_guardrails
             # Entrée pour le LLM : résumés précédents (s'il y en a) + les n_qa nouveaux Q/R
             n_qa = len(block)
             if previous_summaries:
@@ -2062,12 +2184,13 @@ class Orchestrator:
                 selected_text="",
                 user_name=user_name,
             )
-            # Limite plus haute pour permettre un résumé étoffé (1024 tokens)
+            # Keep summaries cheaper when keep_last is small to reduce context pressure.
+            summary_max_tokens = 768 if keep_last <= 2 else 1024
             llm_result = self._run_llm_on_main_thread(
                 text=summary_input,
                 system_prompt=system_prompt,
                 temperature=self.config.get("llm", {}).get("temperature", 0.3),
-                max_tokens=min(1024, self.get_effective_llm_max_output()),
+                max_tokens=min(summary_max_tokens, self.get_effective_llm_max_output()),
                 gui_debug_label="answer_previous_summary",
             )
             return self._strip_thinking_blocks(llm_result.text.strip())
@@ -2718,6 +2841,113 @@ class Orchestrator:
         merged = ", ".join(parts) if parts else None
         self.stt.set_initial_prompt(merged)
 
+    def _rebuild_audio_recorder_from_config(self) -> None:
+        """Construit ``self.recorder`` depuis ``self.config`` (même règles que le boot)."""
+        audio_config = self.config.get("audio", {})
+        stt_conf = self.config.get("stt") or {}
+        self._silence_timeout = float(audio_config.get("silence_timeout", 2.0) or 2.0)
+        max_dur_cfg = audio_config.get("max_duration")
+        if max_dur_cfg is not None:
+            try:
+                max_duration = float(max_dur_cfg) or 0.0
+            except (TypeError, ValueError):
+                max_duration = 0.0
+        else:
+            max_duration = 0.0
+        if max_duration <= 0.0:
+            backend = os.environ.get("PERKYSUE_BACKEND", "").lower()
+            stt_model_name = (stt_conf.get("model") or "").lower()
+            if backend.startswith("nvidia-"):
+                max_duration = 180.0
+            else:
+                if stt_model_name == "small":
+                    max_duration = 120.0
+                else:
+                    max_duration = 90.0
+        if max_duration > 900.0:
+            logger.warning("audio.max_duration=%s exceeds 900s cap — using 900", max_duration)
+            max_duration = 900.0
+        capture_mode = (audio_config.get("capture_mode") or "mic_only").strip().lower()
+        mic_dev = audio_config.get("mic_device")
+        lb_dev = audio_config.get("loopback_device")
+
+        def _optional_audio_device_index(v: Any) -> Optional[int]:
+            if v is None or v is True or v is False:
+                return None
+            s2 = str(v).strip()
+            if s2 == "" or s2.lower() in ("null", "none"):
+                return None
+            try:
+                return int(v)
+            except (TypeError, ValueError):
+                return None
+
+        mic_device = _optional_audio_device_index(mic_dev)
+        loopback_device = _optional_audio_device_index(lb_dev)
+        try:
+            mix_mic_gain = float(audio_config.get("mix_mic_gain", 1.0) or 1.0)
+        except (TypeError, ValueError):
+            mix_mic_gain = 1.0
+        try:
+            mix_loopback_gain = float(audio_config.get("mix_loopback_gain", 0.8) or 0.8)
+        except (TypeError, ValueError):
+            mix_loopback_gain = 0.8
+
+        self.recorder = build_audio_recorder(
+            sample_rate=audio_config.get("sample_rate", 16000),
+            vad_sensitivity=audio_config.get(
+                "vad_sensitivity", audio_config.get("vad_aggressiveness", "normal")
+            ),
+            silence_timeout=self._silence_timeout,
+            max_duration=max_duration,
+            capture_mode=capture_mode,
+            mic_device=mic_device,
+            loopback_device=loopback_device,
+            mix_mic_gain=mix_mic_gain,
+            mix_loopback_gain=mix_loopback_gain,
+            on_input_level=self.tts_manager.input_feed_meter,
+            on_input_stop=self.tts_manager.reset_input_meter,
+        )
+        try:
+            import sounddevice as sd
+
+            if mic_device is None:
+                di, _ = sd.default.device
+                ni = sd.query_devices(di, "input")
+                mic_line = f"mic=default (sounddevice input #{di} «{(ni.get('name') or '')[:80]}»)"
+            else:
+                try:
+                    ni = sd.query_devices(int(mic_device), "input")
+                    mic_line = f"mic=#{mic_device} «{(ni.get('name') or '')[:80]}»"
+                except Exception:
+                    mic_line = f"mic=#{mic_device} (name lookup failed — check Settings → Microphone)"
+            logger.info(
+                "Audio capture mode: %s (%s; loopback_output_device=%s)",
+                capture_mode,
+                mic_line,
+                loopback_device,
+            )
+        except Exception:
+            logger.info(
+                "Audio capture mode: %s (mic_device=%s loopback_output_device=%s)",
+                capture_mode,
+                mic_device,
+                loopback_device,
+            )
+
+    def reload_audio_capture(self) -> tuple[bool, str]:
+        """Recharge la source audio STT depuis la config fusionnée (sans redémarrage app)."""
+        with self._lock:
+            if self._is_processing or self._is_recording:
+                return False, "Cannot apply while recording or processing."
+        try:
+            self.config = self._load_merged_config()
+            self._rebuild_audio_recorder_from_config()
+            return True, "STT audio source applied."
+        except Exception as e:
+            logger.exception("Hot-reload audio capture failed: %s", e)
+            return False, f"Apply audio failed: {e}"
+
     def reload_llm_runtime(self):
         """Hot-reload LLM provider from current config without full app restart.
 
@@ -2733,6 +2963,7 @@ class Orchestrator:
             # Reload merged config from disk (defaults + user overrides)
             self.config = self._load_merged_config()
             self._sync_strings_locale_from_config()
+            self._answer_context_n_qa = self._answer_context_keep_from_config(self.config)
             llm_conf = self._prepare_llm_conf_for_provider()
 
             # Keep runtime safety rules aligned with init path.
@@ -3167,6 +3398,7 @@ class Orchestrator:
             logger.exception("Hotkey toggle failed: %s", e)
             with self._lock:
                 self._is_recording = False
+            self._set_status("ready")
 
     def _on_hotkey_press(self, mode_id):
         try:
@@ -3215,8 +3447,18 @@ class Orchestrator:
             self._notify("🎙️ Listening...")
         except Exception as e:
             logger.exception("Hotkey press failed: %s", e)
+            try:
+                self.sound_manager.play_stt_stop()
+            except Exception:
+                pass
+            try:
+                if self.recorder and getattr(self.recorder, "is_recording", False):
+                    self.recorder.stop()
+            except Exception:
+                pass
             with self._lock:
                 self._is_recording = False
+            self._set_status("ready")
 
     def _on_hotkey_release(self, mode_id):
         try:
@@ -3232,7 +3474,10 @@ class Orchestrator:
             else:
                 # Aucune frame audio reçue → problème d'entrée plutôt que simple silence utilisateur
                 self._set_status("error")
-                self._notify("Recording failed — no audio captured. Check your microphone or Windows input device.")
+                self._notify(
+                    "Recording failed — no audio captured. Check microphone / Windows devices, "
+                    "or audio.capture_mode (system_only = WASAPI loopback on default output)."
+                )
                 self._set_status("ready")
         except Exception as e:
             logger.exception("Hotkey release failed: %s", e)
@@ -3415,22 +3660,243 @@ class Orchestrator:
         return base + "\n\n--- VOICE OUTPUT FORMAT ---\n\n" + blk
 
     def _record_and_process(self, mode_id, selected_text="", from_chat_ui: bool = False):
-        self._set_status("listening")
-        self.sound_manager.play_stt_start()
-        self._notify(f"🎙️ {self.modes[mode_id].name} — Speak now...")
-        audio = self.recorder.record_until_silence()
-        self.sound_manager.play_stt_stop()
-        with self._lock:
-            self._is_recording = False
-        duration = len(audio) / float(self.recorder.sample_rate) if len(audio) > 0 else 0.0
-        if len(audio) > 0:
-            self._process_audio(audio, mode_id, selected_text, duration=duration, from_chat_ui=from_chat_ui)
-        else:
-            # Aucun sample capturé → interruption manuelle ou device : Ready sous l'avatar, message dans la barre uniquement.
+        try:
+            self._set_status("listening")
+            self.sound_manager.play_stt_start()
+            self._notify(f"🎙️ {self.modes[mode_id].name} — Speak now...")
+            audio = self.recorder.record_until_silence()
+            self.sound_manager.play_stt_stop()
+            with self._lock:
+                self._is_recording = False
+            duration = len(audio) / float(self.recorder.sample_rate) if len(audio) > 0 else 0.0
+            if len(audio) > 0:
+                split_raw_text = self._build_dual_mix_raw_text(mode_id=mode_id)
+                if split_raw_text is not None:
+                    self._process_audio(
+                        None,
+                        mode_id,
+                        selected_text,
+                        duration=duration,
+                        raw_text_override=split_raw_text,
+                        from_chat_ui=from_chat_ui,
+                    )
+                else:
+                    self._process_audio(audio, mode_id, selected_text, duration=duration, from_chat_ui=from_chat_ui)
+            else:
+                self._set_status("ready")
+                _msg = self._get_alert_for_log("regular.recording_no_audio")
+                self._notify(_msg)
+                self._notify_header("regular.recording_no_audio", restore_after_ms=4000)
+        except Exception as e:
+            logger.exception("_record_and_process failed: %s", e)
+            try:
+                self.sound_manager.play_stt_stop()
+            except Exception:
+                pass
+            try:
+                if self.recorder and getattr(self.recorder, "is_recording", False):
+                    self.recorder.stop()
+            except Exception:
+                pass
             self._set_status("ready")
-            _msg = self._get_alert_for_log("regular.recording_no_audio")
-            self._notify(_msg)
-            self._notify_header("regular.recording_no_audio", restore_after_ms=4000)
+            self._notify(f"Recording error: {e}")
+        finally:
+            with self._lock:
+                self._is_recording = False
+
+    def _build_dual_mix_raw_text(self, mode_id: str = "") -> Optional[str]:
+        """When capture_mode=mix and split tracks are available, STT mic/system separately.
+
+        Returns combined tagged transcript or None to keep legacy single-pass STT.
+        """
+        try:
+            import numpy as np
+
+            audio_cfg = self.config.get("audio") or {}
+            mode = str(audio_cfg.get("capture_mode") or "mic_only").strip().lower()
+            if mode != "mix":
+                return None
+            get_tracks = getattr(self.recorder, "get_last_split_capture", None)
+            if not callable(get_tracks):
+                return None
+            tracks = get_tracks() or {}
+            mic_audio = tracks.get("mic")
+            sys_audio = tracks.get("system")
+            sr = int(tracks.get("sample_rate") or getattr(self.recorder, "sample_rate", 16000))
+            if mic_audio is None or sys_audio is None:
+                return None
+
+            lang = self.config.get("stt", {}).get("language", "auto")
+            forced_lang = None if lang == "auto" else lang
+            is_transcribe_mode = str(mode_id or "").strip().lower() == "transcribe"
+            identity_cfg = self.config.get("identity") or {}
+            user_name = str(identity_cfg.get("name") or "").strip()
+            mic_label = user_name if user_name else "You"
+            system_label = "System audio"
+            try:
+                if getattr(self, "_target_window", None):
+                    title = (get_window_title(self._target_window) or "").strip()
+                    is_own_window = False
+                    try:
+                        w = getattr(self, "widget", None)
+                        if w and getattr(w, "root", None):
+                            own_hwnd = w.root.winfo_id()
+                            is_own_window = bool(own_hwnd and self._target_window == own_hwnd)
+                    except Exception:
+                        is_own_window = False
+                    t_low = title.lower()
+                    looks_internal = (
+                        "perkysue" in t_low
+                        or "listening" in t_low
+                        or "processing" in t_low
+                        or "ready" in t_low
+                    )
+                    if title and not is_own_window and not looks_internal:
+                        short = title if len(title) <= 70 else (title[:67] + "...")
+                        system_label = f"System audio ({short})"
+            except Exception:
+                pass
+            n = min(len(mic_audio), len(sys_audio))
+            if n < int(1.0 * sr):
+                return None
+            mic_tl = mic_audio[:n].astype(np.float32, copy=False)
+            sys_tl = sys_audio[:n].astype(np.float32, copy=False)
+
+            # Coarse source timeline from long windows (more stable than per-chunk switches).
+            win = max(int(1.2 * sr), 1)
+            hop = max(int(0.6 * sr), 1)
+            silence_thr = 0.0075
+            choose_ratio = 1.25
+            switch_ratio = 1.8
+
+            frame_labels: List[str] = []
+            frame_starts: List[int] = []
+            prev_dom: Optional[str] = None
+
+            for start in range(0, n, hop):
+                end = min(start + win, n)
+                frame_starts.append(start)
+                m = mic_tl[start:end]
+                s = sys_tl[start:end]
+                if len(m) == 0 or len(s) == 0:
+                    frame_labels.append("silence")
+                    continue
+                rms_m = float(np.sqrt(np.mean(m * m)))
+                rms_s = float(np.sqrt(np.mean(s * s)))
+                if rms_m < silence_thr and rms_s < silence_thr:
+                    frame_labels.append("silence")
+                    continue
+                ratio = rms_m / (rms_s + 1e-9)
+                if prev_dom == "mic":
+                    dom = "system" if ratio < (1.0 / switch_ratio) else "mic"
+                elif prev_dom == "system":
+                    dom = "mic" if ratio > switch_ratio else "system"
+                else:
+                    if ratio >= choose_ratio:
+                        dom = "mic"
+                    elif ratio <= (1.0 / choose_ratio):
+                        dom = "system"
+                    else:
+                        dom = "mic" if rms_m >= rms_s else "system"
+                frame_labels.append(dom)
+                prev_dom = dom
+
+            if not frame_labels:
+                return None
+
+            # Build coarse contiguous segments in sample domain.
+            coarse_segments: List[tuple[str, int, int]] = []
+            cur_lbl: Optional[str] = None
+            cur_i = 0
+            for i, lbl in enumerate(frame_labels):
+                if cur_lbl is None:
+                    cur_lbl = lbl
+                    cur_i = i
+                    continue
+                if lbl != cur_lbl:
+                    s0 = frame_starts[cur_i]
+                    e0 = min(n, frame_starts[i - 1] + win)
+                    coarse_segments.append((cur_lbl, s0, e0))
+                    cur_lbl = lbl
+                    cur_i = i
+            if cur_lbl is not None:
+                coarse_segments.append((cur_lbl, frame_starts[cur_i], n))
+
+            coarse_segments = [seg for seg in coarse_segments if seg[0] != "silence"]
+            if not coarse_segments:
+                return None
+
+            # Merge tiny contradictory segments to keep readable chronology.
+            min_seg = int(1.5 * sr)
+            merged: List[tuple[str, int, int]] = []
+            for lbl, s0, e0 in coarse_segments:
+                if not merged:
+                    merged.append((lbl, s0, e0))
+                    continue
+                pl, ps, pe = merged[-1]
+                if lbl == pl:
+                    merged[-1] = (pl, ps, e0)
+                    continue
+                if (e0 - s0) < min_seg:
+                    merged[-1] = (pl, ps, e0)
+                    continue
+                merged.append((lbl, s0, e0))
+
+            tagged_segments: List[str] = []
+            for lbl, s0, e0 in merged:
+                if (e0 - s0) < int(0.8 * sr):
+                    continue
+                src = "MIC" if lbl == "mic" else "SYSTEM"
+                audio_seg = mic_tl[s0:e0] if lbl == "mic" else sys_tl[s0:e0]
+                res = self.stt.transcribe(audio_seg, sample_rate=sr, language=forced_lang)
+                txt = (res.text or "").strip()
+                if not txt:
+                    continue
+                if getattr(res, "language", None) and self.last_stt_detected_language is None:
+                    self.last_stt_detected_language = str(res.language).strip().lower() or None
+                if is_transcribe_mode:
+                    tagged_segments.append(txt)
+                else:
+                    if src == "MIC":
+                        tagged_segments.append(f"[{mic_label}]\n{txt}")
+                    else:
+                        tagged_segments.append(f"[{system_label}]\n{txt}")
+
+            if tagged_segments:
+                mic_chars = sum(len(s) for s in tagged_segments if s.startswith("[MIC]"))
+                sys_chars = sum(len(s) for s in tagged_segments if s.startswith("[SYSTEM]"))
+                logger.info(
+                    "Mix dual-track STT ordered (coarse): segments=%d mic_chars=%d system_chars=%d mode=%s",
+                    len(tagged_segments),
+                    mic_chars,
+                    sys_chars,
+                    mode_id or "?",
+                )
+                return "\n\n".join(tagged_segments).strip()
+
+            # Fallback grouped if chronology pass yielded no useful segment.
+            parts: List[str] = []
+            if len(mic_tl) > 0:
+                mic_res = self.stt.transcribe(mic_tl, sample_rate=sr, language=forced_lang)
+                mic_text = (mic_res.text or "").strip()
+                if mic_text:
+                    parts.append(mic_text if is_transcribe_mode else f"[{mic_label}]\n{mic_text}")
+                if getattr(mic_res, "language", None):
+                    self.last_stt_detected_language = str(mic_res.language).strip().lower() or None
+            if len(sys_tl) > 0:
+                sys_res = self.stt.transcribe(sys_tl, sample_rate=sr, language=forced_lang)
+                sys_text = (sys_res.text or "").strip()
+                if sys_text:
+                    parts.append(sys_text if is_transcribe_mode else f"[{system_label}]\n{sys_text}")
+                if self.last_stt_detected_language is None and getattr(sys_res, "language", None):
+                    self.last_stt_detected_language = str(sys_res.language).strip().lower() or None
+            if parts:
+                logger.info("Mix dual-track STT fallback: grouped mic/system mode=%s", mode_id or "?")
+                return "\n\n".join(parts).strip()
+            return None
+        except Exception as e:
+            logger.warning("Mix dual-track STT fallback to legacy single pass: %s", e)
+            return None
 
     @staticmethod
     def _strip_thinking_blocks(text: str) -> str:
@@ -3452,11 +3918,35 @@ class Orchestrator:
     def run_answer_text(self, question: str):
         """Run Answer mode with the given text (e.g. from Chat tab). Same pipeline as Alt+A, no STT.
         When called from the Chat UI, the result must never be injected into the type-in (only into chat history).
+
+        Unlike the Alt+A hotkey path, we must not start while the pipeline is already busy: overlapping LLM
+        requests to llama-server (e.g. Send while a reply is still generating) can reset the connection.
         """
         q = (question or "").strip()
         if not q:
             return
         self.stop_voice_output()
+
+        with self._lock:
+            _busy = self._is_processing or self._is_recording
+        if _busy:
+            try:
+                w = getattr(self, "widget", None)
+                _msg = i18n_s(
+                    "chat.pipeline_busy",
+                    default="⏳ Wait for recording or the current reply to finish before sending.",
+                )
+                if w and getattr(w, "root", None) and hasattr(w, "_notify"):
+                    w.root.after(0, lambda m=_msg, ww=w: ww._notify(m, restore_after_ms=4500))
+            except Exception:
+                pass
+            return
+
+        # Align prompt language with First Language when set (typed path has no Whisper detection).
+        identity_cfg = self.config.get("identity") or {}
+        _fl = (identity_cfg.get("first_language") or "auto").strip().lower()
+        if _fl and _fl != "auto":
+            self.last_stt_detected_language = _fl[:2]
 
         def _run():
             self._process_audio(None, "answer", selected_text="", duration=None, raw_text_override=q, from_chat_ui=True)
@@ -3586,9 +4076,19 @@ class Orchestrator:
             if in_app and w and getattr(w, "root", None):
                 # Option B: avoid false redirects by asking the LLM intent router (HELP vs NOHELP).
                 # This router runs only when the regex heuristic already suspects "help about PerkySue/app".
-                should_redirect = self._llm_intent_should_redirect_to_help(raw_text) or self._should_force_help_redirect(
-                    raw_text
+                # Long pasted Chat text (bug reports, logs) often mentions "LLM"/STT without naming PerkySue —
+                # skip the extra router call to avoid two heavy llama-server requests in a row (stability).
+                rt = (raw_text or "").strip()
+                skip_router = (
+                    len(rt) > _IN_APP_HELP_ROUTER_SKIP_LEN
+                    and not re.search(r"perkysue|perky sue|perky-sue", rt.lower())
                 )
+                if skip_router:
+                    should_redirect = self._should_force_help_redirect(raw_text)
+                else:
+                    should_redirect = self._llm_intent_should_redirect_to_help(raw_text) or self._should_force_help_redirect(
+                        raw_text
+                    )
                 if not should_redirect:
                     # Keep the user in Chat (answer mode) to avoid unwanted redirects.
                     pass
@@ -3614,7 +4114,7 @@ class Orchestrator:
                     except Exception:
                         pass
                     try:
-                        self.run_help_text(raw_text)
+                        self.run_help_text(raw_text, from_answer_redirect=True)
                     except Exception:
                         pass
                     self._set_status("ready")
@@ -3646,7 +4146,7 @@ class Orchestrator:
             self._set_status("generating")
             self._notify("⏳ LLM...")
             # Affichage en cascade : afficher d'abord la bulle User, laisser la GUI se rafraîchir, puis lancer le LLM
-            if mode_id == "answer" and (raw_text or "").strip():
+            if self._should_capture_mode_into_chat(mode_id) and (raw_text or "").strip():
                 history = getattr(self, "_answer_history", [])
                 history.append({"q": raw_text.strip(), "a": ""})
                 w = getattr(self, "widget", None)
@@ -3917,10 +4417,7 @@ class Orchestrator:
             w = getattr(self, "widget", None)
             # Si le LLM a échoué, n'injecter que le message d'erreur (document_injection = texte collé dans le doc, pas header).
             if llm_error_occurred:
-                if w and hasattr(w, "_get_alert"):
-                    llm_error_short_msg = w._get_alert("document_injection.llm_error_400") if ("400" in llm_error_msg or "Bad Request" in llm_error_msg) else w._get_alert("document_injection.llm_error_generic")
-                else:
-                    llm_error_short_msg = "LLM error (400) — context too large? Increase Max input (context) in Settings." if ("400" in llm_error_msg or "Bad Request" in llm_error_msg) else "LLM error — check console. Increase Max input (context) in Settings."
+                llm_error_short_msg = _document_injection_llm_error_message(w, llm_error_msg)
                 injected_text = f"⚠️ {llm_error_short_msg}\n\n"
 
             if mode_id == "answer" and not llm_error_occurred:
@@ -3966,9 +4463,41 @@ class Orchestrator:
                             include_summary=self._feedback_debug_mode(),
                         )
             elif mode_id == "answer" and llm_error_occurred and (raw_text or "").strip():
-                # Afficher la question + erreur dans le chat et dans l'historique Answer.
+                # Remplir la bulle assistant déjà créée avant l'appel LLM (évite doublon Q + message trompeur au compteur).
                 history = getattr(self, "_answer_history", [])
-                history.append({"q": raw_text.strip(), "a": llm_error_short_msg or "LLM error."})
+                _eq = raw_text.strip()
+                _ea = (llm_error_short_msg or "LLM error.").strip()
+                if (
+                    history
+                    and (history[-1].get("q") or "").strip() == _eq
+                    and not (history[-1].get("a") or "").strip()
+                ):
+                    history[-1]["a"] = _ea
+                else:
+                    history.append({"q": _eq, "a": _ea})
+            # Optional Pro behavior: mirror non-Alt+A LLM exchanges into Chat history for follow-up continuity.
+            if (
+                mode_id != "answer"
+                and self._should_capture_mode_into_chat(mode_id)
+                and (raw_text or "").strip()
+            ):
+                history = getattr(self, "_answer_history", [])
+                if llm_error_occurred:
+                    if history and (history[-1].get("a") or "").strip() == "" and (history[-1].get("q") or "").strip() == (raw_text or "").strip():
+                        history[-1]["a"] = llm_error_short_msg
+                    else:
+                        history.append({"q": raw_text.strip(), "a": llm_error_short_msg})
+                elif (final_text or "").strip():
+                    # Reuse same rolling-summary logic so context scaling remains stable.
+                    self._record_answer_history(raw_text.strip(), final_text.strip())
+                w = getattr(self, "widget", None)
+                if w and getattr(w, "root", None):
+                    try:
+                        w.root.after(0, lambda: w._refresh_chat_tab())
+                        w.root.after(0, lambda: w._chat_scroll_to_bottom())
+                    except Exception:
+                        pass
+
             if mode_id == "help" and (raw_text or "").strip():
                 # Mettre à jour la dernière entrée Help avec la réponse (ou l'erreur).
                 help_hist = getattr(self, "_help_history", [])
@@ -4060,9 +4589,16 @@ class Orchestrator:
             and bool((tts_text_for_prepare or "").strip())
             and self.tts_manager.is_installed()
         )
-        self._set_status("error" if not success else ("generating" if _wants_auto_tts else "ready"))
+        self._set_status(
+            "error"
+            if (not success or llm_error_occurred)
+            else ("generating" if _wants_auto_tts else "ready")
+        )
         if skip_injection_answer_into_app:
-            self._notify("✅ Ask in chat" if mode_id == "answer" else "✅ Ask in Help tab")
+            if llm_error_occurred:
+                self._notify(f"❌ {llm_error_short_msg or 'LLM error'}")
+            else:
+                self._notify("✅ Ask in chat" if mode_id == "answer" else "✅ Ask in Help tab")
         else:
             self._notify("✅ Injected!" if success else "❌ Injection failed")
 

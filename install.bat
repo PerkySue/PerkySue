@@ -382,7 +382,7 @@ if errorlevel 1 echo  [WARNING] Some core packages failed
 
 echo.
 echo  [2/6] Audio processing (sounddevice, webrtcvad, pygame)...
-"%PYTHON_EXE%" -m pip install --no-warn-script-location sounddevice webrtcvad-wheels pygame
+"%PYTHON_EXE%" -m pip install --no-warn-script-location sounddevice PyAudioWPatch webrtcvad-wheels pygame
 if errorlevel 1 echo  [WARNING] Some audio packages failed
 
 echo.

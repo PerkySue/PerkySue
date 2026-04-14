@@ -83,10 +83,10 @@ engines:
       - { tag: "[sigh]", desc: "" }
       - { tag: "[confirmation-en]", desc: "" }
       - { tag: "[question-en]", desc: "" }
-      - { tag: "[question-ah]", desc: "" }
-      - { tag: "[question-oh]", desc: "" }
-      - { tag: "[question-ei]", desc: "" }
-      - { tag: "[question-yi]", desc: "" }
+#      - { tag: "[question-ah]", desc: "" }
+#      - { tag: "[question-oh]", desc: "" }
+#      - { tag: "[question-ei]", desc: "" }
+#      - { tag: "[question-yi]", desc: "" }
       - { tag: "[surprise-ah]", desc: "" }
       - { tag: "[surprise-oh]", desc: "" }
       - { tag: "[surprise-wa]", desc: "" }

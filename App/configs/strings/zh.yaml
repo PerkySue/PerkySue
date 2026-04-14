@@ -196,7 +196,7 @@
       url: ''
     credit: 由 Jérôme Corbiau 创作  ·  Apache 2.0 许可证
 common:
-  window_title: PerkySue — Beta 0.29.1
+  window_title: PerkySue — Beta 0.29.2
   header_banner:
     free_invite: PerkySue Beta — 免费 · 试用 Pro（30 天·免卡）
     free_after_trial: PerkySue Beta — 免费
@@ -341,14 +341,26 @@ settings:
       popularity: 热度
   performance:
     title: 性能设置
+    capture_mode_label: STT 音源
+    capture_mode:
+      mic_only: 麦克风
+      system_only: 系统音频
+      mix: 系统+麦克风
     stt_model: STT 模型
     stt_device: STT 设备
     silence_timeout: 静音超时（秒）
+    vad_sensitivity_label: 语音检测（VAD）
+    vad_sensitivity:
+      quiet_room: 安静环境 / 低音量麦克风
+      normal: 标准
+      noisy: 嘈杂环境 / 高音量
+    vad_sensitivity_tooltip: 控制你停止说话后 PerkySue 多快结束录音。安静环境更敏感（适合较小声麦克风）。嘈杂环境会在噪声下更快结束。
     max_duration: 最长听取时长（秒）
     first_language: 你的主要语言
     llm_model: LLM 模型
     max_input: 最大输入（上下文）
     max_output: 最大输出（token）
+    remember_last_qa: 记住最近问答
     llm_request_timeout: LLM 请求超时（秒）
     clipboard_paste_delay: 剪贴板延迟(秒)
     no_gguf: Data/Models/LLM 中没有 .gguf 文件
@@ -611,8 +623,8 @@ header_alerts:
     processing_stopped: 🛑 处理已停止
     tts_stopped: 🛑 语音播放已停止
     tts_loading: 正在准备语音 — 首次设置进行中...
-    omnivoice_requires_nvidia: OmniVoice requires NVIDIA/CUDA (not available on CPU/Vulkan).
-    tts_install_in_progress: Installation already in progress — please wait.
+    omnivoice_requires_nvidia: OmniVoice 需要 NVIDIA/CUDA（CPU/Vulkan 不可用）。
+    tts_install_in_progress: 安装已在进行中——请稍候。
     ai_disclaimer: ⚠️ AI 的回答可能不准确。请核实事实。
     recording_no_audio: 未捕获到音频 — 录音已停止。检查麦克风。
     recording_too_short: 录音太短 — 未检测到文字。检查麦克风或说长一点。
@@ -637,5 +649,5 @@ header_alerts:
     chat_max_output_reached: ⚠️ 回复被截断：输出限制（{max_output}）已达到。在设置 → 性能中将「最大输出」增加到 {suggested} 或更高。
     chat_empty_reply: — 回复为空。换个说法或查看终端。
     trial_request:
-      newsletter_title: Newsletter preference
-      newsletter_question: Get updates, not spam. We'll only email you when something worth knowing happens — new features, tips & tricks, that's it.
+      newsletter_title: 邮件订阅偏好
+      newsletter_question: 只发有用更新，不发垃圾邮件。只有在有值得知道的新内容时我们才会联系你——新功能、技巧，仅此而已。

@@ -37,6 +37,7 @@ except ImportError:
 
 try:
     from ..paths import Paths
+    from ..utils.audio import BaseAudioCapture
     from ..utils.hotkeys import KEYCODE_TO_NAME, resolve_hotkey_string, format_hotkey_display
     from ..utils.strings import load_strings, merge_strings_at, s, s_list
     from ..utils.skin_paths import (
@@ -52,6 +53,7 @@ try:
 except ImportError:
     sys.path.insert(0, str(Path(__file__).parent.parent.parent))
     from App.paths import Paths
+    from App.utils.audio import BaseAudioCapture
     from App.utils.hotkeys import KEYCODE_TO_NAME, resolve_hotkey_string, format_hotkey_display
     from App.utils.strings import load_strings, merge_strings_at, s, s_list
     from App.utils.skin_paths import (
@@ -1477,7 +1479,7 @@ class PerkySueWidget:
         return ""
 
     def _default_window_title(self) -> str:
-        return s("common.window_title", default="PerkySue — Beta 0.29.1")
+        return s("common.window_title", default="PerkySue — Beta 0.29.2")
 
     def _ui_flag_stem(self) -> str:
         """Which lang-flags/*.png is selected."""
@@ -1661,6 +1663,24 @@ class PerkySueWidget:
         updates = self._collect_settings_updates()
         if not updates:
             return
+        try:
+            cur_keep = int(((self.cfg.get("llm") or {}).get("answer_context_keep", 4)) or 4)
+        except (TypeError, ValueError):
+            cur_keep = 4
+        try:
+            new_keep = int((((updates.get("llm") or {}).get("answer_context_keep", 4)) or 4))
+        except (TypeError, ValueError):
+            new_keep = 4
+        if cur_keep not in (2, 3, 4):
+            cur_keep = 4
+        if new_keep not in (2, 3, 4):
+            new_keep = 4
+        if new_keep != cur_keep:
+            logging.getLogger("perkysue").info(
+                "Settings: Ask keep-last exchanges changed %d -> %d (save & restart).",
+                cur_keep,
+                new_keep,
+            )
         stt_device = ((updates.get("stt") or {}).get("device") or "auto")
         self._save_config(updates)
         self.cfg = self._load_cfg()
@@ -1683,6 +1703,72 @@ class PerkySueWidget:
                 sys.exit(0)
         subprocess.Popen([str(python_exe), str(main_py)], cwd=str(app_root))
         sys.exit(0)
+
+    def _perf_mic_build_option_data(
+        self, audio_cfg: dict
+    ) -> tuple[list[str], dict[str, Optional[int]], str]:
+        """Entrées micro pour Paramètres : (libellés menu, map libellé -> index sounddevice, libellé courant cfg)."""
+        _mic_default_lbl = s("settings.performance.mic_windows_default", default="Windows default microphone")
+        label_to_index: dict[str, Optional[int]] = {_mic_default_lbl: None}
+        mic_sel_opts = [_mic_default_lbl]
+        try:
+            for dev in BaseAudioCapture.list_devices():
+                try:
+                    did = int(dev.get("id", -1))
+                except (TypeError, ValueError):
+                    continue
+                if did < 0:
+                    continue
+                nm = str(dev.get("name") or "?").replace("\n", " ").strip()
+                if len(nm) > 72:
+                    nm = nm[:69] + "…"
+                dfl = " (default)" if dev.get("is_default") else ""
+                # ASCII seulement dans le libellé (CTkOptionMenu / encodages Windows).
+                row_lbl = f"#{did} - {nm}{dfl}"
+                label_to_index[row_lbl] = did
+                mic_sel_opts.append(row_lbl)
+        except Exception as e:
+            logging.getLogger("perkysue").warning("Could not enumerate microphones for Settings: %s", e, exc_info=True)
+
+        mic_cfg_raw = (audio_cfg or {}).get("mic_device")
+        mic_ix: Optional[int] = None
+        if mic_cfg_raw is not None and str(mic_cfg_raw).strip().lower() not in ("", "null", "none"):
+            try:
+                mic_ix = int(float(mic_cfg_raw))
+            except (TypeError, ValueError):
+                mic_ix = None
+        mic_cur_lbl = _mic_default_lbl
+        if mic_ix is not None:
+            found_lbl = None
+            for _k, _v in label_to_index.items():
+                if _v == mic_ix:
+                    found_lbl = _k
+                    break
+            if found_lbl is not None:
+                mic_cur_lbl = found_lbl
+            else:
+                orphan = f"#{mic_ix} - ({s('settings.performance.mic_orphan', default='not in current list')})"
+                label_to_index[orphan] = mic_ix
+                mic_sel_opts.append(orphan)
+                mic_cur_lbl = orphan
+        return mic_sel_opts, label_to_index, mic_cur_lbl
+
+    def _refresh_perf_mic_device_menu(self) -> None:
+        """Re-remplit le menu micro après que Tk / PortAudio soient prêts (corrige liste vide au premier build)."""
+        om = getattr(self, "_perf_mic_device_om", None)
+        var = getattr(self, "_perf_mic_device", None)
+        if om is None or var is None:
+            return
+        try:
+            audio_cfg = (getattr(self, "cfg", None) or {}).get("audio") or {}
+            opts, label_map, preferred = self._perf_mic_build_option_data(audio_cfg)
+            self._perf_mic_label_to_device_index = label_map
+            cur = (var.get() or "").strip()
+            if cur not in opts:
+                var.set(preferred if preferred in opts else opts[0])
+            om.configure(values=opts)
+        except Exception as e:
+            logging.getLogger("perkysue").warning("Mic menu refresh failed: %s", e, exc_info=True)
 
     def _collect_settings_updates(self):
         """Collect normalized Settings payload for config persistence."""
@@ -1708,6 +1794,15 @@ class PerkySueWidget:
         except (ValueError, TypeError, AttributeError):
             req_timeout = 180
         req_timeout = max(120, min(req_timeout, 360))
+        _ack_var = getattr(self, "_perf_answer_context_keep", None)
+        try:
+            answer_context_keep = int(_ack_var.get()) if _ack_var else 4
+        except (ValueError, TypeError, AttributeError):
+            answer_context_keep = 4
+        if answer_context_keep not in (2, 3, 4):
+            answer_context_keep = 4
+        _iamc_var = getattr(self, "_perf_inject_all_modes_chat", None)
+        inject_all_modes_in_chat = bool(_iamc_var and _iamc_var.get() == "On")
         max_in = self._perf_max_input.get().strip()
         n_ctx = 0 if max_in == "Auto" else (int(max_in) if max_in.isdigit() else 0)
         try:
@@ -1718,6 +1813,13 @@ class PerkySueWidget:
             max_duration = float(self._perf_max_duration.get())
         except (ValueError, TypeError, AttributeError):
             max_duration = 120.0
+        _cap_var = getattr(self, "_perf_capture_mode", None)
+        if _cap_var and getattr(self, "_perf_capture_display_to_cfg", None):
+            capture_mode = self._perf_capture_display_to_cfg.get(_cap_var.get(), "mic_only")
+        else:
+            capture_mode = "mic_only"
+        if capture_mode not in ("mic_only", "system_only", "mix"):
+            capture_mode = "mic_only"
         first_lang_raw = getattr(self, "_perf_first_language", None) and self._perf_first_language.get() or "Auto"
         first_lang = first_lang_raw.strip().lower() if first_lang_raw else "auto"
         if first_lang == "auto":
@@ -1743,6 +1845,30 @@ class PerkySueWidget:
             clip_delay = 10
         clip_delay = max(0, min(clip_delay, 60))
         inj_prev["clipboard_restore_delay_sec"] = clip_delay
+        mic_dev_cfg = None
+        _mic_map = getattr(self, "_perf_mic_label_to_device_index", None)
+        _mic_var = getattr(self, "_perf_mic_device", None)
+        if _mic_map is not None and _mic_var is not None:
+            _lbl = (_mic_var.get() or "").strip()
+            if _lbl in _mic_map:
+                mic_dev_cfg = _mic_map[_lbl]
+            elif _lbl.startswith("#"):
+                import re as _re_mic
+
+                _m = _re_mic.match(r"#\s*(\d+)", _lbl)
+                if _m:
+                    try:
+                        mic_dev_cfg = int(_m.group(1))
+                    except ValueError:
+                        mic_dev_cfg = None
+        _vad_var = getattr(self, "_perf_vad_sensitivity", None)
+        _vad_d2c = getattr(self, "_perf_vad_display_to_cfg", None)
+        if _vad_var is not None and _vad_d2c:
+            vad_sensitivity = _vad_d2c.get((_vad_var.get() or "").strip(), "normal")
+        else:
+            vad_sensitivity = "normal"
+        if vad_sensitivity not in ("quiet_room", "normal", "noisy"):
+            vad_sensitivity = "normal"
         out = {
             "stt": {"model": stt_model, "device": stt_device},
             "llm": {
@@ -1752,8 +1878,16 @@ class PerkySueWidget:
                 "request_timeout": req_timeout,
                 "thinking": "on" if think_on else "off",
                 "thinking_budget": thinking_budget,
+                "answer_context_keep": answer_context_keep,
+                "inject_all_modes_in_chat": inject_all_modes_in_chat,
             },
-            "audio": {"silence_timeout": sil_timeout, "max_duration": max_duration},
+            "audio": {
+                "silence_timeout": sil_timeout,
+                "max_duration": max_duration,
+                "capture_mode": capture_mode,
+                "mic_device": mic_dev_cfg,
+                "vad_sensitivity": vad_sensitivity,
+            },
             "identity": ident,
             "injection": inj_prev,
         }
@@ -1767,10 +1901,10 @@ class PerkySueWidget:
         out["feedback"] = fb
         return out
 
-    def _is_llm_only_settings_change(self, updates: dict) -> bool:
-        """True when only LLM settings differ from current config snapshot."""
+    def _settings_change_flags(self, updates: dict) -> Optional[dict]:
+        """Compare les réglages Performance du formulaire à ``self.cfg``. Retourne None si ``updates`` invalide."""
         if not isinstance(updates, dict):
-            return False
+            return None
         cur_stt = self.cfg.get("stt") or {}
         cur_audio = self.cfg.get("audio") or {}
         cur_ident = self.cfg.get("identity") or {}
@@ -1783,11 +1917,42 @@ class PerkySueWidget:
             str(cur_stt.get("model", "")).strip().lower() != str(new_stt.get("model", "")).strip().lower()
             or str(cur_stt.get("device", "auto")).strip().lower() != str(new_stt.get("device", "auto")).strip().lower()
         )
+        def _norm_audio_mic_index(v) -> Optional[int]:
+            if v is None or isinstance(v, bool):
+                return None
+            s = str(v).strip().lower()
+            if s in ("", "null", "none"):
+                return None
+            try:
+                return int(float(v))
+            except (TypeError, ValueError):
+                return None
+
+        def _canon_vad_sensitivity(ad: dict) -> str:
+            vs = ad.get("vad_sensitivity")
+            if isinstance(vs, str):
+                k = vs.strip().lower()
+                if k in ("quiet_room", "normal", "noisy"):
+                    return k
+            va = ad.get("vad_aggressiveness")
+            if va is not None and not isinstance(va, bool):
+                try:
+                    av = max(0, min(3, int(float(va))))
+                except (TypeError, ValueError):
+                    return "normal"
+                return {0: "quiet_room", 1: "quiet_room", 2: "normal", 3: "noisy"}.get(av, "normal")
+            return "normal"
+
         audio_changed = (
             float(cur_audio.get("silence_timeout", 3.0) or 3.0) != float(new_audio.get("silence_timeout", 3.0) or 3.0)
             or float(cur_audio.get("max_duration", 120.0) or 120.0) != float(new_audio.get("max_duration", 120.0) or 120.0)
+            or str(cur_audio.get("capture_mode", "mic_only")).strip().lower()
+            != str(new_audio.get("capture_mode", "mic_only")).strip().lower()
+            or _norm_audio_mic_index(cur_audio.get("mic_device")) != _norm_audio_mic_index(new_audio.get("mic_device"))
+            or _canon_vad_sensitivity(cur_audio) != _canon_vad_sensitivity(new_audio)
         )
         ident_changed = str(cur_ident.get("first_language", "auto")).strip().lower() != str(new_ident.get("first_language", "auto")).strip().lower()
+
         def _llm_max_out_token(llm: dict) -> int:
             v = llm.get("max_output_tokens")
             if v is None:
@@ -1801,6 +1966,12 @@ class PerkySueWidget:
             t = str(llm.get("thinking", "off")).strip().lower()
             return t in ("on", "true", "1", "yes")
 
+        def _llm_inject_all_modes_chat_on(llm: dict) -> bool:
+            v = llm.get("inject_all_modes_in_chat", False)
+            if isinstance(v, str):
+                return v.strip().lower() in ("on", "true", "1", "yes")
+            return bool(v)
+
         def _llm_thinking_budget(llm: dict) -> int:
             try:
                 return int(llm.get("thinking_budget", 512))
@@ -1812,6 +1983,8 @@ class PerkySueWidget:
             or int(cur_llm.get("max_input_tokens", cur_llm.get("n_ctx", 0)) or 0) != int(new_llm.get("max_input_tokens", 0) or 0)
             or _llm_max_out_token(cur_llm) != _llm_max_out_token(new_llm)
             or int(cur_llm.get("request_timeout", 120) or 120) != int(new_llm.get("request_timeout", 120) or 120)
+            or int(cur_llm.get("answer_context_keep", 4) or 4) != int(new_llm.get("answer_context_keep", 4) or 4)
+            or _llm_inject_all_modes_chat_on(cur_llm) != _llm_inject_all_modes_chat_on(new_llm)
             or _llm_thinking_on(cur_llm) != _llm_thinking_on(new_llm)
             or _llm_thinking_budget(cur_llm) != _llm_thinking_budget(new_llm)
         )
@@ -1828,54 +2001,106 @@ class PerkySueWidget:
                 return 5.0
 
         injection_changed = _clip_delay_sec(cur_inj) != _clip_delay_sec(new_inj)
-        return (
-            llm_changed
-            and (not stt_changed)
-            and (not audio_changed)
-            and (not ident_changed)
-            and (not feedback_changed)
-            and (not injection_changed)
-        )
+        return {
+            "stt_changed": stt_changed,
+            "audio_changed": audio_changed,
+            "ident_changed": ident_changed,
+            "llm_changed": llm_changed,
+            "feedback_changed": feedback_changed,
+            "injection_changed": injection_changed,
+        }
 
-    def _on_apply_llm(self):
-        """Save LLM-only settings and hot-reload LLM provider without full restart."""
+    def _is_hot_reload_settings_change(self, updates: dict) -> bool:
+        """True si seuls LLM et/ou audio (Performance) changent — bouton Update sans redémarrage."""
+        flags = self._settings_change_flags(updates)
+        if not flags:
+            return False
+        if (
+            flags["stt_changed"]
+            or flags["ident_changed"]
+            or flags["injection_changed"]
+            or flags["feedback_changed"]
+        ):
+            return False
+        return bool(flags["llm_changed"] or flags["audio_changed"])
+
+    def _on_apply_hot_reload(self):
+        """Enregistre LLM et/ou audio, recharge runtime sans redémarrage complet."""
         updates = self._collect_settings_updates()
         if not updates:
             return
-        llm_updates = {"llm": dict((updates.get("llm") or {}))}
-        if isinstance(updates.get("feedback"), dict):
-            llm_updates["feedback"] = dict(updates["feedback"])
-        self._save_config(llm_updates)
-        # Keep GUI snapshot coherent immediately.
-        if "llm" not in self.cfg:
-            self.cfg["llm"] = {}
-        self.cfg["llm"].update(llm_updates["llm"])
-        if isinstance(llm_updates.get("feedback"), dict):
-            self.cfg.setdefault("feedback", {}).update(llm_updates["feedback"])
+        try:
+            cur_keep = int(((self.cfg.get("llm") or {}).get("answer_context_keep", 4)) or 4)
+        except (TypeError, ValueError):
+            cur_keep = 4
+        try:
+            new_keep = int((((updates.get("llm") or {}).get("answer_context_keep", 4)) or 4))
+        except (TypeError, ValueError):
+            new_keep = 4
+        if cur_keep not in (2, 3, 4):
+            cur_keep = 4
+        if new_keep not in (2, 3, 4):
+            new_keep = 4
+        flags = self._settings_change_flags(updates)
+        if not flags or not self._is_hot_reload_settings_change(updates):
+            return
+        patch: dict = {}
+        if flags["llm_changed"]:
+            patch["llm"] = dict((updates.get("llm") or {}))
+            if isinstance(updates.get("feedback"), dict):
+                patch["feedback"] = dict(updates["feedback"])
+        if flags["audio_changed"]:
+            patch["audio"] = dict((updates.get("audio") or {}))
+        if not patch:
+            return
+        self._save_config(patch)
+        if "llm" in patch:
+            if "llm" not in self.cfg:
+                self.cfg["llm"] = {}
+            self.cfg["llm"].update(patch["llm"])
+            if new_keep != cur_keep:
+                logging.getLogger("perkysue").info(
+                    "Settings: Ask keep-last exchanges changed %d -> %d (apply now).",
+                    cur_keep,
+                    new_keep,
+                )
+        if isinstance(patch.get("feedback"), dict):
+            self.cfg.setdefault("feedback", {}).update(patch["feedback"])
             try:
                 if getattr(self, "orch", None):
-                    self.orch.config.setdefault("feedback", {}).update(llm_updates["feedback"])
+                    self.orch.config.setdefault("feedback", {}).update(patch["feedback"])
             except Exception:
                 pass
-        ok = False
-        msg = "Apply LLM failed."
+        if "audio" in patch:
+            self.cfg.setdefault("audio", {}).update(patch["audio"])
+
+        ok_all = True
+        msgs: list[str] = []
+        orch = getattr(self, "orch", None)
         try:
-            if getattr(self, "orch", None) and hasattr(self.orch, "reload_llm_runtime"):
-                ok, msg = self.orch.reload_llm_runtime()
+            if flags["llm_changed"] and orch and hasattr(orch, "reload_llm_runtime"):
+                ok, msg = orch.reload_llm_runtime()
+                ok_all = ok_all and ok
+                msgs.append(msg)
+            if flags["audio_changed"] and orch and hasattr(orch, "reload_audio_capture"):
+                ok, msg = orch.reload_audio_capture()
+                ok_all = ok_all and ok
+                msgs.append(msg)
         except Exception as e:
-            ok, msg = False, f"Apply LLM failed: {e}"
-        if ok:
+            ok_all = False
+            msgs.append(str(e))
+        if ok_all:
             try:
                 self._refresh_console_pipeline_status()
             except Exception:
                 pass
-            self._notify(msg, restore_after_ms=2500)
+            self._notify(" · ".join(m for m in msgs if m), restore_after_ms=2500)
             try:
                 self._save_frame.pack_forget()
             except Exception:
                 pass
         else:
-            self._notify(msg, restore_after_ms=4500, blink_times=3, blink_on_ms=300, blink_off_ms=300)
+            self._notify(" · ".join(m for m in msgs if m), restore_after_ms=4500, blink_times=3, blink_on_ms=300, blink_off_ms=300)
 
     def _setup_log(self):
         h = QueueHandler(self.log_q)
@@ -2210,6 +2435,7 @@ class PerkySueWidget:
             "run_test_timeout_hint": "→ The model did not finish in time. In Settings → Performance, set LLM request timeout to 240–360 seconds on slower PCs or very long system prompts.",
             "document_injection": {
                 "llm_error_400": "LLM error (400) — context too large? Increase Max input (context) in Settings.",
+                "llm_error_connection": "LLM server connection lost (process may have crashed or closed). Not a context limit — try again or restart PerkySue.",
                 "llm_error_generic": "LLM error — check console. Increase Max input (context) in Settings.",
                 "max_input_reached": "⚠️ Max input token limit reached — history was reduced. Consider Settings → Max input and your system's capacity.\n\n",
                 "chat_max_input_reached": "⚠️ You've reached the max input (context) limit ({max_input}). Try increasing 'Max input' in Settings → Performance to {suggested} or higher.",
@@ -6573,7 +6799,19 @@ class PerkySueWidget:
                 total_chars = sum(len((e.get("q") or "") + (e.get("a") or "")) for e in history)
                 approx_tokens = max(0, total_chars // 4)
                 current = approx_tokens  # afficher le compte réel (peut dépasser max_ctx)
-            self._chat_token_lbl.configure(text=f"{max_ctx} ctx: {current}/{max_ctx}")
+            keep_last = 4
+            try:
+                if getattr(self, "orch", None):
+                    keep_last = int(
+                        ((getattr(self.orch, "config", {}) or {}).get("llm", {}) or {}).get("answer_context_keep", 4)
+                    )
+                else:
+                    keep_last = int(((self.cfg.get("llm") or {}).get("answer_context_keep", 4)) or 4)
+            except (TypeError, ValueError):
+                keep_last = 4
+            if keep_last not in (2, 3, 4):
+                keep_last = 4
+            self._chat_token_lbl.configure(text=f"{max_ctx} ctx: {current}/{max_ctx} · Q/A:{keep_last}")
 
             # Always show scrollable area (welcome + optional history)
             self._chat_messages_placeholder.grid_remove()
@@ -11293,8 +11531,40 @@ class PerkySueWidget:
         max_tokens_opts = ["Auto", "256", "512", "1024", "2048", "4096", "8192"]
         if self._perf_max_tokens.get() not in max_tokens_opts:
             self._perf_max_tokens.set("2048")
-        # Silence timeout (seconds before auto-stop on silence)
+        _ctx_keep_cfg = llm_cfg.get("answer_context_keep", 4)
+        try:
+            _ctx_keep_int = int(_ctx_keep_cfg)
+        except (TypeError, ValueError):
+            _ctx_keep_int = 4
+        if _ctx_keep_int not in (2, 3, 4):
+            _ctx_keep_int = 4
+        self._perf_answer_context_keep = tk.StringVar(value=str(_ctx_keep_int))
+        answer_context_keep_opts = ["2", "3", "4"]
+        _answer_ctx_keep_disabled = not bool(self.orch.is_effective_pro()) if getattr(self, "orch", None) and hasattr(self.orch, "is_effective_pro") else True
+        _inject_all_modes_cfg = llm_cfg.get("inject_all_modes_in_chat", False)
+        if isinstance(_inject_all_modes_cfg, str):
+            _inject_all_modes_on = _inject_all_modes_cfg.strip().lower() in ("1", "true", "yes", "on")
+        else:
+            _inject_all_modes_on = bool(_inject_all_modes_cfg)
+        self._perf_inject_all_modes_chat = tk.StringVar(value="On" if _inject_all_modes_on else "Off")
+        _inject_all_modes_disabled = not bool(self.orch.is_effective_pro()) if getattr(self, "orch", None) and hasattr(self.orch, "is_effective_pro") else True
         audio_cfg = self.cfg.get("audio") or {}
+        # Audio envoyé à l'écoute / au STT (mic / loopback PC / mix) — audio.capture_mode
+        _cap_raw = str(audio_cfg.get("capture_mode") or "mic_only").strip().lower()
+        if _cap_raw not in ("mic_only", "system_only", "mix"):
+            _cap_raw = "mic_only"
+        _lbl_mic = s("settings.performance.capture_mode.mic_only", default="Microphone")
+        _lbl_sys = s("settings.performance.capture_mode.system_only", default="System audio")
+        _lbl_mix = s("settings.performance.capture_mode.mix", default="System + Mic")
+        self._perf_capture_labels = (_lbl_mic, _lbl_sys, _lbl_mix)
+        self._perf_capture_cfg_order = ("mic_only", "system_only", "mix")
+        self._perf_capture_display_to_cfg = dict(zip(self._perf_capture_labels, self._perf_capture_cfg_order))
+        self._perf_capture_cfg_to_display = {v: k for k, v in self._perf_capture_display_to_cfg.items()}
+        self._perf_capture_mode = tk.StringVar(value=self._perf_capture_cfg_to_display.get(_cap_raw, _lbl_mic))
+        capture_opts = list(self._perf_capture_labels)
+        mic_sel_opts, self._perf_mic_label_to_device_index, mic_cur_lbl = self._perf_mic_build_option_data(audio_cfg)
+        self._perf_mic_device = tk.StringVar(value=mic_cur_lbl)
+        # Silence timeout (seconds before auto-stop on silence)
         sil_cfg = audio_cfg.get("silence_timeout", 2.0)
         try:
             sil_val = f"{float(sil_cfg):.1f}"
@@ -11304,6 +11574,35 @@ class PerkySueWidget:
         if sil_val not in silence_opts:
             sil_val = "3.0"
         self._perf_silence_timeout = tk.StringVar(value=sil_val)
+        # VAD sensitivity preset (audio.vad_sensitivity) — quiet_room | normal | noisy
+        _lbl_vq = s("settings.performance.vad_sensitivity.quiet_room", default="Quiet room / Low mic")
+        _lbl_vn = s("settings.performance.vad_sensitivity.normal", default="Normal")
+        _lbl_vy = s("settings.performance.vad_sensitivity.noisy", default="Noisy / Loud environment")
+        self._perf_vad_labels = (_lbl_vq, _lbl_vn, _lbl_vy)
+        self._perf_vad_cfg_order = ("quiet_room", "normal", "noisy")
+        self._perf_vad_display_to_cfg = dict(zip(self._perf_vad_labels, self._perf_vad_cfg_order))
+        self._perf_vad_cfg_to_display = {v: k for k, v in self._perf_vad_display_to_cfg.items()}
+
+        def _initial_vad_cfg_key(ac: dict) -> str:
+            vs = ac.get("vad_sensitivity")
+            if isinstance(vs, str):
+                k = vs.strip().lower()
+                if k in self._perf_vad_cfg_order:
+                    return k
+            va = ac.get("vad_aggressiveness")
+            if va is not None and not isinstance(va, bool):
+                try:
+                    av = max(0, min(3, int(float(va))))
+                except (TypeError, ValueError):
+                    return "normal"
+                return {0: "quiet_room", 1: "quiet_room", 2: "normal", 3: "noisy"}.get(av, "normal")
+            return "normal"
+
+        _vad_cfg_key = _initial_vad_cfg_key(audio_cfg)
+        self._perf_vad_sensitivity = tk.StringVar(
+            value=self._perf_vad_cfg_to_display.get(_vad_cfg_key, _lbl_vn)
+        )
+        vad_sensitivity_opts = list(self._perf_vad_labels)
         # Max recording duration (seconds before hard stop)
         max_dur_cfg = audio_cfg.get("max_duration")
         if max_dur_cfg is not None:
@@ -11325,9 +11624,16 @@ class PerkySueWidget:
                     max_dur_val = "120"
                 else:
                     max_dur_val = "90"
-        max_duration_opts = ["60", "90", "120", "180", "240"]
+        # Hard cap for one-shot RAM capture + single-pass STT; raise with care on low-RAM machines.
+        max_duration_opts = ["60", "90", "120", "180", "240", "300", "360", "480", "600", "900"]
         if max_dur_val not in max_duration_opts:
-            max_dur_val = "120"
+            try:
+                v = int(float(max_dur_val))
+                v = max(60, min(900, v))
+                ints = [int(x) for x in max_duration_opts]
+                max_dur_val = str(min(ints, key=lambda t: abs(t - v)))
+            except (TypeError, ValueError):
+                max_dur_val = "120"
         self._perf_max_duration = tk.StringVar(value=max_dur_val)
         # LLM HTTP request timeout (llama-server / long generations) — merged config preferred
         _llm_merged = (getattr(self.orch, "config", None) or {}).get("llm") if getattr(self, "orch", None) else None
@@ -11363,13 +11669,48 @@ class PerkySueWidget:
             llm_files = [current_llm] + [f for f in llm_files if f != current_llm]
         stt_opts = [m.capitalize() for m in stt_models]
         perf_rows = [
+            (
+                s("settings.performance.capture_mode_label", default="STT source"),
+                "🎧",
+                self._perf_capture_mode,
+                capture_opts,
+                False,
+            ),
+            (
+                s("settings.performance.mic_select", default="Microphone input"),
+                "🎚️",
+                self._perf_mic_device,
+                mic_sel_opts,
+                False,
+            ),
             (s("settings.performance.silence_timeout"), "🎙️", self._perf_silence_timeout, silence_opts, False),
+            (
+                s("settings.performance.vad_sensitivity_label", default="Voice detection"),
+                "🗣️",
+                self._perf_vad_sensitivity,
+                vad_sensitivity_opts,
+                False,
+            ),
             (s("settings.performance.max_duration"), "⏱️", self._perf_max_duration, max_duration_opts, False),
             (s("settings.performance.stt_model"), "🎤", self._perf_stt, stt_opts, False),
             (s("settings.performance.stt_device"), "🖥️", self._perf_stt_device, stt_device_opts, not self._is_nvidia_stt),
             (s("settings.performance.llm_model"), "📦", self._perf_llm, llm_files if llm_files else [s("settings.performance.no_gguf")], False),
             (s("settings.performance.max_input"), "📥", self._perf_max_input, max_input_opts, False),
             (s("settings.performance.max_output"), "🔢", self._perf_max_tokens, max_tokens_opts, False),
+            (
+                s("settings.performance.remember_last_qa", default="Remember last Q/A"),
+                "🧩",
+                self._perf_answer_context_keep,
+                answer_context_keep_opts,
+                _answer_ctx_keep_disabled,
+            ),
+            (
+                s("settings.performance.inject_all_modes_chat", default="Inject all modes in chat"),
+                "💬",
+                self._perf_inject_all_modes_chat,
+                ["Off", "On"],
+                _inject_all_modes_disabled,
+            ),
             (s("settings.performance.llm_request_timeout"), "⏲️", self._perf_llm_request_timeout, timeout_opts, False),
         ]
         for label, icon_emoji, var, options, disabled in perf_rows:
@@ -11378,13 +11719,26 @@ class PerkySueWidget:
             icon_padx = (0, 10)  # uniforme pour aligner toutes les icônes (STT Device avait 6px de plus)
             CTkLabel(row_f, text=icon_emoji, font=("Segoe UI", 14), text_color=TXT2, width=32).pack(side="left", padx=icon_padx)
             CTkLabel(row_f, text=label, font=("Segoe UI", 14), text_color=TXT).pack(side="left", padx=(0, 12))
-            om = CTkOptionMenu(row_f, variable=var, values=options, width=220, font=("Segoe UI", 13), fg_color=INPUT, button_color=SIDEBAR, button_hover_color=SEL_BG)
+            _om_w = 340 if var is self._perf_mic_device or var is self._perf_vad_sensitivity else 220
+            om = CTkOptionMenu(
+                row_f, variable=var, values=options, width=_om_w, font=("Segoe UI", 13),
+                fg_color=INPUT, button_color=SIDEBAR, button_hover_color=SEL_BG,
+            )
             om.pack(side="right")
             if var is self._perf_llm:
                 # Keep a direct reference so LLM choices can be refreshed from disk without restart when needed.
                 self._perf_llm_om = om
+            if var is self._perf_mic_device:
+                self._perf_mic_device_om = om
             if disabled:
                 om.configure(state="disabled")
+        try:
+            _rt = getattr(self, "root", None)
+            if _rt is not None:
+                _rt.after(200, self._refresh_perf_mic_device_menu)
+                _rt.after(1200, self._refresh_perf_mic_device_menu)
+        except Exception:
+            pass
         # Thinking: Off/On + budget (llama-server)
         _thinking_allow_opts = ["Off", "On"]
 
@@ -11455,13 +11809,18 @@ class PerkySueWidget:
             self._perf_llm.set("")
         # Afficher Save & Restart dès qu’un réglage Performance change (STT, LLM, Max tokens, timeouts, etc.)
         for var in (
+            self._perf_capture_mode,
+            self._perf_mic_device,
             self._perf_stt,
             self._perf_stt_device,
             self._perf_first_language,
             self._perf_llm,
             self._perf_max_input,
             self._perf_max_tokens,
+            self._perf_answer_context_keep,
+            self._perf_inject_all_modes_chat,
             self._perf_silence_timeout,
+            self._perf_vad_sensitivity,
             self._perf_max_duration,
             self._perf_llm_request_timeout,
             self._perf_thinking_budget,
@@ -12061,10 +12420,10 @@ class PerkySueWidget:
         """
         try:
             updates = self._collect_settings_updates()
-            if self._is_llm_only_settings_change(updates):
+            if self._is_hot_reload_settings_change(updates):
                 self._save_btn.configure(
                     text=s("settings.update_button", default="Update"),
-                    command=self._on_apply_llm,
+                    command=self._on_apply_hot_reload,
                 )
                 self._save_note.configure(
                     text=s("settings.update_note", default="Apply now (no restart)")

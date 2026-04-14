@@ -196,7 +196,7 @@
       url: ''
     credit: '제작: Jérôme Corbiau  ·  Apache 2.0 라이선스'
 common:
-  window_title: PerkySue — Beta 0.29.1
+  window_title: PerkySue — Beta 0.29.2
   header_banner:
     free_invite: PerkySue Beta — 무료 · Pro 체험(30일·카드 없음)
     free_after_trial: PerkySue Beta — 무료
@@ -341,14 +341,26 @@ settings:
       popularity: 인기도
   performance:
     title: 성능 설정
+    capture_mode_label: STT 소스
+    capture_mode:
+      mic_only: 마이크
+      system_only: 시스템 오디오
+      mix: 시스템+마이크
     stt_model: STT 모델
     stt_device: STT 장치
     silence_timeout: 무음 타임아웃 (초)
+    vad_sensitivity_label: 음성 감지 (VAD)
+    vad_sensitivity:
+      quiet_room: 조용한 환경 / 낮은 마이크
+      normal: Normal
+      noisy: 시끄러운 환경 / 높은 소음
+    vad_sensitivity_tooltip: 말을 멈춘 뒤 PerkySue가 녹음을 얼마나 빨리 종료할지 조절합니다. 조용한 환경은 더 민감해 작은 마이크에 좋고, 시끄러운 환경은 소음 속에서 더 빨리 종료합니다.
     max_duration: 최대 듣기 시간 (초)
     first_language: 주 사용 언어
     llm_model: LLM 모델
     max_input: 최대 입력 (컨텍스트)
     max_output: 최대 출력 (토큰)
+    remember_last_qa: 최근 Q/A 기억
     llm_request_timeout: LLM 요청 타임아웃 (초)
     clipboard_paste_delay: 클립보드 지연(초)
     no_gguf: Data/Models/LLM에 .gguf 없음
@@ -611,8 +623,8 @@ header_alerts:
     processing_stopped: 🛑 처리 중지됨
     tts_stopped: 🛑 음성 출력 중지됨
     tts_loading: 음성 준비 중 — 초기 설정 중...
-    omnivoice_requires_nvidia: OmniVoice requires NVIDIA/CUDA (not available on CPU/Vulkan).
-    tts_install_in_progress: Installation already in progress — please wait.
+    omnivoice_requires_nvidia: OmniVoice는 NVIDIA/CUDA가 필요합니다 (CPU/Vulkan에서는 사용할 수 없음).
+    tts_install_in_progress: 설치가 이미 진행 중입니다 — 잠시만 기다려 주세요.
     ai_disclaimer: ⚠️ AI 답변은 부정확할 수 있습니다. 사실을 확인하세요.
     recording_no_audio: 오디오가 캡처되지 않았다 — 녹음 중지 또는 마이크 확인.
     recording_too_short: 녹음이 너무 짧다 — 텍스트 없음. 마이크 확인 또는 더 길게 말하기.
@@ -637,5 +649,5 @@ header_alerts:
     chat_max_output_reached: '⚠️ 응답이 잘렸다: 최대 출력 한도 ({max_output}) 도달. 설정 → 성능에서 ''최대 출력''을 {suggested} 이상으로 늘려보자.'
     chat_empty_reply: — 응답이 비었다. 다시 말해보거나 콘솔 확인.
     trial_request:
-      newsletter_title: Newsletter preference
-      newsletter_question: Get updates, not spam. We'll only email you when something worth knowing happens — new features, tips & tricks, that's it.
+      newsletter_title: 뉴스레터 설정
+      newsletter_question: 스팸 없이 필요한 소식만 보내드립니다. 새 기능이나 유용한 팁처럼 꼭 알려드릴 내용이 있을 때만 메일을 보냅니다.

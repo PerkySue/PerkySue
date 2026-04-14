@@ -196,7 +196,7 @@
       url: ''
     credit: Dibuat oleh Jérôme Corbiau  ·  Lisensi Apache 2.0
 common:
-  window_title: PerkySue — Beta 0.29.1
+  window_title: PerkySue — Beta 0.29.2
   header_banner:
     free_invite: PerkySue Beta — Gratis · Coba Pro (30 hari, tanpa kartu)
     free_after_trial: PerkySue Beta — Gratis
@@ -341,14 +341,26 @@ settings:
       popularity: Popularitas
   performance:
     title: Pengaturan Performa
+    capture_mode_label: Sumber STT
+    capture_mode:
+      mic_only: Mikrofon
+      system_only: Audio sistem
+      mix: Sistem + mikrofon
     stt_model: Model STT
     stt_device: Perangkat STT
     silence_timeout: Timeout Senyap (dtk)
+    vad_sensitivity_label: Deteksi suara (VAD)
+    vad_sensitivity:
+      quiet_room: Ruangan tenang / Mic rendah
+      normal: Normal
+      noisy: Bising / Lingkungan keras
+    vad_sensitivity_tooltip: Mengatur seberapa cepat PerkySue menghentikan rekaman setelah Anda berhenti berbicara. Ruangan tenang lebih sensitif (cocok untuk mic pelan). Mode bising memotong lebih cepat di lingkungan ramai.
     max_duration: Durasi rekam maks (dtk)
     first_language: Bahasa Utamamu
     llm_model: Model LLM
     max_input: Input maks (konteks)
     max_output: Output maks (token)
+    remember_last_qa: Ingat T/J terakhir
     llm_request_timeout: Timeout permintaan LLM (dtk)
     clipboard_paste_delay: Jeda clipboard (d)
     no_gguf: Tidak ada .gguf di Data/Models/LLM
@@ -611,8 +623,8 @@ header_alerts:
     processing_stopped: 🛑 Pemrosesan dihentikan
     tts_stopped: 🛑 Output suara dihentikan
     tts_loading: Menyiapkan suara — penyiapan awal sedang berlangsung...
-    omnivoice_requires_nvidia: OmniVoice requires NVIDIA/CUDA (not available on CPU/Vulkan).
-    tts_install_in_progress: Installation already in progress — please wait.
+    omnivoice_requires_nvidia: OmniVoice memerlukan NVIDIA/CUDA (tidak tersedia di CPU/Vulkan).
+    tts_install_in_progress: Instalasi sudah berjalan — mohon tunggu.
     ai_disclaimer: ⚠️ Jawaban AI bisa tidak akurat. Periksa faktanya.
     recording_no_audio: Audio tidak tertangkap — rekaman dihentikan atau cek mikrofon.
     recording_too_short: Rekaman terlalu singkat — tidak ada teks. Cek mikrofon atau bicara lebih lama.
@@ -637,5 +649,5 @@ header_alerts:
     chat_max_output_reached: '⚠️ Balasan terpotong: batas output maks ({max_output}) tercapai. Naikkan ''Output maks'' di Pengaturan → Performa ke {suggested} atau lebih.'
     chat_empty_reply: — Balasan kosong. Coba ulangi pertanyaan atau cek console.
     trial_request:
-      newsletter_title: Newsletter preference
-      newsletter_question: Get updates, not spam. We'll only email you when something worth knowing happens — new features, tips & tricks, that's it.
+      newsletter_title: Preferensi newsletter
+      newsletter_question: Dapatkan update, bukan spam. Kami hanya akan mengirim email saat ada hal penting — fitur baru, tips & trik, itu saja.

@@ -1,6 +1,6 @@
 # PerkySue KB 2048 (compact)
 
-PerkySue = portable Windows voice-to-text app. Whisper STT + local LLM: your voice and prompts run on-device (not sent to PerkySue for dictation). Pro trial/subscription (when live) uses email/Stripe for billing only — see PRIVACY.md. Pro can inject text into other apps and can also speak replies (Voice tab TTS: Chatterbox/OmniVoice). GPU TTS needs CUDA PyTorch — install from Voice or cu128/cu124 .bat, then **full restart**. **OmniVoice Win:** FFmpeg shared DLLs in **Python/** or **Data/Tools/ffmpeg-shared/bin/** (`install_ffmpeg_shared_windows.bat`); optional **voice_sample.txt** next to **voice_ref.wav** or **audios/voice_sample/voice_sample.wav** for OmniVoice transcript. Apache 2.0. Beta 0.29.1. Chat/Help UI refresh; **generating**/**speaking**; avatar ring audio-reactive; TTS Markdown strip. Alt+Q stops TTS when speaking/loading. In-app updates run a post-update runtime check; if critical mismatch is detected, PerkySue may auto-run `install.bat` then ask to relaunch. TTS model policy is deterministic via release spec (`App/configs/model_registry.yaml`) + local registry (`Data/Models/TTS/registry.json`). Name nod: desert wildflower nickname “Perky Sue”.
+PerkySue = portable Windows voice-to-text app. Whisper STT + local LLM: your voice and prompts run on-device (not sent to PerkySue for dictation). Pro trial/subscription (when live) uses email/Stripe for billing only — see PRIVACY.md. Pro can inject text into other apps and can also speak replies (Voice tab TTS: Chatterbox/OmniVoice). GPU TTS needs CUDA PyTorch — install from Voice or cu128/cu124 .bat, then **full restart**. **OmniVoice Win:** FFmpeg shared DLLs in **Python/** or **Data/Tools/ffmpeg-shared/bin/** (`install_ffmpeg_shared_windows.bat`); optional **voice_sample.txt** next to **voice_ref.wav** or **audios/voice_sample/voice_sample.wav** for OmniVoice transcript. Apache 2.0. Beta 0.29.2. Chat/Help UI refresh; **generating**/**speaking**; avatar ring audio-reactive; TTS Markdown strip. Alt+Q stops TTS when speaking/loading. In-app updates run a post-update runtime check; if critical mismatch is detected, PerkySue may auto-run `install.bat` then ask to relaunch. TTS model policy is deterministic via release spec (`App/configs/model_registry.yaml`) + local registry (`Data/Models/TTS/registry.json`). Name nod: desert wildflower nickname “Perky Sue”.
 Use this to answer user questions about PerkySue (Alt+H, you!). You also receive current app parameters (STT model, LLM model, max input/output, etc.); use them to give setting-aware answers. Be friendly, keep it casual. Like you're explaining to a buddy.
 
 
@@ -20,10 +20,13 @@ Pricing: Free = forever. Pro = 30-day trial once per email, then $9.90/mo Stripe
 
 - Max input (context): 1024, 2048, 4096, 8192, 16384, Auto
 - Max output: 256, 512, 1024, 2048, 4096, 8192
+- Ask memory (Pro): Remember last Q/A = 2, 3, 4 (default 2)
+- Inject all modes in chat (Pro): Off/On (default On)
 - STT model: tiny, base, small, medium, large-v3
 - STT device: auto, cpu, cuda (NVIDIA only)
 - Whisper keywords: Free=3, Pro=10, Enterprise=unlimited
 - **Clipboard paste delay (Performance):** after auto-paste, **Ctrl+V** can still paste the PerkySue result for N seconds (default **5**); then old clipboard restores unless user copied something else. **0** = immediate restore. **Alt+R** = paste the **latest finalized result** again anytime this session (Shortcuts); not Help mode.
+- New-install defaults (0.29.2): Max input 4096, Max output 4096, Remember last Q/A 2, Inject all modes in chat On.
 
 ## Common issues
 

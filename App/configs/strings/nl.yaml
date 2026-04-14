@@ -196,7 +196,7 @@
       url: ''
     credit: Gemaakt door Jérôme Corbiau  ·  Apache 2.0-licentie
 common:
-  window_title: PerkySue — Beta 0.29.1
+  window_title: PerkySue — Beta 0.29.2
   header_banner:
     free_invite: PerkySue Beta — Gratis · Pro proberen (30 dgn · geen kaart)
     free_after_trial: PerkySue Beta — Gratis
@@ -341,14 +341,26 @@ settings:
       popularity: Populariteit
   performance:
     title: Prestatie-instellingen
+    capture_mode_label: STT-bron
+    capture_mode:
+      mic_only: Microfoon
+      system_only: Systeemaudio
+      mix: Systeem + microfoon
     stt_model: STT-model
     stt_device: STT-apparaat
     silence_timeout: Stiltetime-out (s)
+    vad_sensitivity_label: Spraakdetectie (VAD)
+    vad_sensitivity:
+      quiet_room: Stille ruimte / Zachte microfoon
+      normal: Normal
+      noisy: Luidruchtig / Harde omgeving
+    vad_sensitivity_tooltip: Bepaalt hoe snel PerkySue stopt met opnemen nadat je stopt met praten. Stille ruimte is gevoeliger (goed voor zachte microfoons). Luidruchtig stopt sneller in drukke omgevingen.
     max_duration: Max. luisterduur (s)
     first_language: Jouw hoofdtaal
     llm_model: LLM-model
     max_input: Max. invoer (context)
     max_output: Max. uitvoer (tokens)
+    remember_last_qa: Laatste V/A onth.
     llm_request_timeout: LLM-verzoektime-out (s)
     clipboard_paste_delay: Klembord-delay (s)
     no_gguf: Geen .gguf in Data/Models/LLM
@@ -611,8 +623,8 @@ header_alerts:
     processing_stopped: 🛑 Verwerking gestopt
     tts_stopped: 🛑 Stemuitvoer gestopt
     tts_loading: Stem wordt voorbereid — eerste configuratie bezig...
-    omnivoice_requires_nvidia: OmniVoice requires NVIDIA/CUDA (not available on CPU/Vulkan).
-    tts_install_in_progress: Installation already in progress — please wait.
+    omnivoice_requires_nvidia: OmniVoice vereist NVIDIA/CUDA (niet beschikbaar op CPU/Vulkan).
+    tts_install_in_progress: Installatie is al bezig — even geduld.
     ai_disclaimer: ⚠️ AI-antwoorden kunnen onjuist zijn. Controleer de feiten.
     recording_no_audio: Geen audio vastgelegd — opname gestopt. Controleer de microfoon.
     recording_too_short: Opname te kort — geen tekst gevonden. Controleer de microfoon of spreek langer.
@@ -637,5 +649,5 @@ header_alerts:
     chat_max_output_reached: '⚠️ Antwoord afgekapt: max. uitvoerlimiet ({max_output}) bereikt. Verhoog Max. uitvoer in Instellingen → Prestaties naar {suggested} of hoger.'
     chat_empty_reply: — Leeg antwoord. Probeer anders te formuleren of check de console.
     trial_request:
-      newsletter_title: Newsletter preference
-      newsletter_question: Get updates, not spam. We'll only email you when something worth knowing happens — new features, tips & tricks, that's it.
+      newsletter_title: Nieuwsbriefvoorkeur
+      newsletter_question: Ontvang updates, geen spam. We mailen je alleen als er echt iets nuttigs is — nieuwe functies, tips & trucs.

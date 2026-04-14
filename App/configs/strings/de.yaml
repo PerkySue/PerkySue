@@ -196,7 +196,7 @@
       url: ''
     credit: Erstellt von Jérôme Corbiau  ·  Lizenz Apache 2.0
 common:
-  window_title: PerkySue — Beta 0.29.1
+  window_title: PerkySue — Beta 0.29.2
   header_banner:
     free_invite: PerkySue Beta — Gratis · Pro testen (30 T. · ohne Karte)
     free_after_trial: PerkySue Beta — Gratis
@@ -341,14 +341,26 @@ settings:
       popularity: Beliebtheit
   performance:
     title: Performance-Einstellungen
+    capture_mode_label: STT-Quelle
+    capture_mode:
+      mic_only: Mikrofon
+      system_only: Systemaudio
+      mix: System + Mikro
     stt_model: STT-Modell
     stt_device: STT-Gerät
     silence_timeout: Stille-Timeout (s)
+    vad_sensitivity_label: Spracherkennung (VAD)
+    vad_sensitivity:
+      quiet_room: Ruhiger Raum / Leises Mikro
+      normal: Normal
+      noisy: Laut / Geräuschvolle Umgebung
+    vad_sensitivity_tooltip: Steuert, wie schnell PerkySue die Aufnahme stoppt, nachdem du aufgehört hast zu sprechen. Ruhiger Raum ist empfindlicher (gut für leise Mikrofone). Laut stoppt schneller in geräuschvollen Umgebungen.
     max_duration: Max. Zuhördauer (s)
     first_language: Deine Hauptsprache
     llm_model: LLM-Modell
     max_input: Max. Eingabe (Kontext)
     max_output: Max. Ausgabe (Tokens)
+    remember_last_qa: Letzte F/A merken
     llm_request_timeout: LLM-Anfrage-Timeout (s)
     clipboard_paste_delay: Puffer-Delay (s)
     no_gguf: Keine .gguf in Data/Models/LLM
@@ -611,8 +623,8 @@ header_alerts:
     processing_stopped: 🛑 Verarbeitung gestoppt
     tts_stopped: 🛑 Sprachausgabe gestoppt
     tts_loading: Stimme wird vorbereitet — Ersteinrichtung läuft...
-    omnivoice_requires_nvidia: OmniVoice requires NVIDIA/CUDA (not available on CPU/Vulkan).
-    tts_install_in_progress: Installation already in progress — please wait.
+    omnivoice_requires_nvidia: OmniVoice benötigt NVIDIA/CUDA (auf CPU/Vulkan nicht verfügbar).
+    tts_install_in_progress: Installation läuft bereits — bitte warten.
     ai_disclaimer: ⚠️ KI-Antworten können ungenau sein. Bitte Fakten prüfen.
     recording_no_audio: Kein Audio aufgenommen — Aufnahme gestoppt oder Mikro prüfen.
     recording_too_short: Aufnahme zu kurz — kein Text erkannt. Mikro prüfen oder länger sprechen.
@@ -637,5 +649,5 @@ header_alerts:
     chat_max_output_reached: '⚠️ Antwort wurde abgeschnitten: Max. Ausgabe-Limit ({max_output}) erreicht. ''Max. Ausgabe'' in Einstellungen → Performance auf {suggested} oder höher erhöhen.'
     chat_empty_reply: — Antwort war leer. Neu formulieren oder Konsole prüfen.
     trial_request:
-      newsletter_title: Newsletter preference
-      newsletter_question: Get updates, not spam. We'll only email you when something worth knowing happens — new features, tips & tricks, that's it.
+      newsletter_title: Newsletter-Präferenz
+      newsletter_question: Updates statt Spam. Wir schreiben dir nur, wenn es wirklich etwas Neues gibt — neue Funktionen, Tipps & Tricks, mehr nicht.

@@ -196,7 +196,7 @@
       url: ''
     credit: Created by Jérôme Corbiau  ·  Licensed under Apache 2.0
 common:
-  window_title: PerkySue — Beta 0.29.1
+  window_title: PerkySue — Beta 0.29.2
   header_banner:
     free_invite: PerkySue Beta — Free · Try Pro (30 days, no card)
     free_after_trial: PerkySue Beta — Free
@@ -347,14 +347,29 @@ settings:
       popularity: Popularity
   performance:
     title: Performance Settings
+    capture_mode_label: STT source
+    capture_mode:
+      mic_only: Microphone
+      system_only: System audio
+      mix: System + Mic
+    mic_select: Microphone input
+    mic_windows_default: Windows default microphone
+    mic_orphan: not in current list
     stt_model: STT Model
     stt_device: STT Device
     silence_timeout: Silence Timeout (s)
+    vad_sensitivity_label: Voice detection
+    vad_sensitivity:
+      quiet_room: Quiet room / Low mic
+      normal: Normal
+      noisy: Noisy / Loud environment
+    vad_sensitivity_tooltip: Controls how quickly PerkySue stops recording after you stop speaking. Quiet room is more sensitive (good for soft mics). Noisy cuts faster in loud environments.
     max_duration: Max listening duration (s)
     first_language: User Main Language
     llm_model: LLM Model
     max_input: Max input (context)
     max_output: Max output (tokens)
+    remember_last_qa: Remember last Q/A
     llm_request_timeout: LLM request timeout (s)
     thinking_allow: Allow thinking
     clipboard_paste_delay: Clipboard paste delay (s)

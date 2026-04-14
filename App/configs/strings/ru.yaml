@@ -196,7 +196,7 @@
       url: ''
     credit: Создано Jérôme Corbiau  ·  Лицензия Apache 2.0
 common:
-  window_title: PerkySue — Beta 0.29.1
+  window_title: PerkySue — Beta 0.29.2
   header_banner:
     free_invite: PerkySue Beta — Бесплатно · Pro 30 дн. без карты
     free_after_trial: PerkySue Beta — Бесплатно
@@ -341,14 +341,26 @@ settings:
       popularity: Популярность
   performance:
     title: Настройки производительности
+    capture_mode_label: Источник STT
+    capture_mode:
+      mic_only: Микрофон
+      system_only: Системный звук
+      mix: Система + микрофон
     stt_model: Модель STT
     stt_device: Устройство STT
     silence_timeout: Таймаут тишины (с)
+    vad_sensitivity_label: Обнаружение голоса (VAD)
+    vad_sensitivity:
+      quiet_room: Тихая комната / Тихий микрофон
+      normal: Normal
+      noisy: Шумно / Громкая среда
+    vad_sensitivity_tooltip: Управляет тем, как быстро PerkySue останавливает запись после того, как вы перестали говорить. «Тихая комната» более чувствительна (подходит для тихих микрофонов). «Шумно» останавливает быстрее в громкой обстановке.
     max_duration: Макс. длительность записи (с)
     first_language: Основной язык
     llm_model: Модель LLM
     max_input: Макс. ввод (контекст)
     max_output: Макс. вывод (токены)
+    remember_last_qa: Помнить посл. В/О
     llm_request_timeout: Таймаут запроса LLM (с)
     clipboard_paste_delay: Буфер обмена (с)
     no_gguf: Нет .gguf в Data/Models/LLM
@@ -611,8 +623,8 @@ header_alerts:
     processing_stopped: 🛑 Обработка остановлена
     tts_stopped: 🛑 Голосовой вывод остановлен
     tts_loading: Подготовка голоса — первичная настройка…
-    omnivoice_requires_nvidia: OmniVoice requires NVIDIA/CUDA (not available on CPU/Vulkan).
-    tts_install_in_progress: Installation already in progress — please wait.
+    omnivoice_requires_nvidia: OmniVoice требует NVIDIA/CUDA (на CPU/Vulkan недоступно).
+    tts_install_in_progress: Установка уже выполняется — пожалуйста, подождите.
     ai_disclaimer: ⚠️ Ответы ИИ могут быть неточными. Проверяйте факты.
     recording_no_audio: Аудио не захвачено — запись остановлена. Проверь микрофон.
     recording_too_short: Запись слишком короткая — текст не найден. Проверь микрофон или говори дольше.
@@ -637,5 +649,5 @@ header_alerts:
     chat_max_output_reached: '⚠️ Ответ обрезан: лимит вывода ({max_output}) достигнут. Увеличь «Макс. вывод» в Настройках → Производительность до {suggested} или выше.'
     chat_empty_reply: — Пустой ответ. Перефразируй или смотри консоль.
     trial_request:
-      newsletter_title: Newsletter preference
-      newsletter_question: Get updates, not spam. We'll only email you when something worth knowing happens — new features, tips & tricks, that's it.
+      newsletter_title: Настройка рассылки
+      newsletter_question: Только полезные обновления, без спама. Мы пишем только когда есть что-то действительно важное — новые функции, советы и трюки.

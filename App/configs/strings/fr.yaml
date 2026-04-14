@@ -196,7 +196,7 @@ about:
       url: ''
     credit: Créé par Jérôme Corbiau  ·  Licence Apache 2.0
 common:
-  window_title: PerkySue — Beta 0.29.1
+  window_title: PerkySue — Beta 0.29.2
   header_banner:
     free_invite: PerkySue Beta — Gratuit · Essai Pro (30 j · sans CB)
     free_after_trial: PerkySue Beta — Gratuit
@@ -391,14 +391,30 @@ settings:
       popularity: Popularité
   performance:
     title: Paramètres de performance
+    capture_mode_label: Source STT
+    capture_mode:
+      mic_only: Microphone
+      system_only: Audio système
+      mix: Système + Micro
+    mic_select: Microphone (entrée)
+    mic_windows_default: Microphone par défaut Windows
+    mic_orphan: absent de la liste actuelle
     stt_model: Modèle STT
     stt_device: Périphérique STT
     silence_timeout: Délai de silence (s)
+    vad_sensitivity_label: Détection de voix
+    vad_sensitivity:
+      quiet_room: Pièce calme / Micro faible
+      normal: Normal
+      noisy: Bruyant / Environnement fort
+    vad_sensitivity_tooltip: Contrôle la rapidité d'arrêt de l'enregistrement quand vous cessez de parler. « Pièce calme » est plus sensible (bon pour les micros faibles). « Bruyant » coupe plus vite dans les environnements forts.
     max_duration: Durée max d'écoute (s)
     first_language: Ta langue principale
     llm_model: Modèle LLM
     max_input: Entrée max (contexte)
     max_output: Sortie max (tokens)
+    remember_last_qa: Se rappeler les Q/R
+    inject_all_modes_chat: Injecter tous les modes dans le chat
     llm_request_timeout: Délai de requête LLM (s)
     thinking_allow: Autoriser le raisonnement
     thinking_budget: Tokens max raisonnement
@@ -636,6 +652,7 @@ chat:
   sender_name: PerkySue
   user_fallback: Vous
   free_answer_notice: Sur le plan gratuit, chaque question est traitée indépendamment — l'assistant ne se souvient pas de tes messages précédents. Le contexte multi-tours, qui permet à l'assistant de se souvenir de l'échange en cours, et l'injection au curseur (Smart Focus) sont réservés au plan Pro — upgrade quand tu veux.
+  pipeline_busy: ⏳ Attends la fin de l'enregistrement ou de la réponse en cours avant d'envoyer.
 help:
   title: Aide
   new_chat: Nouvelle conversation
@@ -694,8 +711,8 @@ header_alerts:
     processing_stopped: 🛑 Traitement arrêté
     tts_stopped: 🛑 Lecture vocale arrêtée
     tts_loading: Préparation de la voix — configuration initiale en cours...
-    omnivoice_requires_nvidia: OmniVoice requires NVIDIA/CUDA (not available on CPU/Vulkan).
-    tts_install_in_progress: Installation already in progress — please wait.
+    omnivoice_requires_nvidia: OmniVoice nécessite NVIDIA/CUDA (non disponible sur CPU/Vulkan).
+    tts_install_in_progress: Une installation est déjà en cours — merci de patienter.
     ai_disclaimer: ⚠️ Les réponses de l'IA peuvent être inexactes. Vérifie les faits.
     recording_no_audio: Aucun audio capturé — enregistrement arrêté. Vérifie le micro.
     recording_too_short: Enregistrement trop court — pas de texte. Vérifie le micro ou parle plus longtemps.
@@ -710,6 +727,7 @@ header_alerts:
   run_test_timeout_hint: → Le modèle n'a pas fini à temps. Dans Paramètres → Performance, mets le délai requête LLM à 180 ou 240 s (selon ta machine).
   document_injection:
     llm_error_400: Erreur LLM (400) — contexte trop grand ? Augmente « Entrée max » (contexte) dans Paramètres.
+    llm_error_connection: Connexion au serveur LLM perdue (llama-server arrêté ou planté). Ce n’est pas une limite de contexte — réessaie ou redémarre PerkySue.
     llm_error_generic: Erreur LLM — regarde la console. Augmente « Entrée max » (contexte) dans Paramètres.
     max_input_reached: '⚠️ Limite max d''entrée atteinte — l''historique a été réduit. Voir Paramètres → Entrée max et la capacité de ta machine.
 

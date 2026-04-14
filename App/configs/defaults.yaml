@@ -50,9 +50,9 @@ llm:
   # --- Max INPUT (context) vs Max OUTPUT (tokens) — clearly separated ---
   # Max input (context): size in tokens of the context window the model can read.
   # 0 = auto by backend (CPU 2048, Vulkan 4096, NVIDIA 8192–16384). Override in Data/Configs/config.yaml.
-  max_input_tokens: 0
+  max_input_tokens: 4096
   # Legacy key (same as max_input_tokens); kept for compatibility.
-  n_ctx: 0
+  n_ctx: 4096
 
   # CPU threads (0 = auto)
   n_threads: 0
@@ -63,7 +63,7 @@ llm:
   # Max output tokens: maximum new tokens per reply (same idea as Max input: 0 = Auto).
   # Auto scales with effective context (~n_ctx/3, capped so prompt+completion stay in window).
   # Set a positive number in config.yaml only if you want a fixed cap (e.g. 2048).
-  max_output_tokens: 0
+  max_output_tokens: 4096
 
   # HTTP read timeout (seconds) for llama-server mode: base wait for one completion; client adds extra time for very long system prompts. 120–360; raise on slow PCs or large TTS/Help prompts.
   request_timeout: 180
@@ -71,6 +71,11 @@ llm:
   # Thinking models (llama-server): off → --reasoning-budget 0; on → budget below (-1 = unlimited).
   thinking: off
   thinking_budget: 512
+  # Pro Ask context window: number of latest Q/A kept verbatim before rolling summary cadence.
+  # Allowed: 2 | 3 | 4 (default 4). Lower values reduce prompt size and summarize more often.
+  answer_context_keep: 2
+  # Pro only: when true, LLM exchanges from non-Ask modes are also mirrored into Chat history for follow-ups.
+  inject_all_modes_in_chat: true
 
 # --- Skin & Audio ---
 skin:
@@ -82,11 +87,27 @@ skin:
 
 audio:
   volume: 1.0  # 0.0–1.0
+
+  # Source STT (UI) : mic_only | system_only | mix — loopback Windows = PyAudioWPatch
+  capture_mode: mic_only
+  # Optional indices (sounddevice) ; loopback_device = sortie à écouter (alignement par nom avec PyAudioWPatch)
+  mic_device: null
+  loopback_device: null
+  mix_mic_gain: 1.0
+  mix_loopback_gain: 0.8
   
   # Technical parameters (normally auto-detected)
   sample_rate: 16000
+  # Max seconds for one listening session before hard stop (GUI: Performance → Max listening duration).
+  # 60–900 s; longer captures use more RAM during STT (whole buffer). Optional stt.chunk_* helps very long audio.
   max_duration: 120
-  vad_aggressiveness: 2
+  # Voice detection sensitivity preset — controls when PerkySue decides you stopped talking.
+  # Values: quiet_room | normal | noisy (see table in docs / Settings).
+  # quiet_room : sensitive — soft mics, headsets, whisper dictation.
+  # normal     : balanced (default) — most setups.
+  # noisy      : aggressive — loud environments, system mix, Voicemeeter.
+  # You can also set a raw integer 0–3 (WebRTC VAD aggressiveness) for advanced override.
+  vad_sensitivity: "normal"
   silence_timeout: 2.0
 
 # --- Text-to-Speech (Pro, opt-in) — code in App/services/tts/ ; pip + ~1 GB model from Voice tab ---

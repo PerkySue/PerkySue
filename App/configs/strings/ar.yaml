@@ -196,7 +196,7 @@
       url: ''
     credit: صنعه Jérôme Corbiau  ·  رخصة Apache 2.0
 common:
-  window_title: PerkySue — Beta 0.29.1
+  window_title: PerkySue — Beta 0.29.2
   header_banner:
     free_invite: PerkySue Beta — مجاني · جرّب Pro (٣٠ يومًا، بدون بطاقة)
     free_after_trial: PerkySue Beta — مجاني
@@ -341,14 +341,26 @@ settings:
       popularity: الشعبية
   performance:
     title: إعدادات الأداء
+    capture_mode_label: مصدر STT
+    capture_mode:
+      mic_only: الميكروفون
+      system_only: صوت النظام
+      mix: النظام + الميكروفون
     stt_model: نموذج STT
     stt_device: جهاز STT
     silence_timeout: مهلة الصمت (ث)
+    vad_sensitivity_label: كشف الصوت (VAD)
+    vad_sensitivity:
+      quiet_room: غرفة هادئة / ميكروفون منخفض
+      normal: Normal
+      noisy: بيئة مزعجة / ضوضاء عالية
+    vad_sensitivity_tooltip: يتحكم في مدى سرعة إيقاف PerkySue للتسجيل بعد أن تتوقف عن الكلام. وضع الغرفة الهادئة أكثر حساسية (مناسب للميكروفونات الهادئة). وضع البيئة المزعجة يوقف أسرع عند وجود ضوضاء.
     max_duration: مدة الاستماع القصوى (ث)
     first_language: لغتك الأساسية
     llm_model: نموذج LLM
     max_input: الإدخال الأقصى (السياق)
     max_output: الإخراج الأقصى (Tokens)
+    remember_last_qa: تذكّر آخر س/ج
     llm_request_timeout: مهلة طلب LLM (ث)
     clipboard_paste_delay: تأخير الحافظة (ث)
     no_gguf: لا يوجد .gguf في Data/Models/LLM
@@ -611,8 +623,8 @@ header_alerts:
     processing_stopped: 🛑 توقفت المعالجة
     tts_stopped: 🛑 تم إيقاف الصوت
     tts_loading: جاري تجهيز الصوت — الإعداد الأولي جارٍ...
-    omnivoice_requires_nvidia: OmniVoice requires NVIDIA/CUDA (not available on CPU/Vulkan).
-    tts_install_in_progress: Installation already in progress — please wait.
+    omnivoice_requires_nvidia: يتطلب OmniVoice بطاقة NVIDIA/CUDA (غير متاح على CPU/Vulkan).
+    tts_install_in_progress: التثبيت قيد التنفيذ بالفعل — يرجى الانتظار.
     ai_disclaimer: ⚠️ قد تكون ردود الذكاء الاصطناعي غير دقيقة. تحقّق من الحقائق.
     recording_no_audio: لم يُلتقط أي صوت — تحقق من الميكروفون.
     recording_too_short: التسجيل قصير جداً — لم يُكتشف نص. تحقق من الميكروفون أو تكلّم أطول.
@@ -637,5 +649,5 @@ header_alerts:
     chat_max_output_reached: '⚠️ تم قطع الرد: تم الوصول لحد الإخراج الأقصى ({max_output}). زِد «الإخراج الأقصى» في الإعدادات ← الأداء إلى {suggested} أو أكثر.'
     chat_empty_reply: — رد فارغ. أعِد الصياغة أو راجع الكونسول.
     trial_request:
-      newsletter_title: Newsletter preference
-      newsletter_question: Get updates, not spam. We'll only email you when something worth knowing happens — new features, tips & tricks, that's it.
+      newsletter_title: تفضيل النشرة البريدية
+      newsletter_question: احصل على التحديثات بدون إزعاج. سنرسل لك فقط عندما يوجد شيء يستحق المعرفة — ميزات جديدة ونصائح وحيل.

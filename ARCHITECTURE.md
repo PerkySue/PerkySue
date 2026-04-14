@@ -1,6 +1,6 @@
 # PerkySue — Architecture
 
-*Version 1.54 — April 2026 — Beta 0.29.0 — Pro licensing: `license.json` + strict `install_id` match; optional **Ed25519** `license_payload` / `license_signature` from `GET /check` (`App/utils/license_signature.py`, `cryptography`); offline max **30 days** after signed `issued_at`; legacy unsigned cache still accepted until refresh; `POST /billing-portal`; link wizard; `_license_http_headers()`; plan UI; header banner (see plan management docs). **Pro TTS:** Chatterbox / OmniVoice, `tts_prompt_extension.yaml`, LLM appendix for Answer+Help when TTS enabled; **PyTorch CUDA** pip from Voice tab or root `.bat` files — **no in-process torch reload** after pip (**full app restart** required). **(Shipped 0.28.7) OmniVoice portable —** `windows_ffmpeg_dlls.py` registers **`Python/`** + **`Data/Tools/ffmpeg-shared/bin/`** for FFmpeg **shared** DLLs (TorchCodec on Windows); `omnivoice_tts.py` patches **`torchaudio.load`/`save`** for local **`.wav`** via **soundfile**; **`ref_text=""`** when no transcript (avoids Whisper ASR + avoids prepending dummy words — OmniVoice **`_combine_text`** prefixes **`ref_text`**); optional **`voice_ref.txt`** / **`audios/voice_sample/<code>.txt`**. **Alpha 0.28.4:** CMD UTF-8; `start.bat` fixes; **`feedback.debug_mode`**; Alt+A / Alt+Q / thinking default off / TTS tag display strip. **Beta 0.29.0:** In-app updater hotfix — `download_and_stage_app_update` uses **`paths.cache`** (not invalid **`paths.data_dir`**) for **`Data/Cache/updates/`** so **Update** runs without **`AttributeError`**. **Beta 0.28.9:** In-app updates — GitHub **`/releases`** + prerelease-aware zip pick + **tag archive** fallback (`…/archive/refs/tags/<tag>.zip`); **`PERKYSUE_UPDATE_REPO`**; post-download sync of **`App/`** and portable-root **`*.bat`**, **`*.md`**, **`LICENSE`**. Licensing — passive **`GET /check`** cooldown **15 min**; cooldown reset + immediate sync on Plan checkout / trial & link wizards / Stripe Continue / billing portal; post-Stripe **restart** hint (`widget.py`). **Beta 0.28.8:** Chat + Help GUI refresh (pill nav, input bar, bubbles); sidebar statuses **`generating`** / **`speaking`**; main avatar ring modulated by TTS + mic PCM (`TTSManager`, `AudioRecorder`); TTS Markdown strip **`strip_basic_markdown_for_tts`** (`tag_sanitize.py`); README banner **`App/assets/Github/banner.webp`**.*
+*Version 1.56 — April 2026 — Beta 0.29.2 — Pro licensing: `license.json` + strict `install_id` match; optional **Ed25519** `license_payload` / `license_signature` from `GET /check` (`App/utils/license_signature.py`, `cryptography`); offline max **30 days** after signed `issued_at`; legacy unsigned cache still accepted until refresh; `POST /billing-portal`; link wizard; `_license_http_headers()`; plan UI; header banner (see plan management docs). **Pro TTS:** Chatterbox / OmniVoice, `tts_prompt_extension.yaml`, LLM appendix for Answer+Help when TTS enabled; **PyTorch CUDA** pip from Voice tab or root `.bat` files — **no in-process torch reload** after pip (**full app restart** required). **(Shipped 0.28.7) OmniVoice portable —** `windows_ffmpeg_dlls.py` registers **`Python/`** + **`Data/Tools/ffmpeg-shared/bin/`** for FFmpeg **shared** DLLs (TorchCodec on Windows); `omnivoice_tts.py` patches **`torchaudio.load`/`save`** for local **`.wav`** via **soundfile**; **`ref_text=""`** when no transcript (avoids Whisper ASR + avoids prepending dummy words — OmniVoice **`_combine_text`** prefixes **`ref_text`**); optional **`voice_ref.txt`** / **`audios/voice_sample/<code>.txt`**. **Alpha 0.28.4:** CMD UTF-8; `start.bat` fixes; **`feedback.debug_mode`**; Alt+A / Alt+Q / thinking default off / TTS tag display strip. **Beta 0.29.0:** In-app updater hotfix — `download_and_stage_app_update` uses **`paths.cache`** (not invalid **`paths.data_dir`**) for **`Data/Cache/updates/`** so **Update** runs without **`AttributeError`**. **Beta 0.28.9:** In-app updates — GitHub **`/releases`** + prerelease-aware zip pick + **tag archive** fallback (`…/archive/refs/tags/<tag>.zip`); **`PERKYSUE_UPDATE_REPO`**; post-download sync of **`App/`** and portable-root **`*.bat`**, **`*.md`**, **`LICENSE`**. Licensing — passive **`GET /check`** cooldown **15 min**; cooldown reset + immediate sync on Plan checkout / trial & link wizards / Stripe Continue / billing portal; post-Stripe **restart** hint (`widget.py`). **Beta 0.28.8:** Chat + Help GUI refresh (pill nav, input bar, bubbles); sidebar statuses **`generating`** / **`speaking`**; main avatar ring modulated by TTS + mic PCM (`TTSManager`, `AudioRecorder`); TTS Markdown strip **`strip_basic_markdown_for_tts`** (`tag_sanitize.py`); README banner **`App/assets/Github/banner.webp`**. **Beta 0.29.2 (shipped):** STT audio **`capture_mode`** + loopback/mix (`App/utils/audio.py`, **`reload_audio_capture()`**); **`vad_sensitivity`** + VAD ring-buffer smoothing; Performance mic + voice-detection UI; **`_document_injection_llm_error_message`** — connection loss vs **400** (see Orchestrator + Focus sections below).*
 
 ---
 
@@ -115,7 +115,7 @@ The GUI exposes **16** flag buttons (`FLAG_STEMS_ORDER` in `App/gui/widget.py`).
 │    │       └── prompt_extension.py ← LLM appendix (tags + personality) │
 │    ├── utils/                                               │
 │    │   ├── hotkeys.py              ← Win32 RegisterHotKey   │
-│    │   ├── audio.py                ← Recording + VAD        │
+│    │   ├── audio.py                ← Capture modes (mic / loopback / mix) + VAD │
 │    │   ├── injector.py             ← Text injection + WM_COPY │
 │    │   └── sounds_manager.py       ← Skin-aware, fallback   │
 │    ├── Skin/Default/              ← Built-in skin assets    │
@@ -171,6 +171,14 @@ Central coordinator that:
 - Coordinates audio → STT → LLM → injection pipeline
 - Exposes `stop_recording()` for manual stop (GUI avatar click when ambient noise prevents VAD auto-stop); registers global `hotkeys.stop_recording` (default **`alt+q`**) via `HotkeyManager` → `_on_escape_hotkey()` → GUI `_on_escape_global`
 
+#### Audio capture, VAD, and STT input routing (Beta 0.29.2+)
+
+- **Config (`audio` in merged YAML):** `capture_mode`: **`mic_only`** (default, **sounddevice** input), **`system_only`** (WASAPI **loopback** on Windows via **PyAudioWPatch**), or **`mix`** (mic + loopback summed with `mix_mic_gain` / `mix_loopback_gain`). Optional **`mic_device`** and **`loopback_device`** indices align loopback to a chosen **sounddevice** output by name inside **`_pawp_resolve_loopback`**. If loopback is unavailable, **`build_audio_recorder`** logs and falls back to **`mic_only`**.
+- **Implementation:** `App/utils/audio.py` — **`AudioRecorder`**, **`SystemLoopbackRecorder`**, **`MixedDualInputRecorder`**; factory **`build_audio_recorder`**; **`Orchestrator._rebuild_audio_recorder_from_config`** passes merged **`audio`** fields (sample rate, silence timeout, capture mode, gains, **`vad_sensitivity`** with fallback to legacy **`vad_aggressiveness`**).
+- **VAD:** Presets **`quiet_room` / `normal` / `noisy`** (`VAD_PRESETS`, **`_resolve_vad_sensitivity`**) map to WebRTC **`webrtcvad`** aggressiveness plus a **speech_ratio_threshold** on 30 ms frames inside each ~100 ms block. **Smoothing:** a **3-sample ring** of raw VAD decisions; the silence timer only resets when a **majority** of the last three chunks are speech (reduces spurious “still talking” from clicks). Ring cleared on each **`start()`** / **`record_until_silence`** session.
+- **Hot-reload (no full app restart):** **`Orchestrator.reload_audio_capture()`** reloads merged config from disk and calls **`_rebuild_audio_recorder_from_config`**, unless recording or STT+LLM processing is active (returns a user-visible reason). GUI Performance tab also refreshes the **Microphone input** option list shortly after open (deferred **`_refresh_perf_mic_device_menu`**).
+- **Max session length:** **`audio.max_duration`** (seconds before hard stop) is chosen in Performance (**60–900 s** in the OptionMenu). **`_rebuild_audio_recorder_from_config`** clamps values **> 900** to **900** so hand-edited YAML cannot request unbounded in-RAM capture; very long sessions increase RAM during the single-buffer STT path unless **`stt.chunk_*`** chunking is enabled.
+
 ### 2. LLM Provider Factory (`App/services/llm/__init__.py`)
 
 Implements dual-mode architecture:
@@ -209,6 +217,7 @@ Saves active window handle before recording:
 - Injects text via clipboard + Ctrl+V
 - **Clipboard policy:** Saves the user’s clipboard, pastes the payload, then restores the old clipboard after **`injection.clipboard_restore_delay_sec`** (default **5** from `App/configs/defaults.yaml`) **only if** the clipboard still equals the injected text (normalized newlines) — if the user copied something else, restore is skipped. **`0`** = restore right after paste (legacy). **GUI:** Settings → Performance → **Clipboard paste delay (s)**.
 - **`reinject_last` hotkey (default `Alt+R`):** Re-injects the **latest finalized result** into the **current** foreground window; independent from the delayed-restore window used for normal auto-injection. Designed as a dedicated re-paste action (not an LLM mode). **GUI:** Settings → Shortcuts.
+- **LLM errors pasted into the focused document:** On failure paths that inject guidance into the target app (e.g. Word), **`Orchestrator._document_injection_llm_error_message`** maps the exception string to user text: **HTTP 400 / Bad Request** → context / **Max input** style hint (`document_injection.llm_error_400`); **connection reset, aborted, broken pipe, WinError 10054 / 10061, remote closed** → “LLM server connection lost” style hint (`document_injection.llm_error_connection`) so users are **not** told to raise Max input when **llama-server** (or the HTTP client) dropped the connection during heavy paste/inject workloads.
 - **NEW v19:** Selection grab via WM_COPY
 
 ### 5. Backend Launcher (`start.bat`)
@@ -247,6 +256,8 @@ PerkySueWidget (CTk window)
 │   └── [About / Pro]   Product/about content + plan management entries
 └── Footer (CTkFrame)           ← GitHub link + version badge
 ```
+
+**Settings → Performance (audio / STT routing, Beta 0.29.2+):** **STT source** maps to **`audio.capture_mode`** (`mic_only` / `system_only` / `mix`). **Microphone input** is a wide **CTkOptionMenu** built from **`_perf_mic_build_option_data`** (Windows default label, enumerated inputs, **orphan** `#index` when the saved device is missing); values refresh shortly after the tab opens via **`_refresh_perf_mic_device_menu`**. **Voice detection** writes **`audio.vad_sensitivity`**. When **`_settings_change_flags`** reports **`audio_changed`** and the user applies settings, **`Orchestrator.reload_audio_capture()`** rebuilds the recorder from merged YAML without a full app restart (blocked while recording or processing).
 
 **Design System (strict rules — must be followed in all future GUI work):**
 
@@ -340,13 +351,13 @@ User presses Alt+M (or other hotkey)
     ┌────┴────┐
     ▼         ▼
 ┌───────┐  ┌──────────┐
-│ Audio │  │ selected_│  ← passed-over in pipeline
-│Record │  │ text     │
+│ Audio │  │ selected_│  ← mic / system loopback / mix (`audio.capture_mode`)
+│Capture│  │ text     │
 └───┬───┘  └──────────┘
     │
     ▼
 ┌─────────────────┐
-│  Whisper STT    │  ← faster-whisper
+│  Whisper STT    │  ← faster-whisper (same API on float32 mono)
 │  (GPU/CPU)      │
 └────────┬────────┘
          │
@@ -515,7 +526,7 @@ Tips shown in rotation in the title bar at startup. **Source of truth:** `startu
 
 ### Header alerts (`header_alerts` in `App/configs/strings/<lang>.yaml`)
 
-**Header bar only:** Sections `critical` and `regular` contain only messages that appear in the **title bar** (header). Status under the profile photo (Listening, Processing, Check microphone, etc.) is in `STATUSES` in `widget.py`, not here. One key `llm_error_400` is used both when the main pipeline injects after a 400 and when Prompt Modes Run Test returns 400. **Not header:** `run_test_400_hint` is appended to the Prompt Modes "LLM response (preview)" box when Run Test returns 400. **Document injection:** Section `document_injection` holds strings **pasted into the focused document** (e.g. Word) on LLM error or max context. `App/configs/header_alerts.yaml` is a stub; optional **`Data/Configs/header_alerts.yaml`** overrides the same keys.
+**Header bar only:** Sections `critical` and `regular` contain only messages that appear in the **title bar** (header). Status under the profile photo (Listening, Processing, Check microphone, etc.) is in `STATUSES` in `widget.py`, not here. One key `llm_error_400` is used both when the main pipeline injects after a 400 and when Prompt Modes Run Test returns 400. **Not header:** `run_test_400_hint` is appended to the Prompt Modes "LLM response (preview)" box when Run Test returns 400. **Document injection:** Section `document_injection` holds strings **pasted into the focused document** (e.g. Word) on LLM error or max context — including **`llm_error_connection`** (transport / server gone) vs **`llm_error_400`** / **`llm_error_generic`**, chosen by **`Orchestrator._document_injection_llm_error_message`**. `App/configs/header_alerts.yaml` is a stub; optional **`Data/Configs/header_alerts.yaml`** overrides the same keys.
 
 ### Pro License System
 
@@ -694,6 +705,19 @@ This design requires no PerkySue-hosted backend for skin distribution.
 ## Version History
 
 The canonical **full** changelog (all releases) is [`CHANGELOG.md`](CHANGELOG.md) at the repo root. Below is a technical summary kept in sync; the README shows **only the latest** release notes.
+
+### Beta 0.29.2 (April 2026) — shipped
+- **Audio / STT source:** `audio.capture_mode`, **`build_audio_recorder`**, PyAudioWPatch loopback, **`reload_audio_capture()`** — see § *Orchestrator — Audio capture, VAD, and STT input routing* and `CHANGELOG.md` § 0.29.2.
+- **Max listening duration:** Performance **Max listening duration (s)** extended to **900 s** (15 min) with intermediate steps; orchestrator **900 s** clamp; YAML values outside the menu snap to the nearest option (`widget.py`).
+- **VAD:** `vad_sensitivity` presets + ring-buffer smoothing — `App/utils/audio.py`; Performance UI + i18n.
+- **Microphone UX:** Performance **Microphone input** dropdown, orphan-device labels, `_refresh_perf_mic_device_menu` — `widget.py`.
+- **Document injection errors:** `_document_injection_llm_error_message` + `document_injection.llm_error_connection` — `orchestrator.py` + locale **`header_alerts`**.
+- **Default voice sample resolution:** `App/services/tts/voice_sample_paths.py` now supports locale-aware Default skin folders (`App/Skin/Default/<Locale>/audios/voice_sample/voice_sample.wav`) before falling back to `App/Skin/Default/audios/voice_sample/voice_sample.wav`.
+- **Mix source-aware context:** Dual-track mix capture/transcription in `App/utils/audio.py` + `App/orchestrator.py` separates mic/system transcripts, preserves chronology, and injects source-aware labels for LLM context while keeping transcribe mode text clean.
+- **Ask memory controls:** `llm.answer_context_keep` (2/3/4), runtime reload/update logs, chat indicator (`Q/A:n`), and summary policy tuned by keep value in `orchestrator.py` + `widget.py`.
+- **Summary fact retention:** `PreviousAnswersSummary` prompt tightened to preserve exact **VARIABLE→VALUE** pairs, constraints, and commitments.
+- **Cross-mode chat memory (Pro):** `llm.inject_all_modes_in_chat` can route non-Ask LLM Q/A into shared chat history for follow-up continuity across modes.
+- **Factory defaults:** `llm.max_input_tokens=4096`, `llm.n_ctx=4096`, `llm.max_output_tokens=4096`, `llm.answer_context_keep=2`, `llm.inject_all_modes_in_chat=true`.
 
 ### Beta 0.29.0 (April 2026) — shipped
 - **In-app update:** `download_and_stage_app_update` — **`self.paths.cache / "updates"`** (fixes **`Paths` has no attribute `data_dir`**).
