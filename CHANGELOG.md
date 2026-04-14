@@ -1,5 +1,10 @@
 ## 📋 Changelog
 
+### Beta 0.29.3 (April 2026) — shipped
+- **Hotfix — Ask defaults fallback:** Runtime/UI fallback values now match the intended defaults when keys are missing from existing user configs: `llm.answer_context_keep` defaults to **2** (not 4) and `llm.inject_all_modes_in_chat` defaults to **true** (not false).
+- **Hotfix — post-update dependency checks for system audio capture:** Post-update runtime consistency probe now checks **`webrtcvad`** and conditionally checks **`pyaudiowpatch`** on Windows when `audio.capture_mode` is `system_only` or `mix`, preventing silent fallback to mic-only on machines missing loopback dependencies.
+- **Post-update diagnostics logs:** Added explicit log lines for dependency probe context (`capture_mode`, required modules) and probe failure output (return code + stderr/stdout excerpt) to speed up support triage on updated machines.
+
 ### Beta 0.29.2 (April 2026) — shipped
 - **Ask memory optimization (Pro):** New **Remember last Q/A** control (`llm.answer_context_keep`: **2/3/4**). Default moved to **2** for lower context pressure; rolling `PreviousAnswersSummary` cadence follows this value.
 - **Ask summary fidelity:** Summary prompt now enforces **VARIABLE→VALUE** retention (no variable without value), preserves exact constraints/timing, and avoids vague placeholders (`unknown`/`unspecified`). Compact mode remains active for low keep values with safer token budget.

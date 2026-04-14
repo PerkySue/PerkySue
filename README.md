@@ -5,7 +5,7 @@
 </p>
 
 **Voice-to-text with AI superpowers. 100% local. 100% private.**  
-*Created by Jérôme Corbiau | Apache 2.0 | 0.29.2*
+*Created by Jérôme Corbiau | Apache 2.0 | 0.29.3*
 
 Press a hotkey, speak, and polished text appears wherever your cursor is — in any app, any window, any text field. No cloud. No account. No data leaves your machine. Ever.
 
@@ -209,6 +209,12 @@ PerkySue started as a **personal productivity** tool — voice → **local STT**
 ---
 
 ## 📋 Changelog
+
+### Beta 0.29.3 (April 2026) — shipped
+- **Hotfix defaults on existing installs:** fallback now correctly resolves **Remember last Q/A = 2** and **Inject all modes in chat = On** when those keys were previously absent.
+- **Hotfix post-update checks:** runtime probe now validates loopback dependencies for `system_only` / `mix` capture (`webrtcvad`, `pyaudiowpatch` on Windows), reducing false “mic-only fallback” after updates.
+- **Support diagnostics:** clearer post-update dependency probe logs (required modules + failure excerpt).
+- **Details:** **[CHANGELOG.md](CHANGELOG.md)**.
 
 ### Beta 0.29.2 (April 2026) — shipped
 - **Audio capture:** New `audio.capture_mode` paths (**mic**, **system loopback**, **mix**), explicit mic picker, and VAD sensitivity presets with smoothing.

@@ -1479,7 +1479,7 @@ class PerkySueWidget:
         return ""
 
     def _default_window_title(self) -> str:
-        return s("common.window_title", default="PerkySue — Beta 0.29.2")
+        return s("common.window_title", default="PerkySue — Beta 0.29.3")
 
     def _ui_flag_stem(self) -> str:
         """Which lang-flags/*.png is selected."""
@@ -1664,17 +1664,17 @@ class PerkySueWidget:
         if not updates:
             return
         try:
-            cur_keep = int(((self.cfg.get("llm") or {}).get("answer_context_keep", 4)) or 4)
+            cur_keep = int(((self.cfg.get("llm") or {}).get("answer_context_keep", 2)) or 2)
         except (TypeError, ValueError):
-            cur_keep = 4
+            cur_keep = 2
         try:
-            new_keep = int((((updates.get("llm") or {}).get("answer_context_keep", 4)) or 4))
+            new_keep = int((((updates.get("llm") or {}).get("answer_context_keep", 2)) or 2))
         except (TypeError, ValueError):
-            new_keep = 4
+            new_keep = 2
         if cur_keep not in (2, 3, 4):
-            cur_keep = 4
+            cur_keep = 2
         if new_keep not in (2, 3, 4):
-            new_keep = 4
+            new_keep = 2
         if new_keep != cur_keep:
             logging.getLogger("perkysue").info(
                 "Settings: Ask keep-last exchanges changed %d -> %d (save & restart).",
@@ -1796,13 +1796,13 @@ class PerkySueWidget:
         req_timeout = max(120, min(req_timeout, 360))
         _ack_var = getattr(self, "_perf_answer_context_keep", None)
         try:
-            answer_context_keep = int(_ack_var.get()) if _ack_var else 4
+            answer_context_keep = int(_ack_var.get()) if _ack_var else 2
         except (ValueError, TypeError, AttributeError):
-            answer_context_keep = 4
+            answer_context_keep = 2
         if answer_context_keep not in (2, 3, 4):
-            answer_context_keep = 4
+            answer_context_keep = 2
         _iamc_var = getattr(self, "_perf_inject_all_modes_chat", None)
-        inject_all_modes_in_chat = bool(_iamc_var and _iamc_var.get() == "On")
+        inject_all_modes_in_chat = True if _iamc_var is None else bool(_iamc_var.get() == "On")
         max_in = self._perf_max_input.get().strip()
         n_ctx = 0 if max_in == "Auto" else (int(max_in) if max_in.isdigit() else 0)
         try:
@@ -1967,7 +1967,7 @@ class PerkySueWidget:
             return t in ("on", "true", "1", "yes")
 
         def _llm_inject_all_modes_chat_on(llm: dict) -> bool:
-            v = llm.get("inject_all_modes_in_chat", False)
+            v = llm.get("inject_all_modes_in_chat", True)
             if isinstance(v, str):
                 return v.strip().lower() in ("on", "true", "1", "yes")
             return bool(v)
@@ -1983,7 +1983,7 @@ class PerkySueWidget:
             or int(cur_llm.get("max_input_tokens", cur_llm.get("n_ctx", 0)) or 0) != int(new_llm.get("max_input_tokens", 0) or 0)
             or _llm_max_out_token(cur_llm) != _llm_max_out_token(new_llm)
             or int(cur_llm.get("request_timeout", 120) or 120) != int(new_llm.get("request_timeout", 120) or 120)
-            or int(cur_llm.get("answer_context_keep", 4) or 4) != int(new_llm.get("answer_context_keep", 4) or 4)
+            or int(cur_llm.get("answer_context_keep", 2) or 2) != int(new_llm.get("answer_context_keep", 2) or 2)
             or _llm_inject_all_modes_chat_on(cur_llm) != _llm_inject_all_modes_chat_on(new_llm)
             or _llm_thinking_on(cur_llm) != _llm_thinking_on(new_llm)
             or _llm_thinking_budget(cur_llm) != _llm_thinking_budget(new_llm)
@@ -2030,17 +2030,17 @@ class PerkySueWidget:
         if not updates:
             return
         try:
-            cur_keep = int(((self.cfg.get("llm") or {}).get("answer_context_keep", 4)) or 4)
+            cur_keep = int(((self.cfg.get("llm") or {}).get("answer_context_keep", 2)) or 2)
         except (TypeError, ValueError):
-            cur_keep = 4
+            cur_keep = 2
         try:
-            new_keep = int((((updates.get("llm") or {}).get("answer_context_keep", 4)) or 4))
+            new_keep = int((((updates.get("llm") or {}).get("answer_context_keep", 2)) or 2))
         except (TypeError, ValueError):
-            new_keep = 4
+            new_keep = 2
         if cur_keep not in (2, 3, 4):
-            cur_keep = 4
+            cur_keep = 2
         if new_keep not in (2, 3, 4):
-            new_keep = 4
+            new_keep = 2
         flags = self._settings_change_flags(updates)
         if not flags or not self._is_hot_reload_settings_change(updates):
             return
@@ -6799,18 +6799,18 @@ class PerkySueWidget:
                 total_chars = sum(len((e.get("q") or "") + (e.get("a") or "")) for e in history)
                 approx_tokens = max(0, total_chars // 4)
                 current = approx_tokens  # afficher le compte réel (peut dépasser max_ctx)
-            keep_last = 4
+            keep_last = 2
             try:
                 if getattr(self, "orch", None):
                     keep_last = int(
-                        ((getattr(self.orch, "config", {}) or {}).get("llm", {}) or {}).get("answer_context_keep", 4)
+                        ((getattr(self.orch, "config", {}) or {}).get("llm", {}) or {}).get("answer_context_keep", 2)
                     )
                 else:
-                    keep_last = int(((self.cfg.get("llm") or {}).get("answer_context_keep", 4)) or 4)
+                    keep_last = int(((self.cfg.get("llm") or {}).get("answer_context_keep", 2)) or 2)
             except (TypeError, ValueError):
-                keep_last = 4
+                keep_last = 2
             if keep_last not in (2, 3, 4):
-                keep_last = 4
+                keep_last = 2
             self._chat_token_lbl.configure(text=f"{max_ctx} ctx: {current}/{max_ctx} · Q/A:{keep_last}")
 
             # Always show scrollable area (welcome + optional history)
@@ -11531,17 +11531,17 @@ class PerkySueWidget:
         max_tokens_opts = ["Auto", "256", "512", "1024", "2048", "4096", "8192"]
         if self._perf_max_tokens.get() not in max_tokens_opts:
             self._perf_max_tokens.set("2048")
-        _ctx_keep_cfg = llm_cfg.get("answer_context_keep", 4)
+        _ctx_keep_cfg = llm_cfg.get("answer_context_keep", 2)
         try:
             _ctx_keep_int = int(_ctx_keep_cfg)
         except (TypeError, ValueError):
-            _ctx_keep_int = 4
+            _ctx_keep_int = 2
         if _ctx_keep_int not in (2, 3, 4):
-            _ctx_keep_int = 4
+            _ctx_keep_int = 2
         self._perf_answer_context_keep = tk.StringVar(value=str(_ctx_keep_int))
         answer_context_keep_opts = ["2", "3", "4"]
         _answer_ctx_keep_disabled = not bool(self.orch.is_effective_pro()) if getattr(self, "orch", None) and hasattr(self.orch, "is_effective_pro") else True
-        _inject_all_modes_cfg = llm_cfg.get("inject_all_modes_in_chat", False)
+        _inject_all_modes_cfg = llm_cfg.get("inject_all_modes_in_chat", True)
         if isinstance(_inject_all_modes_cfg, str):
             _inject_all_modes_on = _inject_all_modes_cfg.strip().lower() in ("1", "true", "yes", "on")
         else:

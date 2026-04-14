@@ -362,17 +362,46 @@ class Orchestrator:
             missing.append("python_missing")
         else:
             try:
+                # Keep this probe aligned with runtime-critical modules used after updates.
+                dep_mods = [
+                    "yaml",
+                    "numpy",
+                    "requests",
+                    "pygame",
+                    "faster_whisper",
+                    "psutil",
+                    "webrtcvad",
+                ]
+                try:
+                    audio_cfg = (self.config or {}).get("audio") or {}
+                    capture_mode = str(audio_cfg.get("capture_mode") or "mic_only").strip().lower()
+                except Exception:
+                    capture_mode = "mic_only"
+                # PyAudioWPatch is required for WASAPI loopback paths.
+                if sys.platform == "win32" and capture_mode in ("system_only", "mix"):
+                    dep_mods.append("pyaudiowpatch")
+                dep_stmt = ",".join(dep_mods)
+                logger.info(
+                    "Post-update runtime dependency probe: capture_mode=%s, required=%s",
+                    capture_mode,
+                    dep_stmt,
+                )
                 dep_probe = subprocess.run(
                     [
                         str(python_exe),
                         "-c",
-                        "import yaml,numpy,requests,pygame,faster_whisper,psutil; print('ok')",
+                        f"import {dep_stmt}; print('ok')",
                     ],
                     capture_output=True,
                     text=True,
                     timeout=45,
                 )
                 if dep_probe.returncode != 0:
+                    logger.warning(
+                        "Post-update runtime dependency probe failed (rc=%s): %s",
+                        dep_probe.returncode,
+                        (dep_probe.stderr or dep_probe.stdout or "").strip()[:500],
+                    )
                     missing.append("python_deps_incomplete")
             except Exception:
                 missing.append("python_dep_probe_failed")
@@ -954,7 +983,7 @@ class Orchestrator:
 
     # ─── Help mode (Alt+H) — params + KB collection & injection ──────
 
-    APP_VERSION = "Beta 0.29.2"
+    APP_VERSION = "Beta 0.29.3"
 
     # ─── Plugin extension point ───────────────────────────────────────
 
@@ -1831,11 +1860,11 @@ class Orchestrator:
         if "thinking_budget" not in llm:
             llm["thinking_budget"] = 512
         try:
-            keep = int(llm.get("answer_context_keep", 4))
+            keep = int(llm.get("answer_context_keep", 2))
         except (TypeError, ValueError):
-            keep = 4
-        llm["answer_context_keep"] = 4 if keep not in (2, 3, 4) else keep
-        v = llm.get("inject_all_modes_in_chat", False)
+            keep = 2
+        llm["answer_context_keep"] = 2 if keep not in (2, 3, 4) else keep
+        v = llm.get("inject_all_modes_in_chat", True)
         if isinstance(v, str):
             llm["inject_all_modes_in_chat"] = v.strip().lower() in ("1", "true", "yes", "on")
         else:
@@ -1845,14 +1874,14 @@ class Orchestrator:
     def _answer_context_keep_from_config(config: dict) -> int:
         llm = (config or {}).get("llm") or {}
         try:
-            keep = int(llm.get("answer_context_keep", 4))
+            keep = int(llm.get("answer_context_keep", 2))
         except (TypeError, ValueError):
-            keep = 4
-        return 4 if keep not in (2, 3, 4) else keep
+            keep = 2
+        return 2 if keep not in (2, 3, 4) else keep
 
     def _inject_all_modes_in_chat_enabled(self) -> bool:
         llm = (self.config.get("llm") or {})
-        v = llm.get("inject_all_modes_in_chat", False)
+        v = llm.get("inject_all_modes_in_chat", True)
         if isinstance(v, str):
             return v.strip().lower() in ("1", "true", "yes", "on")
         return bool(v)

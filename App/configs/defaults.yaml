@@ -72,7 +72,7 @@ llm:
   thinking: off
   thinking_budget: 512
   # Pro Ask context window: number of latest Q/A kept verbatim before rolling summary cadence.
-  # Allowed: 2 | 3 | 4 (default 4). Lower values reduce prompt size and summarize more often.
+  # Allowed: 2 | 3 | 4 (default 2). Lower values reduce prompt size and summarize more often.
   answer_context_keep: 2
   # Pro only: when true, LLM exchanges from non-Ask modes are also mirrored into Chat history for follow-ups.
   inject_all_modes_in_chat: true
