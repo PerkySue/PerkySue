@@ -18,7 +18,12 @@ logger = logging.getLogger("perkysue.llm.llamacpp_server")
 
 class LlamaCppServerLLM(LLMProvider):
     """Provider LLM via llama-server (processus séparé)."""
-    
+
+    _RECOVERABLE_HTTP_TYPES = (
+        requests.exceptions.ConnectionError,
+        requests.exceptions.ChunkedEncodingError,
+    )
+
     def __init__(self, model_path: str = None, models_dir: str = None,
                  n_gpu_layers: int = -1, n_ctx: int = 2048, port: int = 8081,
                  request_timeout: int = 120, reasoning_budget: int = 0):
@@ -39,7 +44,7 @@ class LlamaCppServerLLM(LLMProvider):
         self._model_path = None
         self._process: Optional[subprocess.Popen] = None
         self._server_url = f"http://127.0.0.1:{port}"
-        
+
         # Résoudre le chemin du modèle
         if model_path and model_path.strip():
             p = Path(model_path)
@@ -145,11 +150,78 @@ class LlamaCppServerLLM(LLMProvider):
         d.mkdir(parents=True, exist_ok=True)
         return d
 
+    def _server_healthy(self) -> bool:
+        try:
+            r = requests.get(f"{self._server_url}/health", timeout=2)
+            return r.status_code == 200
+        except requests.exceptions.RequestException:
+            return False
+        except Exception:
+            return False
+
+    def _cleanup_server_process(self) -> None:
+        """Stop our child llama-server if still referenced; clear handle so warmup can relaunch."""
+        proc = self._process
+        self._process = None
+        if proc is None:
+            return
+        if proc.poll() is not None:
+            try:
+                proc.communicate(timeout=0.2)
+            except Exception:
+                pass
+            return
+        try:
+            proc.terminate()
+            proc.wait(timeout=5)
+        except subprocess.TimeoutExpired:
+            try:
+                proc.kill()
+                proc.wait(timeout=5)
+            except Exception:
+                pass
+        except Exception:
+            try:
+                proc.kill()
+            except Exception:
+                pass
+        try:
+            proc.communicate(timeout=0.5)
+        except Exception:
+            pass
+
+    @staticmethod
+    def _is_recoverable_transport_failure(exc: BaseException) -> bool:
+        """True when the HTTP stack lost the server (crash, refused port, RST) — worth one restart+retry."""
+        if isinstance(exc, LlamaCppServerLLM._RECOVERABLE_HTTP_TYPES):
+            return True
+        visited: set[int] = set()
+        cur: Optional[BaseException] = exc
+        while cur is not None and id(cur) not in visited:
+            visited.add(id(cur))
+            if isinstance(cur, (ConnectionResetError, ConnectionRefusedError, BrokenPipeError)):
+                return True
+            if isinstance(cur, OSError):
+                if getattr(cur, "winerror", None) in (10053, 10054, 10061):
+                    return True
+            cur = cur.__cause__ or cur.__context__
+        err = str(exc).lower()
+        if "connection aborted" in err or "connection refused" in err or "10054" in err or "10061" in err:
+            return True
+        return False
+
     def warmup(self):
         """Démarre le serveur llama.cpp."""
+        if self._process is not None and self._process.poll() is None and self._server_healthy():
+            return
+
         if self._process is not None:
-            return  # Déjà démarré
-        
+            if self._process.poll() is None:
+                logger.warning("llama-server: child process alive but /health failed; restarting")
+            else:
+                logger.info("llama-server: prior process exited; launching a new server")
+            self._cleanup_server_process()
+
         if not self._model_path or not self._model_path.exists():
             raise FileNotFoundError(f"Model not found: {self._model_path}")
         
@@ -222,7 +294,7 @@ class LlamaCppServerLLM(LLMProvider):
         
         # Attendre que le serveur soit prêt
         if not self._wait_for_server(timeout=60):
-            self._process.terminate()
+            self._cleanup_server_process()
             raise RuntimeError("llama-server failed to start within 60 seconds")
         
         logger.info(f"llama-server ready at {self._server_url}")
@@ -311,9 +383,8 @@ class LlamaCppServerLLM(LLMProvider):
 
     def process(self, text: str, system_prompt: str,
                 temperature: float = 0.3, max_tokens: int = 1024) -> LLMResult:
-        if self._process is None:
-            self.warmup()
-        
+        self.warmup()
+
         start = time.time()
         
         # Construire le payload pour le chat completion
@@ -336,63 +407,76 @@ class LlamaCppServerLLM(LLMProvider):
         read_timeout = min(read_timeout, 360)
         connect_timeout = 15
 
-        try:
-            response = requests.post(
-                f"{self._server_url}/v1/chat/completions",
-                json=payload,
-                timeout=(connect_timeout, read_timeout),
-            )
-            response.raise_for_status()
-            data = response.json()
-            
-            choice = data["choices"][0]
-            result_text, reasoning_text, text_source = self._parse_chat_completion_choice(choice)
-            duration = time.time() - start
-            # OpenAI-compatible: "stop" = fin normale, "length" = arrêt car limite tokens (contexte ou output)
-            finish_reason = choice.get("finish_reason") or None
+        for attempt in range(2):
+            try:
+                response = requests.post(
+                    f"{self._server_url}/v1/chat/completions",
+                    json=payload,
+                    timeout=(connect_timeout, read_timeout),
+                )
+                response.raise_for_status()
+                data = response.json()
 
-            usage = data.get("usage", {}) or {}
-            # total_tokens = prompt + completion (shared context window in llama.cpp / n_ctx)
-            tokens = usage.get("total_tokens", 0) or (usage.get("prompt_tokens", 0) + usage.get("completion_tokens", 0))
-            completion_tokens = usage.get("completion_tokens", 0)
+                choice = data["choices"][0]
+                result_text, reasoning_text, text_source = self._parse_chat_completion_choice(choice)
+                duration = time.time() - start
+                # OpenAI-compatible: "stop" = fin normale, "length" = arrêt car limite tokens (contexte ou output)
+                finish_reason = choice.get("finish_reason") or None
 
-            logger.info(f"llama-server: {tokens} tokens (total) in {duration:.1f}s")
-            if not result_text:
-                logger.warning(
-                    "llama-server returned empty assistant text (finish_reason=%r, source=%s, choice_keys=%s, message_keys=%s)",
-                    finish_reason,
-                    text_source,
-                    list(choice.keys()) if isinstance(choice, dict) else [],
-                    list((choice.get("message") or {}).keys()) if isinstance(choice, dict) else [],
+                usage = data.get("usage", {}) or {}
+                # total_tokens = prompt + completion (shared context window in llama.cpp / n_ctx)
+                tokens = usage.get("total_tokens", 0) or (
+                    usage.get("prompt_tokens", 0) + usage.get("completion_tokens", 0)
                 )
-            
-            return LLMResult(
-                text=result_text,
-                model=self._model_path.name if self._model_path else "unknown",
-                tokens_used=tokens,
-                completion_tokens=completion_tokens,
-                duration=duration,
-                finish_reason=finish_reason,
-                reasoning_content=reasoning_text,
-            )
-            
-        except requests.exceptions.RequestException as e:
-            err_str = str(e)
-            logger.error(f"llama-server request failed: {e}")
-            if "timed out" in err_str.lower() or "timeout" in err_str.lower():
-                logger.warning(
-                    "LLM HTTP read timed out (connect=%ss, read=%ss, ~%d prompt chars). "
-                    "Raise llm.request_timeout in Settings → Performance (up to 360s) or reduce context / disable TTS prompt appendix for testing.",
-                    connect_timeout,
-                    read_timeout,
-                    approx_chars,
+                completion_tokens = usage.get("completion_tokens", 0)
+
+                logger.info(f"llama-server: {tokens} tokens (total) in {duration:.1f}s")
+                if not result_text:
+                    logger.warning(
+                        "llama-server returned empty assistant text (finish_reason=%r, source=%s, choice_keys=%s, message_keys=%s)",
+                        finish_reason,
+                        text_source,
+                        list(choice.keys()) if isinstance(choice, dict) else [],
+                        list((choice.get("message") or {}).keys()) if isinstance(choice, dict) else [],
+                    )
+
+                return LLMResult(
+                    text=result_text,
+                    model=self._model_path.name if self._model_path else "unknown",
+                    tokens_used=tokens,
+                    completion_tokens=completion_tokens,
+                    duration=duration,
+                    finish_reason=finish_reason,
+                    reasoning_content=reasoning_text,
                 )
-            if "400" in err_str or "Bad Request" in err_str:
-                logger.warning(
-                    "400 Bad Request usually means context (system + user) exceeds the model's max context. "
-                    "Increase 'Max input' in Settings → Performance."
-                )
-            raise RuntimeError(f"LLM server error: {e}")
+
+            except requests.exceptions.RequestException as e:
+                err_str = str(e)
+                logger.error(f"llama-server request failed: {e}")
+                if "timed out" in err_str.lower() or "timeout" in err_str.lower():
+                    logger.warning(
+                        "LLM HTTP read timed out (connect=%ss, read=%ss, ~%d prompt chars). "
+                        "Raise llm.request_timeout in Settings → Performance (up to 360s) or reduce context / disable TTS prompt appendix for testing.",
+                        connect_timeout,
+                        read_timeout,
+                        approx_chars,
+                    )
+                if "400" in err_str or "Bad Request" in err_str:
+                    logger.warning(
+                        "400 Bad Request usually means context (system + user) exceeds the model's max context. "
+                        "Increase 'Max input' in Settings → Performance."
+                    )
+                if attempt == 0 and self._is_recoverable_transport_failure(e):
+                    logger.warning("llama-server: transport error; restarting subprocess (one retry)")
+                    self._cleanup_server_process()
+                    try:
+                        self.warmup()
+                    except Exception as warm_e:
+                        logger.error("llama-server restart failed: %s", warm_e)
+                        raise RuntimeError(f"LLM server error: {e}") from warm_e
+                    start = time.time()
+                    continue
+                raise RuntimeError(f"LLM server error: {e}")
 
     def is_available(self) -> bool:
         """Vérifie si le modèle existe et si le serveur peut démarrer."""

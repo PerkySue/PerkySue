@@ -196,7 +196,7 @@
       url: ''
     credit: Создано Jérôme Corbiau  ·  Лицензия Apache 2.0
 common:
-  window_title: PerkySue — Beta 0.29.3
+  window_title: PerkySue — Beta 0.29.4
   header_banner:
     free_invite: PerkySue Beta — Бесплатно · Pro 30 дн. без карты
     free_after_trial: PerkySue Beta — Бесплатно
@@ -254,18 +254,56 @@ voice:
     button: Установить движок
     button_working: Ставим…
     retry: Попробовать снова
+    progress_name_chatterbox: Chatterbox Turbo
+    progress_name_omnivoice: OmniVoice
   engine:
+    chatterbox_multilingual_hint: "English (Turbo) быстрый. Для других языков используется отдельная мультиязычная модель, на CPU может быть медленно."
+    chatterbox_last_stt_not_english: "⚠ Последний распознанный язык был не English. Chatterbox переключится на мультиязычную модель, на CPU это медленнее."
+    chatterbox_ui_locale_hint: "⚠ Интерфейс не на English. Для обычной мультиязычной работы OmniVoice часто подходит лучше."
+    tts_pytorch_cpu_only: "⚠ TTS использует PyTorch {version} без CUDA, либо CUDA-сборку, не подходящую твоей GPU. Whisper/llama-server могут по-прежнему использовать GPU. RTX 50xx: install_pytorch_cuda_cu128.bat. Остальные: install_pytorch_cuda_cu124.bat, затем перезапусти PerkySue."
+    tts_cpu_chatterbox: "⚠ Chatterbox работает на CPU. Синтез будет заметно медленнее, чем на CUDA GPU."
+    tts_cpu_generic: "⚠ Синтез речи работает на CPU. Это медленнее, чем на GPU."
     recommended_suffix: " (рекомендуется)"
+  pytorch_cuda:
+    button: "Установить PyTorch CUDA"
+    dialog_title: "Ускорить синтез речи (GPU)"
+    dialog_body: "Сейчас PerkySue использует CPU-only сборку PyTorch, поэтому Chatterbox и OmniVoice не могут использовать твою NVIDIA.\n\nУстановить PyTorch с CUDA сейчас? Большая загрузка (~2+ ГБ), может занять несколько минут."
+    dialog_message: "Сейчас PerkySue использует CPU-only сборку PyTorch, поэтому Chatterbox и OmniVoice не могут использовать твою NVIDIA.\n\nУстановить PyTorch с CUDA сейчас? Большая загрузка (~2+ ГБ), может занять несколько минут."
+    btn_yes: "Да, установить"
+    btn_no: "Не сейчас"
+    btn_never_ask: "Больше не спрашивать"
+    modal_ok: "OK"
+    progress_start: "Устанавливаем PyTorch CUDA…"
+    progress_name: "PyTorch CUDA"
+    restart_sidebar_note: "Перезапусти PerkySue, чтобы загрузить новый PyTorch (CUDA)."
+    done_title: "PyTorch"
+    done_message: "Установка завершена. Полностью закрой PerkySue и открой снова, чтобы загрузился новый PyTorch."
+    error_title: "Не удалось установить PyTorch CUDA"
+  omnivoice:
+    section_title: OmniVoice
+    mode_clone: Клон
+    steps_label: Качество / скорость
+    steps_16: 16
+    steps_32: 32
+    steps_48: 48
   output:
     section_title: Вывод
     enabled: Включено
     engine_label: Движок
+    engine_switch_label: TTS-движок
+    retry_engine: Повторить загрузку
+    full_repair: Полное восстановление
+    engine_load_failed_short: "❌ Ошибка загрузки — см. ниже"
   playback:
     section_title: Воспроизведение
     volume: Громкость
     speed: Скорость
     auto_speak: Авто-озвучка
     auto_speak_hint: После Answer и Help
+    voice_payload: Умная вставка (только payload)
+    voice_payload_hint: Когда Voice включен, используй <PS_PAYLOAD> и вставляй только этот блок
+    read_aloud_payload: Читать payload вслух
+    read_aloud_payload_hint: TTS также озвучивает вставляемый текст
   packs:
     section_title: Голосовые паки
     default_body: Сейчас голос Pro по умолчанию. Для клона добавь voice_ref.wav в скин или возьми персонажей на Patreon.
@@ -626,7 +664,7 @@ header_alerts:
     omnivoice_requires_nvidia: OmniVoice требует NVIDIA/CUDA (на CPU/Vulkan недоступно).
     tts_install_in_progress: Установка уже выполняется — пожалуйста, подождите.
     ai_disclaimer: ⚠️ Ответы ИИ могут быть неточными. Проверяйте факты.
-    recording_no_audio: Аудио не захвачено — запись остановлена. Проверь микрофон.
+    recording_no_audio: Нет голоса. Выбери микрофон в -> Настройки -> Производительность
     recording_too_short: Запись слишком короткая — текст не найден. Проверь микрофон или говори дольше.
     copied_to_clipboard: Скопировано в буфер обмена
     llm_not_available: LLM-оркестратор недоступен.

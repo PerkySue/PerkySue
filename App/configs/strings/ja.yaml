@@ -196,7 +196,7 @@
       url: ''
     credit: Jérôme Corbiau 作  ·  Apache 2.0 ライセンス
 common:
-  window_title: PerkySue — Beta 0.29.3
+  window_title: PerkySue — Beta 0.29.4
   header_banner:
     free_invite: PerkySue Beta — 無料 · Proお試し（30日・カード不要）
     free_after_trial: PerkySue Beta — 無料
@@ -254,18 +254,56 @@ voice:
     button: エンジンをインストール
     button_working: インストール中…
     retry: もう一度
+    progress_name_chatterbox: Chatterbox Turbo
+    progress_name_omnivoice: OmniVoice
   engine:
+    chatterbox_multilingual_hint: "English（Turbo）は高速。ほかの言語は別の多言語モデルを使うため、CPUだと遅くなることがある。"
+    chatterbox_last_stt_not_english: "⚠ 最後に検出された言語は English ではない。Chatterbox は多言語モデルに切り替わり、CPUでは遅くなることがある。"
+    chatterbox_ui_locale_hint: "⚠ UI が English ではない。普段の多言語利用は OmniVoice のほうが合うことが多い。"
+    tts_pytorch_cpu_only: "⚠ TTS は PyTorch {version}（CUDAなし）またはGPU不一致のCUDAビルドを使用中。Whisper/llama-server はGPUを使える場合がある。RTX 50xx は install_pytorch_cuda_cu128.bat、それ以外は install_pytorch_cuda_cu124.bat を実行して PerkySue を再起動。"
+    tts_cpu_chatterbox: "⚠ Chatterbox は CPU で動作中。CUDA GPU より合成がかなり遅い。"
+    tts_cpu_generic: "⚠ 音声合成は CPU で動作中。GPU より遅い。"
     recommended_suffix: "（推奨）"
+  pytorch_cuda:
+    button: "PyTorch CUDA をインストール"
+    dialog_title: "音声合成を高速化（GPU）"
+    dialog_body: "PerkySue は現在 CPU-only の PyTorch を使っているため、Chatterbox と OmniVoice は NVIDIA を使えない。\n\n今すぐ CUDA 対応 PyTorch を入れる？ 大きなダウンロード（約2GB以上）で、数分かかる場合がある。"
+    dialog_message: "PerkySue は現在 CPU-only の PyTorch を使っているため、Chatterbox と OmniVoice は NVIDIA を使えない。\n\n今すぐ CUDA 対応 PyTorch を入れる？ 大きなダウンロード（約2GB以上）で、数分かかる場合がある。"
+    btn_yes: "はい、インストール"
+    btn_no: "今はしない"
+    btn_never_ask: "今後は表示しない"
+    modal_ok: "OK"
+    progress_start: "PyTorch CUDA をインストール中…"
+    progress_name: "PyTorch CUDA"
+    restart_sidebar_note: "新しい PyTorch（CUDA）を読み込むため、PerkySue を再起動して。"
+    done_title: "PyTorch"
+    done_message: "インストール完了。PerkySue をいったん完全に閉じて、再起動すると新しい PyTorch が読み込まれる。"
+    error_title: "PyTorch CUDA のインストール失敗"
+  omnivoice:
+    section_title: OmniVoice
+    mode_clone: クローン
+    steps_label: 品質 / 速度
+    steps_16: 16
+    steps_32: 32
+    steps_48: 48
   output:
     section_title: 出力
     enabled: 有効
     engine_label: エンジン
+    engine_switch_label: TTS エンジン
+    retry_engine: 再読み込み
+    full_repair: 完全修復
+    engine_load_failed_short: "❌ 読み込み失敗 — 下を確認"
   playback:
     section_title: 再生
     volume: 音量
     speed: 速度
     auto_speak: 自動読み上げ
     auto_speak_hint: Answer / Help のあと
+    voice_payload: スマート貼り付け（payloadのみ）
+    voice_payload_hint: Voiceがオンの時は <PS_PAYLOAD> 形式を使い、そのブロックだけ貼り付ける
+    read_aloud_payload: payload も読み上げる
+    read_aloud_payload_hint: TTS が貼り付け対象テキストも読み上げる
   packs:
     section_title: ボイスパック
     default_body: いまはデフォルトの Pro ボイス。クローン用に skin に voice_ref.wav を足すか、Patreon のキャラボイスをどうぞ。
@@ -626,7 +664,7 @@ header_alerts:
     omnivoice_requires_nvidia: OmniVoice には NVIDIA/CUDA が必要です（CPU/Vulkan では利用できません）。
     tts_install_in_progress: インストールはすでに進行中です — しばらくお待ちください。
     ai_disclaimer: ⚠️ AIの回答は不正確な場合があります。事実を確認してください。
-    recording_no_audio: 音声がキャプチャされなかった — 録音停止またはマイクを確認して。
+    recording_no_audio: 声なし。マイク選択は -> 設定 -> パフォーマンス内
     recording_too_short: 録音が短すぎ — テキストが検出されなかった。マイクを確認するか、もっと長く話して。
     copied_to_clipboard: クリップボードにコピーした
     llm_not_available: LLMオーケストレーターが使用できない。

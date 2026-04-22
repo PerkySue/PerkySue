@@ -181,7 +181,7 @@ REM ------------------------------------------------------------------
 REM  Optional - alternate base URL for remote entitlement HTTP only.
 REM  Value must be an HTTPS origin (no path), e.g. https://xxx.workers.dev
 REM  Uncomment and set locally for internal builds; do not commit real URLs.
-REM  Name is obscure on purpose; see private handoff if you need this.
+REM  Name is obscure on purpose; see internal release notes if you need this.
 REM ------------------------------------------------------------------
 REM set PERKYSUE_LICENSE_API=
 

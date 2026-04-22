@@ -196,7 +196,7 @@
       url: ''
     credit: Creado por Jérôme Corbiau  ·  Licencia Apache 2.0
 common:
-  window_title: PerkySue — Beta 0.29.3
+  window_title: PerkySue — Beta 0.29.4
   header_banner:
     free_invite: PerkySue Beta — Gratis · Prueba Pro (30 d. · sin tarjeta)
     free_after_trial: PerkySue Beta — Gratis
@@ -254,18 +254,56 @@ voice:
     button: Instalar el motor
     button_working: Instalando…
     retry: Reintentar
+    progress_name_chatterbox: Chatterbox Turbo
+    progress_name_omnivoice: OmniVoice
   engine:
+    chatterbox_multilingual_hint: "En inglés (Turbo) va rápido. En otros idiomas usa un modelo multilingüe aparte y en CPU puede ir lento."
+    chatterbox_last_stt_not_english: "⚠ El último idioma detectado no fue inglés. Chatterbox usará el modelo multilingüe y puede tardar en CPU."
+    chatterbox_ui_locale_hint: "⚠ Tu interfaz no está en inglés. Para hablar en varios idiomas, OmniVoice suele encajar mejor."
+    tts_pytorch_cpu_only: "⚠ TTS usa PyTorch {version} sin CUDA, o una build CUDA que no encaja con tu GPU. Whisper/llama-server pueden seguir usando GPU. RTX 50xx: usa install_pytorch_cuda_cu128.bat. Otros: install_pytorch_cuda_cu124.bat y reinicia PerkySue."
+    tts_cpu_chatterbox: "⚠ Chatterbox está en CPU. La síntesis será bastante más lenta que con GPU CUDA."
+    tts_cpu_generic: "⚠ Texto a voz está en CPU. Va más lento que en GPU."
     recommended_suffix: " (recomendado)"
+  pytorch_cuda:
+    button: "Instalar PyTorch CUDA"
+    dialog_title: "Acelerar texto a voz (GPU)"
+    dialog_body: "PerkySue usa ahora un PyTorch solo CPU, así que Chatterbox y OmniVoice no pueden usar tu NVIDIA.\n\n¿Instalamos PyTorch con CUDA ahora? Descarga grande (~2+ GB), puede tardar unos minutos."
+    dialog_message: "PerkySue usa ahora un PyTorch solo CPU, así que Chatterbox y OmniVoice no pueden usar tu NVIDIA.\n\n¿Instalamos PyTorch con CUDA ahora? Descarga grande (~2+ GB), puede tardar unos minutos."
+    btn_yes: "Sí, instalar"
+    btn_no: "Ahora no"
+    btn_never_ask: "No volver a preguntar"
+    modal_ok: "OK"
+    progress_start: "Instalando PyTorch CUDA…"
+    progress_name: "PyTorch CUDA"
+    restart_sidebar_note: "Reinicia PerkySue para cargar el nuevo PyTorch (CUDA)."
+    done_title: "PyTorch"
+    done_message: "Instalación lista. Cierra PerkySue del todo y ábrelo de nuevo para cargar el nuevo PyTorch."
+    error_title: "Falló la instalación de PyTorch CUDA"
+  omnivoice:
+    section_title: OmniVoice
+    mode_clone: Clonar
+    steps_label: Calidad / velocidad
+    steps_16: 16
+    steps_32: 32
+    steps_48: 48
   output:
     section_title: Salida
     enabled: Activado
     engine_label: Motor
+    engine_switch_label: Motor TTS
+    retry_engine: Reintentar carga
+    full_repair: Reparación completa
+    engine_load_failed_short: "❌ Falló la carga — mira abajo"
   playback:
     section_title: Reproducción
     volume: Volumen
     speed: Velocidad
     auto_speak: Hablar solo
     auto_speak_hint: Tras los modos Answer y Help
+    voice_payload: Inyección inteligente (solo payload)
+    voice_payload_hint: Con Voz activa, usa <PS_PAYLOAD> y pega solo ese bloque
+    read_aloud_payload: Leer payload en voz alta
+    read_aloud_payload_hint: TTS también lee el texto inyectable
   packs:
     section_title: Packs de voz
     default_body: Voz Pro por defecto. Añade voice_ref.wav en un skin para clonar, o pilla packs de personajes en Patreon.
@@ -626,7 +664,7 @@ header_alerts:
     omnivoice_requires_nvidia: OmniVoice requiere NVIDIA/CUDA (no disponible en CPU/Vulkan).
     tts_install_in_progress: La instalación ya está en curso — por favor espera.
     ai_disclaimer: ⚠️ Las respuestas de la IA pueden ser inexactas. Verifica los hechos.
-    recording_no_audio: Sin audio capturado — grabación parada. Comprueba el micro.
+    recording_no_audio: Sin voz. Elige un Micro en -> Ajustes -> Rendimiento
     recording_too_short: Grabación muy corta — sin texto detectado. Comprueba el micro o habla más.
     copied_to_clipboard: Copiado al portapapeles
     llm_not_available: Orquestador LLM no disponible.

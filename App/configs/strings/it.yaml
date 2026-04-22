@@ -196,7 +196,7 @@
       url: ''
     credit: Creato da Jérôme Corbiau  ·  Licenza Apache 2.0
 common:
-  window_title: PerkySue — Beta 0.29.3
+  window_title: PerkySue — Beta 0.29.4
   header_banner:
     free_invite: PerkySue Beta — Gratis · Prova Pro (30 gg · senza carta)
     free_after_trial: PerkySue Beta — Gratis
@@ -254,18 +254,56 @@ voice:
     button: Installa motore
     button_working: Installazione…
     retry: Riprova
+    progress_name_chatterbox: Chatterbox Turbo
+    progress_name_omnivoice: OmniVoice
   engine:
+    chatterbox_multilingual_hint: "In inglese (Turbo) e veloce. Nelle altre lingue usa un modello multilingua separato e su CPU puo essere lento."
+    chatterbox_last_stt_not_english: "⚠ L'ultima lingua rilevata non era inglese. Chatterbox usera il modello multilingua, piu lento su CPU."
+    chatterbox_ui_locale_hint: "⚠ L'app non e in inglese. Per uso multilingua quotidiano, OmniVoice spesso va meglio."
+    tts_pytorch_cpu_only: "⚠ TTS usa PyTorch {version} senza CUDA, o una build CUDA non adatta alla tua GPU. Whisper/llama-server possono comunque usare la GPU. RTX 50xx: usa install_pytorch_cuda_cu128.bat. Altri: install_pytorch_cuda_cu124.bat e riavvia PerkySue."
+    tts_cpu_chatterbox: "⚠ Chatterbox gira su CPU. La sintesi sara molto piu lenta rispetto a una GPU CUDA."
+    tts_cpu_generic: "⚠ La sintesi vocale gira su CPU. E piu lenta rispetto alla GPU."
     recommended_suffix: " (consigliato)"
+  pytorch_cuda:
+    button: "Installa PyTorch CUDA"
+    dialog_title: "Accelera sintesi vocale (GPU)"
+    dialog_body: "PerkySue sta usando un PyTorch solo CPU, quindi Chatterbox e OmniVoice non possono usare la tua NVIDIA.\n\nInstallare ora PyTorch con CUDA? Download grande (~2+ GB), potrebbero volerci alcuni minuti."
+    dialog_message: "PerkySue sta usando un PyTorch solo CPU, quindi Chatterbox e OmniVoice non possono usare la tua NVIDIA.\n\nInstallare ora PyTorch con CUDA? Download grande (~2+ GB), potrebbero volerci alcuni minuti."
+    btn_yes: "Si, installa"
+    btn_no: "Non ora"
+    btn_never_ask: "Non chiedermelo piu"
+    modal_ok: "OK"
+    progress_start: "Installazione PyTorch CUDA…"
+    progress_name: "PyTorch CUDA"
+    restart_sidebar_note: "Riavvia PerkySue per caricare il nuovo PyTorch (CUDA)."
+    done_title: "PyTorch"
+    done_message: "Installazione completata. Chiudi del tutto PerkySue e riaprilo per caricare il nuovo PyTorch."
+    error_title: "Installazione PyTorch CUDA non riuscita"
+  omnivoice:
+    section_title: OmniVoice
+    mode_clone: Clona
+    steps_label: Qualita / velocita
+    steps_16: 16
+    steps_32: 32
+    steps_48: 48
   output:
     section_title: Uscita
     enabled: Attivo
     engine_label: Motore
+    engine_switch_label: Motore TTS
+    retry_engine: Riprova caricamento
+    full_repair: Riparazione completa
+    engine_load_failed_short: "❌ Caricamento fallito — vedi sotto"
   playback:
     section_title: Riproduzione
     volume: Volume
     speed: Velocità
     auto_speak: Parla in automatico
     auto_speak_hint: Dopo i modi Answer e Help
+    voice_payload: Iniezione smart (solo payload)
+    voice_payload_hint: Con Voce attiva, usa <PS_PAYLOAD> e incolla solo quel blocco
+    read_aloud_payload: Leggi payload ad alta voce
+    read_aloud_payload_hint: TTS legge anche il testo iniettabile
   packs:
     section_title: Pack vocali
     default_body: Voce Pro predefinita. Aggiungi voice_ref.wav allo skin per il cloning, o prendi i personaggi su Patreon.
@@ -626,7 +664,7 @@ header_alerts:
     omnivoice_requires_nvidia: OmniVoice richiede NVIDIA/CUDA (non disponibile su CPU/Vulkan).
     tts_install_in_progress: Installazione già in corso — attendi.
     ai_disclaimer: ⚠️ Le risposte dell’IA possono essere inesatte. Verifica i fatti.
-    recording_no_audio: Nessun audio catturato — registrazione fermata. Controlla il microfono.
+    recording_no_audio: Nessuna voce. Scegli un Micro in -> Impostazioni -> Prestazioni
     recording_too_short: Registrazione troppo breve — nessun testo. Controlla il micro o parla più a lungo.
     copied_to_clipboard: Copiato negli appunti
     llm_not_available: Orchestratore LLM non disponibile.

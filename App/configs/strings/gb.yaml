@@ -196,7 +196,7 @@
       url: ''
     credit: Created by Jérôme Corbiau  ·  Licensed under Apache 2.0
 common:
-  window_title: PerkySue — Beta 0.29.3
+  window_title: PerkySue — Beta 0.29.4
   header_banner:
     free_invite: PerkySue Beta — Free · Try Pro (30 days, no card)
     free_after_trial: PerkySue Beta — Free
@@ -254,18 +254,56 @@ voice:
     button: Install engine
     button_working: Installing…
     retry: Try again
+    progress_name_chatterbox: Chatterbox Turbo
+    progress_name_omnivoice: OmniVoice
   engine:
+    chatterbox_multilingual_hint: "English (Turbo) is fast. Other languages use a separate multilingual model and can be slow on CPU."
+    chatterbox_last_stt_not_english: "⚠ Last detected speech was not English. Chatterbox will use the multilingual model, which can be slow on CPU."
+    chatterbox_ui_locale_hint: "⚠ App language is not English. For regular multilingual speech, OmniVoice is often a better fit."
+    tts_pytorch_cpu_only: "⚠ TTS is using PyTorch {version} without CUDA, or a CUDA build that does not match your GPU. Whisper/llama-server may still use GPU. RTX 50xx: run install_pytorch_cuda_cu128.bat. Others: install_pytorch_cuda_cu124.bat, then restart PerkySue."
+    tts_cpu_chatterbox: "⚠ Chatterbox is running on CPU. Synthesis will be much slower than on a CUDA GPU."
+    tts_cpu_generic: "⚠ Text-to-speech is running on CPU. It is slower than on GPU."
     recommended_suffix: " (recommended)"
+  pytorch_cuda:
+    button: "Install PyTorch CUDA"
+    dialog_title: "Speed up text-to-speech (GPU)"
+    dialog_body: "PerkySue is currently using a CPU-only PyTorch build, so Chatterbox and OmniVoice cannot use your NVIDIA GPU.\n\nInstall CUDA-enabled PyTorch now? Large download (~2+ GB), may take a few minutes."
+    dialog_message: "PerkySue is currently using a CPU-only PyTorch build, so Chatterbox and OmniVoice cannot use your NVIDIA GPU.\n\nInstall CUDA-enabled PyTorch now? Large download (~2+ GB), may take a few minutes."
+    btn_yes: "Yes, install"
+    btn_no: "Not now"
+    btn_never_ask: "Don’t ask again"
+    modal_ok: "OK"
+    progress_start: "Installing PyTorch CUDA…"
+    progress_name: "PyTorch CUDA"
+    restart_sidebar_note: "Restart PerkySue to load the new PyTorch (CUDA)."
+    done_title: "PyTorch"
+    done_message: "Install finished. Fully close PerkySue and start it again so the new PyTorch loads."
+    error_title: "PyTorch CUDA install failed"
+  omnivoice:
+    section_title: OmniVoice
+    mode_clone: Clone
+    steps_label: Quality / speed
+    steps_16: 16
+    steps_32: 32
+    steps_48: 48
   output:
     section_title: Output
     enabled: Enabled
     engine_label: Engine
+    engine_switch_label: TTS engine
+    retry_engine: Retry load
+    full_repair: Full repair
+    engine_load_failed_short: "❌ Load failed — see below"
   playback:
     section_title: Playback
     volume: Volume
     speed: Speed
     auto_speak: Auto-speak
     auto_speak_hint: After Answer and Help modes
+    voice_payload: Smart inject (payload only)
+    voice_payload_hint: When Voice is on, use <PS_PAYLOAD> layout and paste only that block
+    read_aloud_payload: Read payload aloud
+    read_aloud_payload_hint: TTS also reads the injectable text
   tts:
     lang_not_supported: '{lang} is not supported for text-to-speech with Chatterbox.'
   packs:
@@ -668,7 +706,7 @@ header_alerts:
     omnivoice_requires_nvidia: OmniVoice requires NVIDIA/CUDA (not available on CPU/Vulkan).
     tts_install_in_progress: Installation already in progress — please wait.
     ai_disclaimer: ⚠️ AI responses may be inaccurate. Verify the facts.
-    recording_no_audio: No audio captured — recording stopped or check microphone.
+    recording_no_audio: No voice. Select a Microphone in -> Settings -> Performance
     recording_too_short: Recording too short — no text detected. Check microphone or speak longer.
     copied_to_clipboard: Copied to clipboard
     llm_not_available: LLM orchestrator not available.

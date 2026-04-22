@@ -210,10 +210,10 @@ PerkySue started as a **personal productivity** tool — voice → **local STT**
 
 ## 📋 Changelog
 
-### Beta 0.29.3 (April 2026) — shipped
-- **Hotfix defaults on existing installs:** fallback now correctly resolves **Remember last Q/A = 2** and **Inject all modes in chat = On** when those keys were previously absent.
-- **Hotfix post-update checks:** runtime probe now validates loopback dependencies for `system_only` / `mix` capture (`webrtcvad`, `pyaudiowpatch` on Windows), reducing false “mic-only fallback” after updates.
-- **Support diagnostics:** clearer post-update dependency probe logs (required modules + failure excerpt).
+### Beta 0.29.4 (April 2026) — shipped
+- **TTS stabilization:** OmniVoice install/repair flow is stable again, including TorchCodec/FFmpeg shared handling on Windows.
+- **Voice verify fix:** OmniVoice final test now accepts both `torch.Tensor` and `numpy.ndarray` audio outputs.
+- **Voice UX hardening:** repair/full-repair paths are clearer and safer for non-technical users.
 - **Details:** **[CHANGELOG.md](CHANGELOG.md)**.
 
 ### Beta 0.29.2 (April 2026) — shipped

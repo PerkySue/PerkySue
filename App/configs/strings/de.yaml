@@ -196,7 +196,7 @@
       url: ''
     credit: Erstellt von Jérôme Corbiau  ·  Lizenz Apache 2.0
 common:
-  window_title: PerkySue — Beta 0.29.3
+  window_title: PerkySue — Beta 0.29.4
   header_banner:
     free_invite: PerkySue Beta — Gratis · Pro testen (30 T. · ohne Karte)
     free_after_trial: PerkySue Beta — Gratis
@@ -254,18 +254,56 @@ voice:
     button: Engine installieren
     button_working: Wird installiert…
     retry: Nochmal versuchen
+    progress_name_chatterbox: Chatterbox Turbo
+    progress_name_omnivoice: OmniVoice
   engine:
+    chatterbox_multilingual_hint: "Englisch (Turbo) ist schnell. Andere Sprachen nutzen ein separates Mehrsprachen-Modell und koennen auf CPU langsam sein."
+    chatterbox_last_stt_not_english: "⚠ Letzte erkannte Sprache war nicht Englisch. Chatterbox nutzt jetzt das Mehrsprachen-Modell, auf CPU oft langsam."
+    chatterbox_ui_locale_hint: "⚠ Deine App ist nicht auf Englisch. Fuer mehrsprachige Nutzung passt OmniVoice meist besser."
+    tts_pytorch_cpu_only: "⚠ TTS nutzt PyTorch {version} ohne CUDA oder mit einer CUDA-Build, die nicht zu deiner GPU passt. Whisper/llama-server koennen weiter GPU nutzen. RTX 50xx: install_pytorch_cuda_cu128.bat. Andere: install_pytorch_cuda_cu124.bat, dann PerkySue neu starten."
+    tts_cpu_chatterbox: "⚠ Chatterbox laeuft auf CPU. Die Ausgabe ist deutlich langsamer als mit CUDA-GPU."
+    tts_cpu_generic: "⚠ Text-to-Speech laeuft auf CPU. Das ist langsamer als auf GPU."
     recommended_suffix: " (empfohlen)"
+  pytorch_cuda:
+    button: "PyTorch CUDA installieren"
+    dialog_title: "Text-to-Speech beschleunigen (GPU)"
+    dialog_body: "PerkySue nutzt gerade eine CPU-only-PyTorch-Build. Deshalb koennen Chatterbox und OmniVoice deine NVIDIA nicht nutzen.\n\nJetzt PyTorch mit CUDA installieren? Grosse Downloads (~2+ GB), kann ein paar Minuten dauern."
+    dialog_message: "PerkySue nutzt gerade eine CPU-only-PyTorch-Build. Deshalb koennen Chatterbox und OmniVoice deine NVIDIA nicht nutzen.\n\nJetzt PyTorch mit CUDA installieren? Grosse Downloads (~2+ GB), kann ein paar Minuten dauern."
+    btn_yes: "Ja, installieren"
+    btn_no: "Nicht jetzt"
+    btn_never_ask: "Nicht mehr fragen"
+    modal_ok: "OK"
+    progress_start: "PyTorch CUDA wird installiert…"
+    progress_name: "PyTorch CUDA"
+    restart_sidebar_note: "Starte PerkySue neu, damit das neue PyTorch (CUDA) geladen wird."
+    done_title: "PyTorch"
+    done_message: "Installation fertig. Schliess PerkySue komplett und starte neu, damit das neue PyTorch geladen wird."
+    error_title: "PyTorch CUDA-Installation fehlgeschlagen"
+  omnivoice:
+    section_title: OmniVoice
+    mode_clone: Klonen
+    steps_label: Qualitaet / Tempo
+    steps_16: 16
+    steps_32: 32
+    steps_48: 48
   output:
     section_title: Ausgabe
     enabled: Aktiv
     engine_label: Engine
+    engine_switch_label: TTS-Engine
+    retry_engine: Laden wiederholen
+    full_repair: Vollstaendige Reparatur
+    engine_load_failed_short: "❌ Laden fehlgeschlagen — siehe unten"
   playback:
     section_title: Wiedergabe
     volume: Lautstärke
     speed: Tempo
     auto_speak: Auto-Vorlesen
     auto_speak_hint: Nach Answer- und Help-Modus
+    voice_payload: Smart Inject (nur Payload)
+    voice_payload_hint: Mit aktiver Stimme <PS_PAYLOAD> nutzen und nur diesen Block einfuegen
+    read_aloud_payload: Payload vorlesen
+    read_aloud_payload_hint: TTS liest auch den einfuegbaren Text
   packs:
     section_title: Stimmen-Packs
     default_body: Standard-Pro-Stimme. Für Klonen voice_ref.wav in den Skin legen – oder Charakter-Stimmen auf Patreon holen.
@@ -626,7 +664,7 @@ header_alerts:
     omnivoice_requires_nvidia: OmniVoice benötigt NVIDIA/CUDA (auf CPU/Vulkan nicht verfügbar).
     tts_install_in_progress: Installation läuft bereits — bitte warten.
     ai_disclaimer: ⚠️ KI-Antworten können ungenau sein. Bitte Fakten prüfen.
-    recording_no_audio: Kein Audio aufgenommen — Aufnahme gestoppt oder Mikro prüfen.
+    recording_no_audio: Keine Stimme. Mikro wählen in -> Einstellungen -> Performance
     recording_too_short: Aufnahme zu kurz — kein Text erkannt. Mikro prüfen oder länger sprechen.
     copied_to_clipboard: In die Zwischenablage kopiert
     llm_not_available: LLM-Orchestrator nicht verfügbar.

@@ -196,7 +196,7 @@ about:
       url: ''
     credit: Created by Jérôme Corbiau  ·  Licensed under Apache 2.0
 common:
-  window_title: PerkySue — Beta 0.29.3
+  window_title: PerkySue — Beta 0.29.4
   header_banner:
     free_invite: PerkySue Beta — Free · Try Pro (30 days, no card)
     free_after_trial: PerkySue Beta — Free
@@ -213,6 +213,7 @@ common:
     chat: 💭   Chat
     help: ❓   Help
     voice: 🔊   Voice
+    avatar_editor: 🎨   Avatar Editor
     user: 👤   User
     about: 💡   About
   statuses:
@@ -298,6 +299,7 @@ voice:
     engine_label: Engine
     engine_switch_label: TTS engine
     retry_engine: Retry load
+    full_repair: Full repair
     engine_load_failed_short: "❌ Load failed — see below"
   playback:
     section_title: Playback
@@ -653,6 +655,10 @@ chat:
   user_fallback: You
   free_answer_notice: On the Free plan, each question is handled independently — the assistant does not remember your previous messages. Multi-turn context, which lets the assistant remember the ongoing exchange, and cursor injection (Smart Focus) are reserved for the Pro plan — upgrade whenever you want.
   pipeline_busy: ⏳ Wait for recording or the current reply to finish before sending.
+  continuous_label: Continuous Chat (beta)
+  continuous_started: Continuous Chat started — speak naturally.
+  continuous_stopped: Continuous Chat stopped.
+  continuous_no_llm: Continuous Chat needs a working local LLM.
 help:
   title: Help
   new_chat: New chat
@@ -714,7 +720,7 @@ header_alerts:
     omnivoice_requires_nvidia: OmniVoice requires NVIDIA/CUDA (not available on CPU/Vulkan).
     tts_install_in_progress: Installation already in progress — please wait.
     ai_disclaimer: ⚠️ AI responses may be inaccurate. Verify the facts.
-    recording_no_audio: No audio captured — recording stopped or check microphone.
+    recording_no_audio: No voice. Select a Microphone in -> Settings -> Performance
     recording_too_short: Recording too short — no text detected. Check microphone or speak longer.
     copied_to_clipboard: Copied to clipboard
     llm_not_available: LLM orchestrator not available.

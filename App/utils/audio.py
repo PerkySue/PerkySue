@@ -22,6 +22,18 @@ import numpy as np
 
 logger = logging.getLogger("perkysue.audio")
 
+
+def _pcm_rms_peak(x: Optional[np.ndarray]) -> tuple[float, float]:
+    """RMS and peak for float32 mono chunk (empty → zeros)."""
+    if x is None or len(x) == 0:
+        return 0.0, 0.0
+    xf = np.asarray(x, dtype=np.float32)
+    ax = np.abs(xf)
+    peak = float(np.max(ax))
+    rms = float(np.sqrt(np.mean(xf * xf)))
+    return rms, peak
+
+
 # --- VAD sensitivity presets ---
 # Each preset maps to (vad_aggressiveness: int, speech_ratio_threshold: float).
 # vad_aggressiveness: WebRTC VAD 0 (most permissive) → 3 (most strict).
@@ -79,6 +91,33 @@ def _downmix_input_to_mono(indata: np.ndarray) -> np.ndarray:
     if indata.shape[1] == 1:
         return indata[:, 0].copy()
     return np.mean(indata, axis=1, dtype=np.float32)
+
+
+def _open_sd_input_stream_with_fallback(sd: Any, kwargs: dict[str, Any], *, logger_name: str) -> Any:
+    """Open sounddevice.InputStream with resilient fallback for stale/invalid mic devices.
+
+    Typical field error on Windows when saved device index is no longer valid:
+    PortAudioError: Invalid number of channels [PaErrorCode -9998]
+    """
+    try:
+        return sd.InputStream(**kwargs)
+    except Exception as e:
+        raw_msg = str(e)
+        msg = raw_msg.lower()
+        recoverable = ("-9998" in msg) or ("invalid number of channels" in msg) or ("invalid device" in msg)
+        if not recoverable:
+            raise
+        fallback_kwargs = dict(kwargs)
+        failed_device = fallback_kwargs.pop("device", None)
+        # Re-assert a safe mono stream for default input device.
+        fallback_kwargs["channels"] = 1
+        logger.warning(
+            "%s input stream open failed (%s, device=%s). Falling back to default input device.",
+            logger_name,
+            raw_msg,
+            failed_device,
+        )
+        return sd.InputStream(**fallback_kwargs)
 
 
 def _get_pyaudio_wpatch():
@@ -197,6 +236,7 @@ class BaseAudioCapture(ABC):
         on_input_level: Optional[Callable[[np.ndarray], None]] = None,
         on_input_stop: Optional[Callable[[], None]] = None,
         use_vad: bool = True,
+        pipeline_debug: bool = False,
     ):
         self.sample_rate = sample_rate
         self.vad_aggressiveness = vad_aggressiveness
@@ -206,6 +246,7 @@ class BaseAudioCapture(ABC):
         self._on_input_level = on_input_level
         self._on_input_stop = on_input_stop
         self._use_vad = use_vad
+        self._pipeline_debug = bool(pipeline_debug)
 
         self._recording = False
         self._audio_chunks: list[np.ndarray] = []
@@ -217,6 +258,12 @@ class BaseAudioCapture(ABC):
         # resetting the silence timer. Reduces false positives from transients.
         self._speech_ring: list[bool] = []
         self._speech_ring_size: int = 3  # ~300 ms at 100 ms chunks
+
+    def _pipeline_log(self, event: str, **fields: Any) -> None:
+        if not getattr(self, "_pipeline_debug", False):
+            return
+        tail = " ".join(f"{k}={v}" for k, v in fields.items())
+        logger.info("[pipeline] %s | %s", event, tail)
 
     def _init_vad(self) -> None:
         if not self._use_vad:
@@ -271,6 +318,15 @@ class BaseAudioCapture(ABC):
         raise NotImplementedError
 
     def request_stop(self) -> None:
+        if getattr(self, "_pipeline_debug", False):
+            try:
+                self._pipeline_log(
+                    "request_stop",
+                    chunks=len(self._audio_chunks),
+                    recording_flag=bool(self._recording),
+                )
+            except Exception:
+                pass
         with self._lock:
             self._recording = False
 
@@ -298,11 +354,24 @@ class BaseAudioCapture(ABC):
 
         if not self._audio_chunks:
             logger.warning("Aucun audio capturé")
+            if getattr(self, "_pipeline_debug", False):
+                self._pipeline_log("capture_empty", chunks=0)
             return np.array([], dtype=np.float32)
 
+        n_chunks = len(self._audio_chunks)
         audio = np.concatenate(self._audio_chunks)
         duration = len(audio) / self.sample_rate
         logger.info(f"🛑 Listening stopped: {duration:.1f}s")
+        if getattr(self, "_pipeline_debug", False):
+            rms, peak = _pcm_rms_peak(audio)
+            self._pipeline_log(
+                "capture_concat",
+                chunks=n_chunks,
+                samples=len(audio),
+                duration_sec=f"{duration:.2f}",
+                rms=f"{rms:.5f}",
+                peak=f"{peak:.4f}",
+            )
 
         return audio
 
@@ -333,6 +402,13 @@ class BaseAudioCapture(ABC):
 
                 if time.time() - start_time > self.max_duration:
                     logger.warning("Durée max atteinte")
+                    if getattr(self, "_pipeline_debug", False):
+                        self._pipeline_log(
+                            "vad_max_duration",
+                            elapsed_sec=f"{time.time() - start_time:.2f}",
+                            max_duration_sec=self.max_duration,
+                            chunks=len(self._audio_chunks),
+                        )
                     break
 
                 if self._audio_chunks and self._vad:
@@ -341,6 +417,15 @@ class BaseAudioCapture(ABC):
                         last_speech_time = time.time()
                     elif time.time() - last_speech_time > self.silence_timeout:
                         logger.info("Silence detected — auto-stop")
+                        if getattr(self, "_pipeline_debug", False):
+                            rms, peak = _pcm_rms_peak(recent)
+                            self._pipeline_log(
+                                "vad_silence",
+                                chunks=len(self._audio_chunks),
+                                silence_timeout_sec=self.silence_timeout,
+                                rms=f"{rms:.5f}",
+                                peak=f"{peak:.4f}",
+                            )
                         break
         except KeyboardInterrupt:
             pass
@@ -388,6 +473,7 @@ class AudioRecorder(BaseAudioCapture):
         on_input_level: Optional[Callable[[np.ndarray], None]] = None,
         on_input_stop: Optional[Callable[[], None]] = None,
         device: Optional[int] = None,
+        pipeline_debug: bool = False,
     ):
         super().__init__(
             sample_rate=sample_rate,
@@ -398,6 +484,7 @@ class AudioRecorder(BaseAudioCapture):
             on_input_level=on_input_level,
             on_input_stop=on_input_stop,
             use_vad=True,
+            pipeline_debug=pipeline_debug,
         )
         self._input_device = device
 
@@ -435,7 +522,7 @@ class AudioRecorder(BaseAudioCapture):
         if self._input_device is not None:
             kwargs["device"] = self._input_device
 
-        self._stream = sd.InputStream(**kwargs)
+        self._stream = _open_sd_input_stream_with_fallback(sd, kwargs, logger_name="Mic")
         self._streams = [self._stream]
         self._stream.start()
         logger.info("🎙️ Listening (mic)...")
@@ -458,6 +545,7 @@ class SystemLoopbackRecorder(BaseAudioCapture):
         on_input_level: Optional[Callable[[np.ndarray], None]] = None,
         on_input_stop: Optional[Callable[[], None]] = None,
         loopback_output_device: Optional[int] = None,
+        pipeline_debug: bool = False,
     ):
         super().__init__(
             sample_rate=sample_rate,
@@ -468,6 +556,7 @@ class SystemLoopbackRecorder(BaseAudioCapture):
             on_input_level=on_input_level,
             on_input_stop=on_input_stop,
             use_vad=True,
+            pipeline_debug=pipeline_debug,
         )
         self._loopback_output_device = loopback_output_device
         self._pawp_pa: Any = None
@@ -571,6 +660,7 @@ class MixedDualInputRecorder(BaseAudioCapture):
         loopback_output_device: Optional[int] = None,
         mix_mic_gain: float = 1.0,
         mix_loopback_gain: float = 0.8,
+        pipeline_debug: bool = False,
     ):
         super().__init__(
             sample_rate=sample_rate,
@@ -581,6 +671,7 @@ class MixedDualInputRecorder(BaseAudioCapture):
             on_input_level=on_input_level,
             on_input_stop=on_input_stop,
             use_vad=True,
+            pipeline_debug=pipeline_debug,
         )
         self._mic_device = mic_device
         self._loopback_output_device = loopback_output_device
@@ -595,6 +686,7 @@ class MixedDualInputRecorder(BaseAudioCapture):
         self._mic_chunks: list[np.ndarray] = []
         self._lb_chunks: list[np.ndarray] = []
         self._last_split_capture: Optional[dict[str, Any]] = None
+        self._pipeline_mic_q_drops = 0
 
     def _pawp_start_loopback_queue(self, lb_q: queue.Queue) -> tuple[int]:
         """Démarre le loopback vers ``lb_q`` ; définit ``self._pawp_pa`` et ajoute l'adaptateur à ``self._streams``."""
@@ -689,6 +781,7 @@ class MixedDualInputRecorder(BaseAudioCapture):
             self._mic_chunks = []
             self._lb_chunks = []
             self._last_split_capture = None
+            self._pipeline_mic_q_drops = 0
         self._speech_ring.clear()
 
         self._mic_q = queue.Queue(maxsize=64)
@@ -706,7 +799,7 @@ class MixedDualInputRecorder(BaseAudioCapture):
             try:
                 self._mic_q.put_nowait(mono)
             except queue.Full:
-                pass
+                self._pipeline_mic_q_drops += 1
 
         mic_kwargs: dict[str, Any] = dict(
             samplerate=self._mic_native_sr,
@@ -718,7 +811,7 @@ class MixedDualInputRecorder(BaseAudioCapture):
         if self._mic_device is not None:
             mic_kwargs["device"] = self._mic_device
 
-        mic_stream = sd.InputStream(**mic_kwargs)
+        mic_stream = _open_sd_input_stream_with_fallback(sd, mic_kwargs, logger_name="Mix mic")
         try:
             self._lb_native_sr = self._pawp_start_loopback_queue(self._lb_q)
         except Exception:
@@ -783,6 +876,7 @@ class MixedDualInputRecorder(BaseAudioCapture):
             self._mic_chunks = []
             self._lb_chunks = []
             self._last_split_capture = None
+            self._pipeline_mic_q_drops = 0
         self._speech_ring.clear()
 
         self._mic_q = queue.Queue(maxsize=64)
@@ -799,7 +893,7 @@ class MixedDualInputRecorder(BaseAudioCapture):
             try:
                 self._mic_q.put_nowait(mono)
             except queue.Full:
-                pass
+                self._pipeline_mic_q_drops += 1
 
         mic_kwargs: dict[str, Any] = dict(
             samplerate=self._mic_native_sr,
@@ -813,7 +907,7 @@ class MixedDualInputRecorder(BaseAudioCapture):
 
         mic_stream: Any = None
         try:
-            mic_stream = sd.InputStream(**mic_kwargs)
+            mic_stream = _open_sd_input_stream_with_fallback(sd, mic_kwargs, logger_name="Mix mic")
             self._lb_native_sr = self._pawp_start_loopback_queue(self._lb_q)
 
             def mixer_loop():
@@ -865,6 +959,14 @@ class MixedDualInputRecorder(BaseAudioCapture):
                     time.sleep(0.1)
                     if time.time() - start_time > self.max_duration:
                         logger.warning("Durée max atteinte")
+                        if getattr(self, "_pipeline_debug", False):
+                            self._pipeline_log(
+                                "mix_vad_max_duration",
+                                elapsed_sec=f"{time.time() - start_time:.2f}",
+                                max_duration_sec=self.max_duration,
+                                mix_chunks=len(self._audio_chunks),
+                                mic_q_drops=self._pipeline_mic_q_drops,
+                            )
                         break
                     # Même logique que ``BaseAudioCapture`` : VAD sur le dernier bloc = signal **mixé** (micro + système).
                     if self._audio_chunks and self._vad:
@@ -873,6 +975,18 @@ class MixedDualInputRecorder(BaseAudioCapture):
                             last_speech_time = time.time()
                         elif time.time() - last_speech_time > self.silence_timeout:
                             logger.info("Silence detected (mix) — auto-stop")
+                            if getattr(self, "_pipeline_debug", False):
+                                rms, peak = _pcm_rms_peak(recent)
+                                self._pipeline_log(
+                                    "mix_vad_silence",
+                                    mix_chunks=len(self._audio_chunks),
+                                    mic_seg_chunks=len(self._mic_chunks),
+                                    lb_seg_chunks=len(self._lb_chunks),
+                                    mic_q_drops=self._pipeline_mic_q_drops,
+                                    silence_timeout_sec=self.silence_timeout,
+                                    rms=f"{rms:.5f}",
+                                    peak=f"{peak:.4f}",
+                                )
                             break
             except KeyboardInterrupt:
                 pass
@@ -897,6 +1011,14 @@ class MixedDualInputRecorder(BaseAudioCapture):
         mixed = super().stop()
         mic = np.concatenate(self._mic_chunks).astype(np.float32, copy=False) if self._mic_chunks else np.array([], dtype=np.float32)
         system = np.concatenate(self._lb_chunks).astype(np.float32, copy=False) if self._lb_chunks else np.array([], dtype=np.float32)
+        if getattr(self, "_pipeline_debug", False):
+            self._pipeline_log(
+                "mix_tracks_concat",
+                mixed_samples=len(mixed),
+                mic_samples=len(mic),
+                system_samples=len(system),
+                mic_q_drops=getattr(self, "_pipeline_mic_q_drops", 0),
+            )
         self._last_split_capture = {
             "mic": mic,
             "system": system,
@@ -923,6 +1045,7 @@ def build_audio_recorder(
     mix_loopback_gain: float = 0.8,
     on_input_level: Optional[Callable[[np.ndarray], None]] = None,
     on_input_stop: Optional[Callable[[], None]] = None,
+    pipeline_debug: bool = False,
 ) -> BaseAudioCapture:
     """
     Fabrique l'enregistreur selon ``capture_mode``:
@@ -954,6 +1077,7 @@ def build_audio_recorder(
             on_input_level=on_input_level,
             on_input_stop=on_input_stop,
             device=mic_device,
+            pipeline_debug=pipeline_debug,
         )
 
     if mode == "system_only":
@@ -966,6 +1090,7 @@ def build_audio_recorder(
             on_input_level=on_input_level,
             on_input_stop=on_input_stop,
             loopback_output_device=loopback_device,
+            pipeline_debug=pipeline_debug,
         )
 
     return MixedDualInputRecorder(
@@ -980,4 +1105,5 @@ def build_audio_recorder(
         loopback_output_device=loopback_device,
         mix_mic_gain=mix_mic_gain,
         mix_loopback_gain=mix_loopback_gain,
+        pipeline_debug=pipeline_debug,
     )

@@ -2,7 +2,8 @@
 Optional YAML overlays: extra system instructions when Voice (TTS) is on.
 
 Keys mirror ``modes.yaml`` mode ids (``email``, ``message``, …). See ``App/configs/voice_modes.yaml``.
-User overrides: ``Data/Configs/voice_modes.yaml`` (merge by mode id).
+User overrides: ``Data/Configs/voice_modes.yaml`` (merge by mode id; empty ``system_prompt``
+does not replace the bundled overlay for that mode).
 """
 
 from __future__ import annotations
@@ -36,11 +37,27 @@ def _read_yaml(path: Path) -> dict:
 
 
 def load_voice_mode_overlays(system_path: Path, user_path: Optional[Path] = None) -> Dict[str, VoiceModeOverlay]:
-    merged = dict(_read_yaml(system_path))
+    system_data = _read_yaml(system_path)
+    merged: dict = dict(system_data)
     if user_path and user_path.exists():
         user_data = _read_yaml(user_path)
         for k, v in user_data.items():
-            merged[k] = v
+            if not isinstance(v, dict):
+                merged[k] = v
+                continue
+            mid = str(k).strip()
+            base = merged.get(mid) if isinstance(merged.get(mid), dict) else {}
+            if isinstance(base, dict) and base:
+                merged_entry = {**base, **v}
+                # Ne pas effacer le bloc PS_PAYLOAD du bundle si l'utilisateur laisse system_prompt vide.
+                if "system_prompt" in v and isinstance(v.get("system_prompt"), str):
+                    u_sp = (v.get("system_prompt") or "").strip()
+                    b_sp = (base.get("system_prompt") or "").strip()
+                    if not u_sp and b_sp:
+                        merged_entry["system_prompt"] = base["system_prompt"]
+                merged[mid] = merged_entry
+            else:
+                merged[k] = v
     out: Dict[str, VoiceModeOverlay] = {}
     for mode_id, data in merged.items():
         if not isinstance(data, dict):

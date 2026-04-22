@@ -110,6 +110,10 @@ audio:
   vad_sensitivity: "normal"
   silence_timeout: 2.0
 
+  # Extra INFO logs for mix capture + Continuous Chat (prefix [pipeline] / [continuous] on logger perkysue).
+  # Enable in Data/Configs/config.yaml under audio:, or turn on Settings → Advanced → Debug mode (includes full GUI console dumps too).
+  pipeline_debug: false
+
 # --- Text-to-Speech (Pro, opt-in) — code in App/services/tts/ ; pip + ~1 GB model from Voice tab ---
 tts:
   enabled: true
@@ -160,6 +164,11 @@ modes:
   default: "transcribe"
   translate_target: "en"
   translate_source: "auto"
+
+# --- Chat ---
+chat:
+  # Keep Ask microphone loop open (hands-free) until stopped from Chat UI or Alt+Q.
+  continuous_chat_enabled: false
 
 # --- Hotkeys ---
 # Windows: RegisterHotKey — avoid alt+escape (reserved by Windows; registration often fails).

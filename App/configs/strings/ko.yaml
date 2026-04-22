@@ -196,7 +196,7 @@
       url: ''
     credit: '제작: Jérôme Corbiau  ·  Apache 2.0 라이선스'
 common:
-  window_title: PerkySue — Beta 0.29.3
+  window_title: PerkySue — Beta 0.29.4
   header_banner:
     free_invite: PerkySue Beta — 무료 · Pro 체험(30일·카드 없음)
     free_after_trial: PerkySue Beta — 무료
@@ -254,18 +254,56 @@ voice:
     button: 엔진 설치
     button_working: 설치 중…
     retry: 다시 시도
+    progress_name_chatterbox: Chatterbox Turbo
+    progress_name_omnivoice: OmniVoice
   engine:
+    chatterbox_multilingual_hint: "English(Turbo)는 빠르다. 다른 언어는 별도 다국어 모델을 써서 CPU에서 느릴 수 있다."
+    chatterbox_last_stt_not_english: "⚠ 마지막 감지 언어가 English가 아니다. Chatterbox가 다국어 모델로 전환되어 CPU에서는 더 느릴 수 있다."
+    chatterbox_ui_locale_hint: "⚠ 앱 언어가 English가 아니다. 일상 다국어 사용에는 OmniVoice가 더 잘 맞는 경우가 많다."
+    tts_pytorch_cpu_only: "⚠ TTS가 CUDA 없는 PyTorch {version} 또는 GPU와 맞지 않는 CUDA 빌드를 사용 중이다. Whisper/llama-server는 GPU를 계속 쓸 수 있다. RTX 50xx는 install_pytorch_cuda_cu128.bat, 그 외는 install_pytorch_cuda_cu124.bat 실행 후 PerkySue를 재시작해."
+    tts_cpu_chatterbox: "⚠ Chatterbox가 CPU에서 동작 중이다. CUDA GPU보다 합성이 훨씬 느리다."
+    tts_cpu_generic: "⚠ 텍스트 읽기가 CPU에서 동작 중이다. GPU보다 느리다."
     recommended_suffix: " (권장)"
+  pytorch_cuda:
+    button: "PyTorch CUDA 설치"
+    dialog_title: "텍스트 읽기 가속 (GPU)"
+    dialog_body: "PerkySue가 현재 CPU-only PyTorch를 사용 중이라 Chatterbox와 OmniVoice가 NVIDIA를 쓰지 못한다.\n\n지금 CUDA 지원 PyTorch를 설치할까? 대용량 다운로드(~2GB+)이며 몇 분 걸릴 수 있다."
+    dialog_message: "PerkySue가 현재 CPU-only PyTorch를 사용 중이라 Chatterbox와 OmniVoice가 NVIDIA를 쓰지 못한다.\n\n지금 CUDA 지원 PyTorch를 설치할까? 대용량 다운로드(~2GB+)이며 몇 분 걸릴 수 있다."
+    btn_yes: "네, 설치"
+    btn_no: "지금은 안 함"
+    btn_never_ask: "다시 묻지 않기"
+    modal_ok: "확인"
+    progress_start: "PyTorch CUDA 설치 중…"
+    progress_name: "PyTorch CUDA"
+    restart_sidebar_note: "새 PyTorch(CUDA)를 쓰려면 PerkySue를 재시작해."
+    done_title: "PyTorch"
+    done_message: "설치 완료. PerkySue를 완전히 종료한 뒤 다시 실행하면 새 PyTorch가 로드된다."
+    error_title: "PyTorch CUDA 설치 실패"
+  omnivoice:
+    section_title: OmniVoice
+    mode_clone: 클론
+    steps_label: 품질 / 속도
+    steps_16: 16
+    steps_32: 32
+    steps_48: 48
   output:
     section_title: 출력
     enabled: 켜짐
     engine_label: 엔진
+    engine_switch_label: TTS 엔진
+    retry_engine: 로드 다시 시도
+    full_repair: 전체 복구
+    engine_load_failed_short: "❌ 로드 실패 — 아래 확인"
   playback:
     section_title: 재생
     volume: 볼륨
     speed: 속도
     auto_speak: 자동 읽기
     auto_speak_hint: Answer·Help 모드 후에
+    voice_payload: 스마트 삽입 (payload만)
+    voice_payload_hint: Voice가 켜져 있으면 <PS_PAYLOAD> 형식을 쓰고 그 블록만 붙여넣기
+    read_aloud_payload: payload도 읽기
+    read_aloud_payload_hint: TTS가 붙여넣을 텍스트도 읽어준다
   packs:
     section_title: 보이스 팩
     default_body: 지금은 기본 Pro 보이스야. 클론하려면 스킨에 voice_ref.wav 추가하거나 Patreon 캐릭터 팩을 봐봐.
@@ -626,7 +664,7 @@ header_alerts:
     omnivoice_requires_nvidia: OmniVoice는 NVIDIA/CUDA가 필요합니다 (CPU/Vulkan에서는 사용할 수 없음).
     tts_install_in_progress: 설치가 이미 진행 중입니다 — 잠시만 기다려 주세요.
     ai_disclaimer: ⚠️ AI 답변은 부정확할 수 있습니다. 사실을 확인하세요.
-    recording_no_audio: 오디오가 캡처되지 않았다 — 녹음 중지 또는 마이크 확인.
+    recording_no_audio: 음성 없음. 마이크 선택 -> 설정 -> 성능에서
     recording_too_short: 녹음이 너무 짧다 — 텍스트 없음. 마이크 확인 또는 더 길게 말하기.
     copied_to_clipboard: 클립보드에 복사됨
     llm_not_available: LLM 오케스트레이터를 사용할 수 없다.

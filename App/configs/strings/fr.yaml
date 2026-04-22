@@ -196,7 +196,7 @@ about:
       url: ''
     credit: Créé par Jérôme Corbiau  ·  Licence Apache 2.0
 common:
-  window_title: PerkySue — Beta 0.29.3
+  window_title: PerkySue — Beta 0.29.4
   header_banner:
     free_invite: PerkySue Beta — Gratuit · Essai Pro (30 j · sans CB)
     free_after_trial: PerkySue Beta — Gratuit
@@ -213,6 +213,7 @@ common:
     chat: 💭   Chat
     help: ❓   Aide
     voice: 🔊   Voix
+    avatar_editor: 🎨   Avatar Editor
     user: 👤   Utilisateur
     about: 💡   À propos
   statuses:
@@ -298,6 +299,7 @@ voice:
     engine_label: Moteur
     engine_switch_label: Moteur TTS
     retry_engine: Réessayer le chargement
+    full_repair: Réparation complète
     engine_load_failed_short: "❌ Échec chargement — voir ci-dessous"
   playback:
     section_title: Lecture
@@ -653,6 +655,10 @@ chat:
   user_fallback: Vous
   free_answer_notice: Sur le plan gratuit, chaque question est traitée indépendamment — l'assistant ne se souvient pas de tes messages précédents. Le contexte multi-tours, qui permet à l'assistant de se souvenir de l'échange en cours, et l'injection au curseur (Smart Focus) sont réservés au plan Pro — upgrade quand tu veux.
   pipeline_busy: ⏳ Attends la fin de l'enregistrement ou de la réponse en cours avant d'envoyer.
+  continuous_label: Chat continu (bêta)
+  continuous_started: Chat continu démarré — parle naturellement.
+  continuous_stopped: Chat continu arrêté.
+  continuous_no_llm: Le Chat continu nécessite un LLM local opérationnel.
 help:
   title: Aide
   new_chat: Nouvelle conversation
@@ -714,7 +720,7 @@ header_alerts:
     omnivoice_requires_nvidia: OmniVoice nécessite NVIDIA/CUDA (non disponible sur CPU/Vulkan).
     tts_install_in_progress: Une installation est déjà en cours — merci de patienter.
     ai_disclaimer: ⚠️ Les réponses de l'IA peuvent être inexactes. Vérifie les faits.
-    recording_no_audio: Aucun audio capturé — enregistrement arrêté. Vérifie le micro.
+    recording_no_audio: Pas de voix. Choisis un Micro dans -> Paramètres -> Performance
     recording_too_short: Enregistrement trop court — pas de texte. Vérifie le micro ou parle plus longtemps.
     copied_to_clipboard: Copié dans le presse-papiers
     llm_not_available: Orchestrateur LLM indisponible.

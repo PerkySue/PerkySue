@@ -6,7 +6,6 @@ Version portable: tous les chemins passent par l'objet Paths.
 import json
 import queue
 import logging
-import importlib.util
 import os
 import re
 import subprocess
@@ -35,6 +34,7 @@ from utils.sounds_manager import SoundManager
 from utils.strings import s as i18n_s
 from utils.voice_payload import split_voice_payload_reply
 from utils.skin_paths import normalize_skin_id
+from utils.plugin_host import load_plugin_module
 from services.tts import TTSManager
 from services.tts.chatterbox_tts import (
     clear_blank_cuda_visible_devices,
@@ -100,6 +100,14 @@ def skin_character_display_name(skin_active: str) -> Optional[str]:
 class Orchestrator:
     def __init__(self, paths: Paths):
         self.paths = paths
+        # Internal: optional extension module under Data/Plugins/dev/.
+        # Must exist before config normalization (which may query tier gating).
+        self._dev_plugin_mod: Optional[Any] = None
+        self._dev_plugin_loaded: bool = False
+        self._avatar_editor_plugin_mod: Optional[Any] = None
+        self._avatar_editor_plugin_loaded: bool = False
+        self._brainstorm_plugin_mod: Optional[Any] = None
+        self._brainstorm_plugin_loaded: bool = False
         self._voice_mode_overlays = load_voice_mode_overlays(
             self.paths.voice_modes_file,
             self.paths.user_voice_modes_file,
@@ -136,6 +144,11 @@ class Orchestrator:
         self._target_window = None  # Handle de la fenêtre active au moment du hotkey
         self._last_inject_payload: Optional[str] = None  # Dernier texte injecté (hors Help) — raccourci reinject_last
         self._suppress_mode_hotkeys_until: float = 0.0
+        self._continuous_chat_enabled: bool = False
+        self._continuous_chat_thread: Optional[threading.Thread] = None
+        self._continuous_tts_cooldown_until: float = 0.0
+        # True while a Tk after(0) callback will call play_prepared (worker thread finished before UI ran it).
+        self._continuous_gui_tts_pending: bool = False
         self.last_stt_text = ""   # Dernière transcription Whisper (pour page Console)
         self.last_llm_text = ""   # Dernier texte produit par le LLM (pour page Console)
         self.last_llm_reasoning = ""  # Raisonnement séparé (API) — Console uniquement, jamais injecté
@@ -160,9 +173,6 @@ class Orchestrator:
         self.recorder: Optional[BaseAudioCapture] = None
         self.hotkey_manager: Optional[HotkeyManager] = None
         self.modes: dict[str, Mode] = {}
-        # Internal: optional extension module under Data/Plugins/dev/.
-        self._dev_plugin_mod: Optional[Any] = None
-        self._dev_plugin_loaded: bool = False
 
         # Skin & Audio manager
         skin_config = self.config.get("skin", {})
@@ -236,9 +246,28 @@ class Orchestrator:
         merged = self._deep_merge(defaults, user)
         # Normalize LLM keys so max_input_tokens/max_output_tokens and n_ctx/max_tokens stay in sync
         self._normalize_llm_config(merged)
+        self._normalize_audio_config(merged)
         self._normalize_feedback_config(merged)
         self._union_tts_trigger_modes(merged, defaults)
         return merged
+
+    def _normalize_audio_config(self, config: dict) -> None:
+        """Normalize audio config and enforce Free-tier STT source policy."""
+        audio = config.get("audio")
+        if not isinstance(audio, dict):
+            audio = {}
+            config["audio"] = audio
+        raw_mode = str(audio.get("capture_mode") or "mic_only").strip().lower()
+        if raw_mode not in ("mic_only", "system_only", "mix"):
+            raw_mode = "mic_only"
+        # Security/gating hard lock: Free users must stay on mic_only even if config file is edited.
+        if (not self.is_effective_pro()) and raw_mode != "mic_only":
+            logger.warning(
+                "Free tier capture_mode override blocked: requested=%s -> enforced=mic_only",
+                raw_mode,
+            )
+            raw_mode = "mic_only"
+        audio["capture_mode"] = raw_mode
 
     # ── Updates (GitHub public releases) ─────────────────────
     def _parse_version_tuple(self, v: str) -> Tuple[int, int, int]:
@@ -983,7 +1012,7 @@ class Orchestrator:
 
     # ─── Help mode (Alt+H) — params + KB collection & injection ──────
 
-    APP_VERSION = "Beta 0.29.3"
+    APP_VERSION = "Beta 0.29.4"
 
     # ─── Plugin extension point ───────────────────────────────────────
 
@@ -992,19 +1021,39 @@ class Orchestrator:
         if self._dev_plugin_loaded:
             return self._dev_plugin_mod
         self._dev_plugin_loaded = True
-        try:
-            init_py = self.paths.plugins / "dev" / "__init__.py"
-            if not init_py.is_file():
-                return None
-            spec = importlib.util.spec_from_file_location("perkysue_dev_plugin", init_py)
-            if spec is None or spec.loader is None:
-                return None
-            mod = importlib.util.module_from_spec(spec)
-            spec.loader.exec_module(mod)
-            self._dev_plugin_mod = mod
-        except Exception:
-            pass
+        mod = load_plugin_module(
+            self.paths.plugins, "dev", import_name="perkysue_dev_plugin", entry_filename="__init__.py"
+        )
+        self._dev_plugin_mod = mod
         return self._dev_plugin_mod
+
+    def _load_avatar_editor_plugin(self):
+        """Load Data/Plugins/avatar_editor/__init__.py once (None if absent/invalid). GUI gate for Avatar Editor."""
+        if self._avatar_editor_plugin_loaded:
+            return self._avatar_editor_plugin_mod
+        self._avatar_editor_plugin_loaded = True
+        mod = load_plugin_module(
+            self.paths.plugins,
+            "avatar_editor",
+            import_name="perkysue_avatar_editor_plugin",
+            entry_filename="__init__.py",
+        )
+        self._avatar_editor_plugin_mod = mod
+        return self._avatar_editor_plugin_mod
+
+    def _load_brainstorm_plugin(self):
+        """Load Data/Plugins/brainstorm/__init__.py once (None if absent/invalid). GUI gate for Brainstorm tab."""
+        if self._brainstorm_plugin_loaded:
+            return self._brainstorm_plugin_mod
+        self._brainstorm_plugin_loaded = True
+        mod = load_plugin_module(
+            self.paths.plugins,
+            "brainstorm",
+            import_name="perkysue_brainstorm_plugin",
+            entry_filename="__init__.py",
+        )
+        self._brainstorm_plugin_mod = mod
+        return self._brainstorm_plugin_mod
 
     def _stripe_signed_license_marker_path(self) -> Path:
         """Present after we have persisted a server-signed license; legacy+sub_* is rejected while this exists."""
@@ -1958,6 +2007,19 @@ class Orchestrator:
         except Exception:
             return False
 
+    def _audio_pipeline_debug(self) -> bool:
+        """Mix / VAD / Continuous Chat diagnostics on logger ``perkysue`` (disk) when enabled.
+
+        - ``audio.pipeline_debug: true`` in ``Data/Configs/config.yaml``, or
+        - Settings → Advanced → Debug mode (also enables GUI console payload dumps).
+        """
+        try:
+            if self._feedback_debug_mode():
+                return True
+            return bool((self.config.get("audio") or {}).get("pipeline_debug", False))
+        except Exception:
+            return False
+
     def _emit_gui_debug_llm_payload(self, label: str, system_prompt: str, user_text: str, max_tokens: int) -> None:
         """Log exact LLM payload to Full Console only when debug_mode is on (not to disk)."""
         if not self._feedback_debug_mode():
@@ -2047,9 +2109,10 @@ class Orchestrator:
         system_context = "\n\n".join(part for part in ctx_parts if part.strip())
 
         if self.config.get("feedback", {}).get("console_output", True):
+            verbatim_in_prompt = min(n_qa, n_prior) if summaries else n_prior
             logger.info(
-                "Alt+A: context in SYSTEM prompt (%d chars, %d prior Q/A in context; keep_last=%d; pending turn excluded; content not logged)",
-                len(system_context), n_prior, n_qa,
+                "Alt+A: context in SYSTEM prompt (%d chars, %d completed Q/A in memory, %d verbatim Q/A in SYSTEM block; keep_last=%d; pending turn excluded; content not logged)",
+                len(system_context), n_prior, verbatim_in_prompt, n_qa,
             )
 
         # Garde Max input (system_context + question actuelle + marge pour system prompt de base)
@@ -2936,6 +2999,7 @@ class Orchestrator:
             mix_loopback_gain=mix_loopback_gain,
             on_input_level=self.tts_manager.input_feed_meter,
             on_input_stop=self.tts_manager.reset_input_meter,
+            pipeline_debug=self._audio_pipeline_debug(),
         )
         try:
             import sounddevice as sd
@@ -3153,15 +3217,181 @@ class Orchestrator:
 
     def _on_escape_hotkey(self) -> None:
         """Hotkey stop_recording (défaut Alt+Q) : arrêt enregistrement ou annulation LLM. GUI sur le thread principal."""
+        if self.is_continuous_chat_enabled():
+            self.set_continuous_chat_enabled(False)
         w = getattr(self, "widget", None)
         if w and getattr(w, "root", None):
             try:
-                w.root.after(0, w._on_escape_global)
+                if hasattr(w, "_request_escape_global_once"):
+                    w._request_escape_global_once()
+                else:
+                    w.root.after(0, w._on_escape_global)
             except Exception:
                 pass
 
+    def is_continuous_chat_enabled(self) -> bool:
+        return bool(getattr(self, "_continuous_chat_enabled", False))
+
+    def reset_continuous_chat_listen_blockers(self) -> None:
+        """Débloque le réarmement micro du Continuous Chat (cooldown TTS + attente GUI post-injection).
+
+        À appeler quand l'utilisateur interrompt (Alt+Q, annulation) pour ne pas rester coincé derrière
+        ``_continuous_gui_tts_pending`` ou un ``_continuous_tts_cooldown_until`` énorme après un TTS arrêté.
+        """
+        if self._audio_pipeline_debug():
+            logger.info("[continuous] reset_listen_blockers (cooldown + gui_tts_pending cleared)")
+        self._continuous_tts_cooldown_until = 0.0
+        with self._lock:
+            self._continuous_gui_tts_pending = False
+
+    def _extend_continuous_tts_cooldown(self, seconds: float) -> None:
+        """While Continuous Chat is on, delay the next mic arm after TTS to avoid loopback STT."""
+        if not self.is_continuous_chat_enabled():
+            return
+        try:
+            add = max(0.0, float(seconds))
+        except Exception:
+            add = 0.0
+        if add <= 0.0:
+            return
+        now = time.monotonic()
+        cur = float(getattr(self, "_continuous_tts_cooldown_until", 0.0) or 0.0)
+        self._continuous_tts_cooldown_until = max(cur, now + add)
+        if self._audio_pipeline_debug():
+            logger.info(
+                "[continuous] tts_cooldown_extend +%.2fs until_mono=%.2f",
+                add,
+                self._continuous_tts_cooldown_until,
+            )
+
+    def _continuous_chat_worker(self) -> None:
+        """Hands-free Ask loop: record until silence, process answer, then arm again."""
+        logger.info("Continuous Chat worker started")
+        was_speaking = False
+        _cc_dbg_last = 0.0
+        try:
+            while self.is_continuous_chat_enabled():
+                try:
+                    tm = getattr(self, "tts_manager", None)
+                    speaking = bool(tm and getattr(tm, "is_speaking", None) and tm.is_speaking())
+                except Exception:
+                    speaking = False
+                now = time.monotonic()
+                if speaking:
+                    was_speaking = True
+                elif was_speaking:
+                    # Anti-loopback margin after is_speaking clears (kept modest; schedule below also adds tail).
+                    self._extend_continuous_tts_cooldown(0.75)
+                    was_speaking = False
+
+                with self._lock:
+                    busy = self._is_processing or self._is_recording
+                    gui_tts_pending = bool(getattr(self, "_continuous_gui_tts_pending", False))
+                cooldown_until = float(getattr(self, "_continuous_tts_cooldown_until", 0.0) or 0.0)
+                if speaking or busy or gui_tts_pending or now < cooldown_until:
+                    if self._audio_pipeline_debug():
+                        t = time.monotonic()
+                        if t - _cc_dbg_last >= 1.0:
+                            _cc_dbg_last = t
+                            logger.info(
+                                "[continuous] wait | speaking=%s busy=%s gui_tts_pending=%s "
+                                "cooldown_left_sec=%.2f",
+                                speaking,
+                                busy,
+                                gui_tts_pending,
+                                max(0.0, cooldown_until - now),
+                            )
+                    time.sleep(0.15)
+                    continue
+
+                try:
+                    self.stop_voice_output()
+                    with self._lock:
+                        if not self._continuous_chat_enabled:
+                            break
+                        self._is_recording = True
+                        self._current_mode = "answer"
+                        self._target_window = get_active_window()
+                    if self._audio_pipeline_debug():
+                        cap = str((self.config.get("audio") or {}).get("capture_mode") or "?")
+                        logger.info(
+                            "[continuous] arm_turn | capture_mode=%s target_hwnd=%s",
+                            cap,
+                            getattr(self, "_target_window", None),
+                        )
+                    self._record_and_process(
+                        "answer",
+                        selected_text="",
+                        from_chat_ui=True,
+                        suppress_stt_feedback=True,
+                        suppress_no_speech_feedback=True,
+                        continuous_chat_turn=True,
+                    )
+                except Exception as e:
+                    logger.exception("Continuous Chat turn failed: %s", e)
+                    with self._lock:
+                        self._is_recording = False
+                    self._set_status("ready")
+                    time.sleep(0.35)
+                time.sleep(0.08)
+        finally:
+            self._continuous_chat_thread = None
+            with self._lock:
+                if not self._is_processing and not self._is_recording:
+                    self._set_status("ready")
+            logger.info("Continuous Chat worker stopped")
+
+    def set_continuous_chat_enabled(self, enabled: bool) -> tuple[bool, str]:
+        """Enable/disable hands-free Ask loop (Chat tab microphone stays logically armed)."""
+        want = bool(enabled)
+        cur = self.is_continuous_chat_enabled()
+        if want == cur:
+            return True, "already_on" if want else "already_off"
+
+        if want:
+            if self._llm_required_but_missing("answer"):
+                self._alert_no_llm()
+                return False, "no_llm"
+            self.reset_continuous_chat_listen_blockers()
+            self._continuous_chat_enabled = True
+            if self._audio_pipeline_debug():
+                cap = str((self.config.get("audio") or {}).get("capture_mode") or "?")
+                logger.info("[continuous] enabled | capture_mode=%s", cap)
+            t = threading.Thread(target=self._continuous_chat_worker, daemon=True)
+            self._continuous_chat_thread = t
+            t.start()
+            return True, "started"
+
+        self._continuous_chat_enabled = False
+        if self._audio_pipeline_debug():
+            logger.info("[continuous] disabled")
+        self.reset_continuous_chat_listen_blockers()
+        # Stop any current turn immediately so loop can terminate quickly.
+        try:
+            self.stop_recording()
+            self.request_cancel()
+        except Exception:
+            pass
+        return True, "stopped"
+
     def _mode_hotkeys_suppressed(self) -> bool:
         return time.monotonic() < float(getattr(self, "_suppress_mode_hotkeys_until", 0.0) or 0.0)
+
+    def _interrupt_continuous_for_manual_mode(self, mode_id: str) -> None:
+        """Manual mode hotkeys override Continuous Chat immediately."""
+        if not self.is_continuous_chat_enabled():
+            return
+        logger.info("Manual hotkey '%s' overrides Continuous Chat.", (mode_id or "").strip())
+        self.set_continuous_chat_enabled(False)
+        deadline = time.monotonic() + 1.2
+        while time.monotonic() < deadline:
+            rec = getattr(self, "recorder", None)
+            rec_active = bool(rec and getattr(rec, "is_recording", False))
+            with self._lock:
+                busy = bool(self._is_processing or self._is_recording)
+            if not busy and not rec_active:
+                break
+            time.sleep(0.03)
 
     def _on_reinject_last_hotkey(self) -> None:
         """Hotkey reinject_last (défaut Alt+R) : colle à nouveau le dernier résultat PerkySue (fenêtre active)."""
@@ -3368,6 +3598,8 @@ class Orchestrator:
         try:
             if self._mode_hotkeys_suppressed():
                 return
+            # Any manual shortcut should temporarily/explicitly take over from Continuous Chat.
+            self._interrupt_continuous_for_manual_mode(mode_id)
             self.stop_voice_output()
             with self._lock:
                 if self._is_processing:
@@ -3433,6 +3665,8 @@ class Orchestrator:
         try:
             if self._mode_hotkeys_suppressed():
                 return
+            # Any manual shortcut should temporarily/explicitly take over from Continuous Chat.
+            self._interrupt_continuous_for_manual_mode(mode_id)
             self.stop_voice_output()
             with self._lock:
                 if self._is_processing:
@@ -3514,8 +3748,24 @@ class Orchestrator:
 
     def stop_recording(self) -> None:
         """Arrêt manuel de l'enregistrement (ex. clic sur l'avatar dans la GUI)."""
-        if self.recorder and self.recorder.is_recording:
-            self.recorder.request_stop()
+        # Be tolerant to UI/recorder state races: always drop internal recording state,
+        # then request recorder stop when available.
+        if self._audio_pipeline_debug():
+            rec0 = getattr(self, "recorder", None)
+            logger.info(
+                "[pipeline] stop_recording | orch_is_recording=%s rec_is_recording=%s",
+                getattr(self, "_is_recording", None),
+                bool(rec0 and getattr(rec0, "is_recording", False)),
+            )
+        with self._lock:
+            self._is_recording = False
+        rec = getattr(self, "recorder", None)
+        if rec and getattr(rec, "is_recording", False):
+            rec.request_stop()
+
+    def reset_cancel_request(self) -> None:
+        """Clear the user-cancel flag (e.g. after a Brainstorm plugin session ends)."""
+        self._cancel_requested = False
 
     def request_cancel(self) -> None:
         """Demande d'interruption du traitement (ex. clic avatar pendant processing). Le pipeline sort avant/sans LLM."""
@@ -3526,6 +3776,8 @@ class Orchestrator:
                 tm.stop()
         except Exception:
             pass
+        if self.is_continuous_chat_enabled():
+            self.reset_continuous_chat_listen_blockers()
 
     def _effective_speech_language_for_tts(self, stt_result) -> str:
         """Language for TTS tag whitelist: current STT result first (same as LLM ``stt_lang``), then last STT, else identity, else en."""
@@ -3688,17 +3940,103 @@ class Orchestrator:
             return base + "\n\n" + blk
         return base + "\n\n--- VOICE OUTPUT FORMAT ---\n\n" + blk
 
-    def _record_and_process(self, mode_id, selected_text="", from_chat_ui: bool = False):
+    def _record_and_process(
+        self,
+        mode_id,
+        selected_text="",
+        from_chat_ui: bool = False,
+        suppress_stt_feedback: bool = False,
+        suppress_no_speech_feedback: bool = False,
+        continuous_chat_turn: bool = False,
+    ):
+        def _looks_like_meaningful_audio(buf) -> bool:
+            try:
+                import numpy as np
+
+                if buf is None:
+                    return False
+                x = np.asarray(buf, dtype=np.float32)
+                if x.size == 0:
+                    return False
+                ax = np.abs(x)
+                rms = float(np.sqrt(np.mean(x * x)))
+                peak = float(np.max(ax))
+                # Require a minimum voiced fraction above floor to avoid STT/LLM spam in idle loops.
+                voiced_frac = float(np.mean(ax > 0.01))
+                voiced_samples = int(np.sum(ax > 0.01))
+                sr = int(getattr(self.recorder, "sample_rate", 16000) or 16000)
+                voiced_min_samples = int(0.10 * sr)  # ~100 ms
+                return (rms >= 0.008 or peak >= 0.04) and (
+                    voiced_frac >= 0.01 or voiced_samples >= voiced_min_samples
+                )
+            except Exception:
+                return True
+
         try:
+            if self._audio_pipeline_debug():
+                cap = str((self.config.get("audio") or {}).get("capture_mode") or "?")
+                logger.info(
+                    "[pipeline] record_start | mode=%s continuous=%s capture_mode=%s "
+                    "suppress_no_speech=%s suppress_stt_ui=%s",
+                    mode_id,
+                    continuous_chat_turn,
+                    cap,
+                    suppress_no_speech_feedback,
+                    suppress_stt_feedback,
+                )
             self._set_status("listening")
-            self.sound_manager.play_stt_start()
-            self._notify(f"🎙️ {self.modes[mode_id].name} — Speak now...")
+            if not suppress_stt_feedback:
+                self.sound_manager.play_stt_start()
+                self._notify(f"🎙️ {self.modes[mode_id].name} — Speak now...")
             audio = self.recorder.record_until_silence()
-            self.sound_manager.play_stt_stop()
+            if not suppress_stt_feedback:
+                self.sound_manager.play_stt_stop()
             with self._lock:
                 self._is_recording = False
             duration = len(audio) / float(self.recorder.sample_rate) if len(audio) > 0 else 0.0
+            if self._audio_pipeline_debug() and len(audio) > 0:
+                try:
+                    import numpy as np
+
+                    x = np.asarray(audio, dtype=np.float32)
+                    ax = np.abs(x)
+                    rms = float(np.sqrt(np.mean(x * x)))
+                    peak = float(np.max(ax)) if x.size else 0.0
+                    vf = float(np.mean(ax > 0.01)) if x.size else 0.0
+                    logger.info(
+                        "[pipeline] record_stop | mode=%s continuous=%s duration_sec=%.2f samples=%d "
+                        "rms=%.5f peak=%.4f voiced_frac=%.4f",
+                        mode_id,
+                        continuous_chat_turn,
+                        duration,
+                        int(x.size),
+                        rms,
+                        peak,
+                        vf,
+                    )
+                except Exception:
+                    logger.info(
+                        "[pipeline] record_stop | mode=%s continuous=%s duration_sec=%.2f samples=%d",
+                        mode_id,
+                        continuous_chat_turn,
+                        duration,
+                        len(audio),
+                    )
             if len(audio) > 0:
+                if suppress_no_speech_feedback and not _looks_like_meaningful_audio(audio):
+                    # Continuous Chat can carry low-level voice in some headset/mix setups.
+                    # Keep the anti-noise guard for very short clips, but do not drop
+                    # longer turns before STT has a chance to decide.
+                    if not continuous_chat_turn or duration < 0.7:
+                        if self._audio_pipeline_debug():
+                            logger.info(
+                                "[pipeline] skip_idle_low_energy | mode=%s continuous=%s duration_sec=%.2f",
+                                mode_id,
+                                continuous_chat_turn,
+                                duration,
+                            )
+                        self._set_status("listening")
+                        return
                 split_raw_text = self._build_dual_mix_raw_text(mode_id=mode_id)
                 if split_raw_text is not None:
                     self._process_audio(
@@ -3708,18 +4046,39 @@ class Orchestrator:
                         duration=duration,
                         raw_text_override=split_raw_text,
                         from_chat_ui=from_chat_ui,
+                        suppress_no_speech_feedback=suppress_no_speech_feedback,
+                        continuous_chat_turn=continuous_chat_turn,
                     )
                 else:
-                    self._process_audio(audio, mode_id, selected_text, duration=duration, from_chat_ui=from_chat_ui)
+                    self._process_audio(
+                        audio,
+                        mode_id,
+                        selected_text,
+                        duration=duration,
+                        from_chat_ui=from_chat_ui,
+                        suppress_no_speech_feedback=suppress_no_speech_feedback,
+                        continuous_chat_turn=continuous_chat_turn,
+                    )
             else:
-                self._set_status("ready")
-                _msg = self._get_alert_for_log("regular.recording_no_audio")
-                self._notify(_msg)
-                self._notify_header("regular.recording_no_audio", restore_after_ms=4000)
+                if self._audio_pipeline_debug():
+                    logger.info(
+                        "[pipeline] empty_buffer | mode=%s continuous=%s",
+                        mode_id,
+                        continuous_chat_turn,
+                    )
+                if suppress_no_speech_feedback:
+                    # Continuous Chat idle cycle: stay armed/listening without UI flashing.
+                    self._set_status("listening")
+                else:
+                    self._set_status("ready")
+                    _msg = self._get_alert_for_log("regular.recording_no_audio")
+                    self._notify(_msg)
+                    self._notify_header("regular.recording_no_audio", restore_after_ms=4000)
         except Exception as e:
             logger.exception("_record_and_process failed: %s", e)
             try:
-                self.sound_manager.play_stt_stop()
+                if not suppress_stt_feedback:
+                    self.sound_manager.play_stt_stop()
             except Exception:
                 pass
             try:
@@ -3744,6 +4103,19 @@ class Orchestrator:
             audio_cfg = self.config.get("audio") or {}
             mode = str(audio_cfg.get("capture_mode") or "mic_only").strip().lower()
             if mode != "mix":
+                return None
+            # For transcription-oriented paths, prefer the legacy single-pass STT on the full
+            # mixed waveform to avoid edge losses from source segmentation.
+            #
+            # This currently applies to:
+            # - transcribe (Alt+T): raw dictation fidelity is priority
+            # - answer (Alt+A / Chat / Continuous): full utterance fidelity is priority
+            if str(mode_id or "").strip().lower() in {"transcribe", "answer"}:
+                if self._audio_pipeline_debug():
+                    logger.info(
+                        "[pipeline] mix_dual_track_skipped | reason=single_pass_fidelity mode=%s",
+                        (mode_id or "").strip(),
+                    )
                 return None
             get_tracks = getattr(self.recorder, "get_last_split_capture", None)
             if not callable(get_tracks):
@@ -3872,8 +4244,15 @@ class Orchestrator:
                 merged.append((lbl, s0, e0))
 
             tagged_segments: List[str] = []
-            for lbl, s0, e0 in merged:
-                if (e0 - s0) < int(0.8 * sr):
+            mic_chars = 0
+            sys_chars = 0
+            min_seg_default = int(0.8 * sr)
+            min_seg_edge = int(0.2 * sr)
+            for i, (lbl, s0, e0) in enumerate(merged):
+                seg_len = int(e0 - s0)
+                is_edge = i == 0 or i == (len(merged) - 1)
+                # Keep edge segments even when short to avoid chopping the beginning/end of a dictation.
+                if seg_len < (min_seg_edge if is_edge else min_seg_default):
                     continue
                 src = "MIC" if lbl == "mic" else "SYSTEM"
                 audio_seg = mic_tl[s0:e0] if lbl == "mic" else sys_tl[s0:e0]
@@ -3888,12 +4267,12 @@ class Orchestrator:
                 else:
                     if src == "MIC":
                         tagged_segments.append(f"[{mic_label}]\n{txt}")
+                        mic_chars += len(txt)
                     else:
                         tagged_segments.append(f"[{system_label}]\n{txt}")
+                        sys_chars += len(txt)
 
             if tagged_segments:
-                mic_chars = sum(len(s) for s in tagged_segments if s.startswith("[MIC]"))
-                sys_chars = sum(len(s) for s in tagged_segments if s.startswith("[SYSTEM]"))
                 logger.info(
                     "Mix dual-track STT ordered (coarse): segments=%d mic_chars=%d system_chars=%d mode=%s",
                     len(tagged_segments),
@@ -3991,6 +4370,8 @@ class Orchestrator:
         raw_text_override: str | None = None,
         from_chat_ui: bool = False,
         suppress_feedback_sounds: bool = False,
+        suppress_no_speech_feedback: bool = False,
+        continuous_chat_turn: bool = False,
     ):
         if not self.modes.get(mode_id):
             return
@@ -4005,6 +4386,8 @@ class Orchestrator:
                 raw_text_override,
                 from_chat_ui,
                 suppress_feedback_sounds,
+                suppress_no_speech_feedback,
+                continuous_chat_turn,
             )
         finally:
             with self._lock:
@@ -4019,6 +4402,8 @@ class Orchestrator:
         raw_text_override: str | None = None,
         from_chat_ui: bool = False,
         suppress_feedback_sounds: bool = False,
+        suppress_no_speech_feedback: bool = False,
+        continuous_chat_turn: bool = False,
     ):
         mode = self.modes.get(mode_id)
         if not mode:
@@ -4034,8 +4419,12 @@ class Orchestrator:
             self._notify("⏳ LLM...")
         else:
             # STT
-            self._set_status("processing")
-            self._notify("⏳ Transcription...")
+            if suppress_no_speech_feedback:
+                # Continuous Chat: keep stable Listening UI during idle/silence cycles.
+                self._set_status("listening")
+            else:
+                self._set_status("processing")
+                self._notify("⏳ Transcription...")
             try:
                 lang = self.config.get("stt", {}).get("language", "auto")
                 result = self.stt.transcribe(audio, language=None if lang == "auto" else lang)
@@ -4059,6 +4448,9 @@ class Orchestrator:
             return
 
         if not raw_text.strip():
+            if suppress_no_speech_feedback:
+                self._set_status("listening")
+                return
             # Si l'enregistrement est nettement plus court que le Silence Timeout configuré,
             # il s'agit probablement d'un problème micro / device plutôt que d'un simple silence utilisateur.
             if duration is not None and duration < max(self._silence_timeout - 0.5, 0.5):
@@ -4094,7 +4486,8 @@ class Orchestrator:
         # In-app redirect (strict): if the user asks clearly about PerkySue/app inside Chat UI, move the question to Help.
         if (mode_id or "").strip().lower() == "answer" and self._is_perkysue_app_question(raw_text):
             w = getattr(self, "widget", None)
-            in_app = bool(from_chat_ui)
+            # Continuous = voix hors type-in Chat : ne pas traiter comme une question tapée dans l'app.
+            in_app = bool(from_chat_ui) and not continuous_chat_turn
             try:
                 if not in_app and w and getattr(w, "root", None):
                     our_hwnd = w.root.winfo_id()
@@ -4561,6 +4954,7 @@ class Orchestrator:
 
         # Answer (Alt+A / mic) : ne jamais injecter dans la barre de saisie de l'app (seul Alt+T peut injecter dans le type-in).
         # from_chat_ui = True quand l'envoi vient du type-in Chat (Enter / Send) → ne jamais injecter, résultat déjà dans le chat.
+        # Mode continu (continuous_chat_turn) : garder le flux Chat mais injecter aussi là où est le focus à l'instant T.
         # Help (Alt+H) : jamais d'injection, réponse uniquement dans l'onglet Help.
         w = getattr(self, "widget", None)
         # Answer + Voice payload: inject only when the model emitted <PS_PAYLOAD>; else chat+TTS only.
@@ -4573,11 +4967,13 @@ class Orchestrator:
         )
         # Free Answer: never inject into external apps — Chat tab only (same as Help: in-app only).
         skip_injection_answer_into_app = (
-            bool(from_chat_ui)
+            (bool(from_chat_ui) and not continuous_chat_turn)
             or (mode_id == "help")
             or (mode_id == "answer" and not self.is_effective_pro())
             or answer_voice_skip_external
         )
+        if continuous_chat_turn:
+            self._target_window = get_active_window()
         if not skip_injection_answer_into_app and mode_id == "answer" and self._target_window is not None:
             try:
                 if w and getattr(w, "root", None):
@@ -4720,6 +5116,17 @@ class Orchestrator:
                     finally:
                         if show_mtl_wait and w and getattr(w, "root", None):
                             w.root.after(0, lambda ww=w: ww.set_status("generating"))
+                    if self.is_continuous_chat_enabled() and tts_prepared is not None:
+                        try:
+                            audio_dur = float(getattr(tts_prepared, "duration", 0.0) or 0.0)
+                        except Exception:
+                            audio_dur = 0.0
+                        if audio_dur <= 0.05 or bool(getattr(tts_prepared, "already_streamed", False)):
+                            est = max(1.5, len(tts_text_for_prepare or "") / 14.0)
+                            audio_dur = max(audio_dur, est)
+                        # Cooldown anchor is "now" after prepare; do not add prepare duration again.
+                        tail = 1.25 if bool(getattr(tts_prepared, "already_streamed", False)) else 0.95
+                        self._extend_continuous_tts_cooldown(audio_dur + tail)
             except Exception as _tts_err:
                 logger.error("TTS post_output: %s", _tts_err)
         if success and _wants_auto_tts and tts_prepared is None:
@@ -4750,24 +5157,31 @@ class Orchestrator:
                 reason_log = (getattr(self, "last_llm_reasoning", None) or "").strip()
 
                 def _post_injection_gui(rv=r, fv=f, m=mid, p=prep, sk=skipm, rr=reason_log):
-                    w.append_console_finalized_entries(rv, fv, m, reasoning_text=rr)
-                    if m == "answer":
-                        w._refresh_chat_tab()
-                        if hasattr(w, "_chat_scroll_to_bottom"):
-                            w._chat_scroll_to_bottom()
-                    elif m == "help":
-                        w._refresh_help_tab()
-                        if hasattr(w, "_help_scroll_to_bottom"):
-                            w._help_scroll_to_bottom()
                     try:
-                        w.root.update_idletasks()
-                    except Exception:
-                        pass
-                    if sk:
-                        w._notify(sk, restore_after_ms=5500)
-                    elif p is not None:
-                        self.tts_manager.play_prepared(p, blocking=False)
+                        w.append_console_finalized_entries(rv, fv, m, reasoning_text=rr)
+                        if m == "answer":
+                            w._refresh_chat_tab()
+                            if hasattr(w, "_chat_scroll_to_bottom"):
+                                w._chat_scroll_to_bottom()
+                        elif m == "help":
+                            w._refresh_help_tab()
+                            if hasattr(w, "_help_scroll_to_bottom"):
+                                w._help_scroll_to_bottom()
+                        try:
+                            w.root.update_idletasks()
+                        except Exception:
+                            pass
+                        if sk:
+                            w._notify(sk, restore_after_ms=5500)
+                        elif p is not None:
+                            self.tts_manager.play_prepared(p, blocking=False)
+                    finally:
+                        with self._lock:
+                            self._continuous_gui_tts_pending = False
 
+                if self.is_continuous_chat_enabled() and prep is not None:
+                    with self._lock:
+                        self._continuous_gui_tts_pending = True
                 w.root.after(0, _post_injection_gui)
             except Exception:
                 pass
@@ -4795,8 +5209,10 @@ class Orchestrator:
                     else:
                         msg = w._get_alert("critical.max_input_context_reached", max_input=max_input_ctx, suggested=suggested_input)
                     w.root.after(350, lambda: w._notify(msg, restore_after_ms=5000, blink_times=3, blink_on_ms=300, blink_off_ms=300))
-                    # Si l'utilisateur n'était pas sur l'onglet Chat (ex. Alt+A depuis Word), afficher ⚠ sur Chat + New chat clignote au retour
-                    w.root.after(400, lambda: w._set_chat_reset_indicator_if_outside_chat() if hasattr(w, "_set_chat_reset_indicator_if_outside_chat") else None)
+                    # ⚠ Chat + New chat : seulement limite contexte / input (_last_output_limit_alert=None).
+                    # Troncature max output → tuple défini plus haut : notifier sans imposer un "reset" comme si n_ctx était plein.
+                    if getattr(self, "_last_output_limit_alert", None) is None:
+                        w.root.after(400, lambda: w._set_chat_reset_indicator_if_outside_chat() if hasattr(w, "_set_chat_reset_indicator_if_outside_chat") else None)
                 except Exception:
                     pass
             # Notification + son d'erreur LLM (400, timeout, etc.) — affichée après injection pour être visible

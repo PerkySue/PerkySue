@@ -85,7 +85,7 @@ class SoundManager:
         if PYGAME_AVAILABLE and self.skin != "none":
             try:
                 mixer.init(frequency=44100, size=-16, channels=2, buffer=512)
-                mixer.set_volume(self.volume)
+                # pygame.mixer has no global set_volume; apply per-sound volume at play time.
                 logger.info(f"Audio initialized (pygame)")
             except Exception as e:
                 logger.warning(f"Could not initialize pygame audio: {e}")
@@ -246,8 +246,12 @@ class SoundManager:
             try:
                 if sound_file not in self._sound_cache:
                     self._sound_cache[sound_file] = mixer.Sound(str(sound_file))
-                
-                self._sound_cache[sound_file].play()
+                snd = self._sound_cache[sound_file]
+                try:
+                    snd.set_volume(self.volume)
+                except Exception:
+                    pass
+                snd.play()
                 return True
             except Exception as e:
                 logger.warning(f"Pygame playback failed: {e}")
@@ -373,7 +377,11 @@ class SoundManager:
         """Change le volume."""
         self.volume = max(0.0, min(1.0, volume))
         if PYGAME_AVAILABLE:
-            mixer.set_volume(self.volume)
+            for snd in self._sound_cache.values():
+                try:
+                    snd.set_volume(self.volume)
+                except Exception:
+                    pass
 
     def play_system_sound(self, sound_name: str) -> bool:
         """

@@ -128,6 +128,8 @@ class TTSManager:
         self._playback_lock = threading.Lock()
         self._is_speaking = False
         self._stop_requested = False
+        # Chatterbox MTL: chunk callbacks must not clear _is_speaking between chunks (Continuous Chat gap).
+        self._mtl_stream_hold: bool = False
         # PCM → GUI: bipolar level [-1, 1] smoothed (sortie TTS + entrée micro)
         self._meter_lock = threading.Lock()
         self._meter_smoothed: float = 0.0  # playback
@@ -606,15 +608,26 @@ class TTSManager:
                 if lang_n != "en" and len(_mtl_chunk_text(text)) > 1:
                     synth_kw["mtl_chunk_audio_callback"] = self._play_raw_chunk_blocking
                     synth_kw["should_stop"] = (lambda: bool(self._stop_requested))
-            result = self._active_engine.synthesize(**synth_kw)
-            logger.info(
-                "TTS prepare: %.1fs audio in %.2fs (RTF=%.3f)%s",
-                result.duration,
-                time.monotonic() - t0,
-                result.rtf,
-                " (chunks played during synth)" if getattr(result, "already_streamed", False) else "",
-            )
-            return result
+            mtl_stream = bool(synth_kw.get("mtl_chunk_audio_callback"))
+            if mtl_stream:
+                with self._playback_lock:
+                    self._mtl_stream_hold = True
+                    self._is_speaking = True
+            try:
+                result = self._active_engine.synthesize(**synth_kw)
+                logger.info(
+                    "TTS prepare: %.1fs audio in %.2fs (RTF=%.3f)%s",
+                    result.duration,
+                    time.monotonic() - t0,
+                    result.rtf,
+                    " (chunks played during synth)" if getattr(result, "already_streamed", False) else "",
+                )
+                return result
+            finally:
+                if mtl_stream:
+                    with self._playback_lock:
+                        self._mtl_stream_hold = False
+                        self._is_speaking = False
         except Exception as e:
             logger.error("TTS prepare_speak failed: %s", e)
             return None
@@ -625,6 +638,13 @@ class TTSManager:
             return
         if getattr(result, "already_streamed", False):
             return
+        if getattr(result, "audio", None) is None:
+            return
+        # Mark speaking before spawning the playback thread so callers (e.g. Continuous Chat)
+        # do not arm the mic in the gap between pipeline idle and OutputStream/sd.play startup.
+        with self._playback_lock:
+            self._is_speaking = True
+            self._stop_requested = False
         if blocking:
             self._play_audio_blocking(result)
         else:
@@ -670,20 +690,35 @@ class TTSManager:
                 if lang_n != "en" and len(_mtl_chunk_text(text)) > 1:
                     synth_kw["mtl_chunk_audio_callback"] = self._play_raw_chunk_blocking
                     synth_kw["should_stop"] = (lambda: bool(self._stop_requested))
-            result = self._active_engine.synthesize(**synth_kw)
-            logger.info(
-                "TTS: %.1fs audio in %.2fs (RTF=%.3f)%s",
-                result.duration,
-                time.monotonic() - t0,
-                result.rtf,
-                " (chunks played during synth)" if getattr(result, "already_streamed", False) else "",
-            )
+            mtl_stream = bool(synth_kw.get("mtl_chunk_audio_callback"))
+            if mtl_stream:
+                with self._playback_lock:
+                    self._mtl_stream_hold = True
+                    self._is_speaking = True
+            try:
+                result = self._active_engine.synthesize(**synth_kw)
+                logger.info(
+                    "TTS: %.1fs audio in %.2fs (RTF=%.3f)%s",
+                    result.duration,
+                    time.monotonic() - t0,
+                    result.rtf,
+                    " (chunks played during synth)" if getattr(result, "already_streamed", False) else "",
+                )
+            finally:
+                if mtl_stream:
+                    with self._playback_lock:
+                        self._mtl_stream_hold = False
+                        self._is_speaking = False
 
             if getattr(result, "already_streamed", False):
                 return result
             if blocking:
                 self._play_audio_blocking(result)
             else:
+                if getattr(result, "audio", None) is not None:
+                    with self._playback_lock:
+                        self._is_speaking = True
+                        self._stop_requested = False
                 threading.Thread(target=self._play_audio_blocking, args=(result,), daemon=True).start()
             return result
 
@@ -782,8 +817,11 @@ class TTSManager:
         except Exception:
             return
         self._playback_feed_meter(chunk)
+        hold = False
         with self._playback_lock:
-            self._is_speaking = True
+            hold = bool(getattr(self, "_mtl_stream_hold", False))
+            if not hold:
+                self._is_speaking = True
         try:
             sd.play(chunk, samplerate=int(sample_rate))
             while sd.get_stream() and sd.get_stream().active:
@@ -795,7 +833,8 @@ class TTSManager:
             logger.error("TTS chunk playback error: %s", e)
         finally:
             with self._playback_lock:
-                self._is_speaking = False
+                if not bool(getattr(self, "_mtl_stream_hold", False)):
+                    self._is_speaking = False
 
     def _play_audio_blocking(self, result: TTSResult):
         global _SD_IMPORT_WARNED
@@ -805,8 +844,12 @@ class TTSManager:
                 logger.warning(
                     "TTS playback unavailable: sounddevice/numpy failed to import at startup — pip install sounddevice"
                 )
+            with self._playback_lock:
+                self._is_speaking = False
             return
         if result is None or result.audio is None:
+            with self._playback_lock:
+                self._is_speaking = False
             return
 
         import numpy as np
@@ -899,6 +942,7 @@ class TTSManager:
         with self._playback_lock:
             self._stop_requested = True
             self._is_speaking = False
+            self._mtl_stream_hold = False
         self._playback_reset_meter()
         if not _SD_AVAILABLE:
             return

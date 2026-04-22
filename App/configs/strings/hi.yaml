@@ -196,7 +196,7 @@
       url: ''
     credit: Jérôme Corbiau द्वारा बनाया  ·  Apache 2.0 License
 common:
-  window_title: PerkySue — Beta 0.29.3
+  window_title: PerkySue — Beta 0.29.4
   header_banner:
     free_invite: PerkySue Beta — मुफ़्त · Pro आज़माएँ (30 दिन, बिना कार्ड)
     free_after_trial: PerkySue Beta — मुफ़्त
@@ -254,18 +254,56 @@ voice:
     button: इंजन इंस्टॉल करो
     button_working: इंस्टॉल हो रहा है…
     retry: फिर कोशिश करो
+    progress_name_chatterbox: Chatterbox Turbo
+    progress_name_omnivoice: OmniVoice
   engine:
+    chatterbox_multilingual_hint: "English (Turbo) तेज है। बाकी भाषाओं के लिए अलग multilingual मॉडल चलता है, CPU पर धीमा हो सकता है।"
+    chatterbox_last_stt_not_english: "⚠ पिछली पहचानी गई भाषा English नहीं थी। Chatterbox multilingual मॉडल पर जाएगा, CPU पर धीमा हो सकता है।"
+    chatterbox_ui_locale_hint: "⚠ ऐप भाषा English नहीं है। रोज़ के multilingual इस्तेमाल के लिए OmniVoice अक्सर बेहतर रहता है।"
+    tts_pytorch_cpu_only: "⚠ TTS में PyTorch {version} बिना CUDA चल रहा है, या CUDA build तुम्हारे GPU से मैच नहीं कर रही। Whisper/llama-server GPU इस्तेमाल कर सकते हैं। RTX 50xx: install_pytorch_cuda_cu128.bat चलाओ। बाकी: install_pytorch_cuda_cu124.bat, फिर PerkySue रीस्टार्ट करो।"
+    tts_cpu_chatterbox: "⚠ Chatterbox CPU पर चल रहा है। CUDA GPU की तुलना में synthesis काफी धीमा होगा।"
+    tts_cpu_generic: "⚠ टेक्स्ट-टू-स्पीच CPU पर चल रहा है। GPU से धीमा है।"
     recommended_suffix: " (अनुशंसित)"
+  pytorch_cuda:
+    button: "PyTorch CUDA इंस्टॉल करो"
+    dialog_title: "टेक्स्ट-टू-स्पीच तेज करो (GPU)"
+    dialog_body: "PerkySue अभी CPU-only PyTorch चला रहा है, इसलिए Chatterbox और OmniVoice तुम्हारा NVIDIA GPU नहीं उपयोग कर पा रहे।\n\nअभी CUDA-enabled PyTorch इंस्टॉल करें? डाउनलोड बड़ा है (~2+ GB), कुछ मिनट लग सकते हैं।"
+    dialog_message: "PerkySue अभी CPU-only PyTorch चला रहा है, इसलिए Chatterbox और OmniVoice तुम्हारा NVIDIA GPU नहीं उपयोग कर पा रहे।\n\nअभी CUDA-enabled PyTorch इंस्टॉल करें? डाउनलोड बड़ा है (~2+ GB), कुछ मिनट लग सकते हैं।"
+    btn_yes: "हाँ, इंस्टॉल करो"
+    btn_no: "अभी नहीं"
+    btn_never_ask: "फिर मत पूछो"
+    modal_ok: "OK"
+    progress_start: "PyTorch CUDA इंस्टॉल हो रहा है…"
+    progress_name: "PyTorch CUDA"
+    restart_sidebar_note: "नया PyTorch (CUDA) लोड करने के लिए PerkySue रीस्टार्ट करो।"
+    done_title: "PyTorch"
+    done_message: "इंस्टॉल पूरा हुआ। PerkySue पूरी तरह बंद करके फिर से खोलो ताकि नया PyTorch लोड हो सके।"
+    error_title: "PyTorch CUDA इंस्टॉल विफल"
+  omnivoice:
+    section_title: OmniVoice
+    mode_clone: क्लोन
+    steps_label: क्वालिटी / स्पीड
+    steps_16: 16
+    steps_32: 32
+    steps_48: 48
   output:
     section_title: आउटपुट
     enabled: चालू
     engine_label: इंजन
+    engine_switch_label: TTS इंजन
+    retry_engine: लोड फिर से करो
+    full_repair: फुल रिपेयर
+    engine_load_failed_short: "❌ लोड फेल — नीचे देखो"
   playback:
     section_title: प्लेबैक
     volume: वॉल्यूम
     speed: स्पीड
     auto_speak: ऑटो-बोल
     auto_speak_hint: Answer और Help मोड के बाद
+    voice_payload: स्मार्ट इंजेक्ट (सिर्फ payload)
+    voice_payload_hint: Voice ऑन हो तो <PS_PAYLOAD> फॉर्मेट यूज़ करो और वही ब्लॉक पेस्ट करो
+    read_aloud_payload: payload भी पढ़ो
+    read_aloud_payload_hint: TTS inject होने वाला टेक्स्ट भी पढ़ेगा
   packs:
     section_title: वॉइस पैक
     default_body: अभी डिफ़ॉल्ट Pro आवाज़ है। क्लोनिंग के लिए स्किन में voice_ref.wav लगाओ या Patreon पर कैरेक्टर पैक देखो।
@@ -626,7 +664,7 @@ header_alerts:
     omnivoice_requires_nvidia: OmniVoice के लिए NVIDIA/CUDA आवश्यक है (CPU/Vulkan पर उपलब्ध नहीं)।
     tts_install_in_progress: इंस्टॉलेशन पहले से चल रहा है — कृपया प्रतीक्षा करें।
     ai_disclaimer: ⚠️ AI के जवाब गलत हो सकते हैं। कृपया तथ्य जाँचें।
-    recording_no_audio: कोई audio capture नहीं हुई — recording रुकी या microphone check करो।
+    recording_no_audio: कोई आवाज़ नहीं। माइक्रो चुनें में -> सेटिंग्स -> परफॉर्मेंस
     recording_too_short: Recording बहुत छोटी थी — कोई text नहीं मिला। Microphone check करो या ज़्यादा देर बोलो।
     copied_to_clipboard: Clipboard में copy हो गया
     llm_not_available: LLM orchestrator available नहीं है।

@@ -196,7 +196,7 @@
       url: ''
     credit: 由 Jérôme Corbiau 创作  ·  Apache 2.0 许可证
 common:
-  window_title: PerkySue — Beta 0.29.3
+  window_title: PerkySue — Beta 0.29.4
   header_banner:
     free_invite: PerkySue Beta — 免费 · 试用 Pro（30 天·免卡）
     free_after_trial: PerkySue Beta — 免费
@@ -254,18 +254,56 @@ voice:
     button: 安装引擎
     button_working: 正在安装…
     retry: 再试一次
+    progress_name_chatterbox: Chatterbox Turbo
+    progress_name_omnivoice: OmniVoice
   engine:
+    chatterbox_multilingual_hint: "English（Turbo）很快。其他语言会用独立多语模型，在 CPU 上可能较慢。"
+    chatterbox_last_stt_not_english: "⚠ 上次识别到的语言不是 English。Chatterbox 会切到多语模型，CPU 上通常更慢。"
+    chatterbox_ui_locale_hint: "⚠ 你的界面不是 English。日常多语场景通常更推荐 OmniVoice。"
+    tts_pytorch_cpu_only: "⚠ TTS 正在使用 PyTorch {version}（无 CUDA）或与你 GPU 不匹配的 CUDA 版本。Whisper/llama-server 仍可能用 GPU。RTX 50xx 请用 install_pytorch_cuda_cu128.bat；其他请用 install_pytorch_cuda_cu124.bat，然后重启 PerkySue。"
+    tts_cpu_chatterbox: "⚠ Chatterbox 正在 CPU 上运行，合成速度会明显慢于 CUDA GPU。"
+    tts_cpu_generic: "⚠ 文字转语音正在 CPU 上运行，会比 GPU 慢。"
     recommended_suffix: "（推荐）"
+  pytorch_cuda:
+    button: "安装 PyTorch CUDA"
+    dialog_title: "加速文字转语音（GPU）"
+    dialog_body: "PerkySue 当前使用的是 CPU-only 的 PyTorch，所以 Chatterbox 和 OmniVoice 还不能使用你的 NVIDIA。\n\n现在安装 CUDA 版 PyTorch 吗？下载较大（约 2+ GB），可能需要几分钟。"
+    dialog_message: "PerkySue 当前使用的是 CPU-only 的 PyTorch，所以 Chatterbox 和 OmniVoice 还不能使用你的 NVIDIA。\n\n现在安装 CUDA 版 PyTorch 吗？下载较大（约 2+ GB），可能需要几分钟。"
+    btn_yes: "是，安装"
+    btn_no: "暂时不用"
+    btn_never_ask: "不再询问"
+    modal_ok: "确定"
+    progress_start: "正在安装 PyTorch CUDA…"
+    progress_name: "PyTorch CUDA"
+    restart_sidebar_note: "请重启 PerkySue 以加载新的 PyTorch（CUDA）。"
+    done_title: "PyTorch"
+    done_message: "安装完成。请先完全关闭 PerkySue，再重新打开以加载新的 PyTorch。"
+    error_title: "PyTorch CUDA 安装失败"
+  omnivoice:
+    section_title: OmniVoice
+    mode_clone: 克隆
+    steps_label: 质量 / 速度
+    steps_16: 16
+    steps_32: 32
+    steps_48: 48
   output:
     section_title: 输出
     enabled: 已启用
     engine_label: 引擎
+    engine_switch_label: TTS 引擎
+    retry_engine: 重试加载
+    full_repair: 完整修复
+    engine_load_failed_short: "❌ 加载失败 — 见下方"
   playback:
     section_title: 播放
     volume: 音量
     speed: 语速
     auto_speak: 自动朗读
     auto_speak_hint: 在 Answer 和 Help 模式之后
+    voice_payload: 智能注入（仅 payload）
+    voice_payload_hint: 开启语音时，使用 <PS_PAYLOAD> 格式并只粘贴该块
+    read_aloud_payload: 朗读 payload
+    read_aloud_payload_hint: TTS 也会朗读可注入文本
   packs:
     section_title: 语音包
     default_body: 当前是默认 Pro 语音。要克隆就往皮肤里加 voice_ref.wav，或者在 Patreon 找角色包。
@@ -626,7 +664,7 @@ header_alerts:
     omnivoice_requires_nvidia: OmniVoice 需要 NVIDIA/CUDA（CPU/Vulkan 不可用）。
     tts_install_in_progress: 安装已在进行中——请稍候。
     ai_disclaimer: ⚠️ AI 的回答可能不准确。请核实事实。
-    recording_no_audio: 未捕获到音频 — 录音已停止。检查麦克风。
+    recording_no_audio: 无语音。在 -> 设置 -> 性能 中选择麦克风
     recording_too_short: 录音太短 — 未检测到文字。检查麦克风或说长一点。
     copied_to_clipboard: 已复制到剪贴板
     llm_not_available: LLM 编排器不可用。

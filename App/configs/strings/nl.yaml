@@ -196,7 +196,7 @@
       url: ''
     credit: Gemaakt door Jérôme Corbiau  ·  Apache 2.0-licentie
 common:
-  window_title: PerkySue — Beta 0.29.3
+  window_title: PerkySue — Beta 0.29.4
   header_banner:
     free_invite: PerkySue Beta — Gratis · Pro proberen (30 dgn · geen kaart)
     free_after_trial: PerkySue Beta — Gratis
@@ -254,18 +254,56 @@ voice:
     button: Engine installeren
     button_working: Bezig met installeren…
     retry: Opnieuw proberen
+    progress_name_chatterbox: Chatterbox Turbo
+    progress_name_omnivoice: OmniVoice
   engine:
+    chatterbox_multilingual_hint: "Engels (Turbo) is snel. Andere talen gebruiken een apart meertalig model en kunnen traag zijn op CPU."
+    chatterbox_last_stt_not_english: "⚠ Laatst gedetecteerde taal was geen Engels. Chatterbox gebruikt nu het meertalige model, vaak trager op CPU."
+    chatterbox_ui_locale_hint: "⚠ Je app staat niet op Engels. Voor dagelijks meertalig gebruik is OmniVoice vaak geschikter."
+    tts_pytorch_cpu_only: "⚠ TTS gebruikt PyTorch {version} zonder CUDA, of een CUDA-build die niet past bij je GPU. Whisper/llama-server kunnen GPU blijven gebruiken. RTX 50xx: gebruik install_pytorch_cuda_cu128.bat. Overige: install_pytorch_cuda_cu124.bat en herstart PerkySue."
+    tts_cpu_chatterbox: "⚠ Chatterbox draait op CPU. Synthese is veel trager dan op een CUDA-GPU."
+    tts_cpu_generic: "⚠ Tekst-naar-spraak draait op CPU. Dat is trager dan op GPU."
     recommended_suffix: " (aanbevolen)"
+  pytorch_cuda:
+    button: "PyTorch CUDA installeren"
+    dialog_title: "Tekst-naar-spraak versnellen (GPU)"
+    dialog_body: "PerkySue gebruikt nu een CPU-only PyTorch-build, dus Chatterbox en OmniVoice kunnen je NVIDIA niet gebruiken.\n\nNu PyTorch met CUDA installeren? Grote download (~2+ GB), kan enkele minuten duren."
+    dialog_message: "PerkySue gebruikt nu een CPU-only PyTorch-build, dus Chatterbox en OmniVoice kunnen je NVIDIA niet gebruiken.\n\nNu PyTorch met CUDA installeren? Grote download (~2+ GB), kan enkele minuten duren."
+    btn_yes: "Ja, installeren"
+    btn_no: "Nu niet"
+    btn_never_ask: "Niet meer vragen"
+    modal_ok: "OK"
+    progress_start: "PyTorch CUDA installeren…"
+    progress_name: "PyTorch CUDA"
+    restart_sidebar_note: "Herstart PerkySue om de nieuwe PyTorch (CUDA) te laden."
+    done_title: "PyTorch"
+    done_message: "Installatie klaar. Sluit PerkySue volledig en start opnieuw om de nieuwe PyTorch te laden."
+    error_title: "PyTorch CUDA-installatie mislukt"
+  omnivoice:
+    section_title: OmniVoice
+    mode_clone: Klonen
+    steps_label: Kwaliteit / snelheid
+    steps_16: 16
+    steps_32: 32
+    steps_48: 48
   output:
     section_title: Uitvoer
     enabled: Aan
     engine_label: Engine
+    engine_switch_label: TTS-engine
+    retry_engine: Laden opnieuw proberen
+    full_repair: Volledige reparatie
+    engine_load_failed_short: "❌ Laden mislukt — zie hieronder"
   playback:
     section_title: Afspelen
     volume: Volume
     speed: Snelheid
     auto_speak: Automatisch voorlezen
     auto_speak_hint: Na Answer- en Help-modus
+    voice_payload: Slim plakken (alleen payload)
+    voice_payload_hint: "Met Stem aan: gebruik <PS_PAYLOAD> en plak alleen dat blok"
+    read_aloud_payload: Payload hardop lezen
+    read_aloud_payload_hint: TTS leest ook de plakbare tekst
   packs:
     section_title: Stempacks
     default_body: Standaard Pro-stem. Zet voice_ref.wav in een skin-map om te klonen, of pak character packs op Patreon.
@@ -626,7 +664,7 @@ header_alerts:
     omnivoice_requires_nvidia: OmniVoice vereist NVIDIA/CUDA (niet beschikbaar op CPU/Vulkan).
     tts_install_in_progress: Installatie is al bezig — even geduld.
     ai_disclaimer: ⚠️ AI-antwoorden kunnen onjuist zijn. Controleer de feiten.
-    recording_no_audio: Geen audio vastgelegd — opname gestopt. Controleer de microfoon.
+    recording_no_audio: Geen stem. Kies een Micro in -> Instellingen -> Prestaties
     recording_too_short: Opname te kort — geen tekst gevonden. Controleer de microfoon of spreek langer.
     copied_to_clipboard: Gekopieerd naar klembord
     llm_not_available: LLM-orchestrator niet beschikbaar.

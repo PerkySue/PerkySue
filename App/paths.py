@@ -118,9 +118,11 @@ class Paths:
 
     @property
     def plugins(self) -> Path:
-        """Installed plugins (not part of the open-source core).
+        """Runtime extensions under ``Data/Plugins/<id>/`` (survive App/ updates).
 
-        Persistence rule: plugins live under Data/ so they survive App/ updates.
+        First-party examples (``dev``, ``avatar_editor``) ship templates outside the
+        Apache tree; **third-party or proprietary** code should also live here only,
+        loaded via ``utils.plugin_host`` — see that module's docstring for the SPI.
         """
         return self._data / "Plugins"
 

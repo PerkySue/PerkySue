@@ -39,8 +39,10 @@ try:
     from ..paths import Paths
     from ..utils.audio import BaseAudioCapture
     from ..utils.hotkeys import KEYCODE_TO_NAME, resolve_hotkey_string, format_hotkey_display
+    from ..utils.plugin_host import PluginHostContext
     from ..utils.strings import load_strings, merge_strings_at, s, s_list
     from ..utils.skin_paths import (
+        _find_tts_personality_yaml,
         normalize_skin_id,
         resolve_character_root,
         resolve_locale_skin_dir,
@@ -55,8 +57,10 @@ except ImportError:
     from App.paths import Paths
     from App.utils.audio import BaseAudioCapture
     from App.utils.hotkeys import KEYCODE_TO_NAME, resolve_hotkey_string, format_hotkey_display
+    from App.utils.plugin_host import PluginHostContext
     from App.utils.strings import load_strings, merge_strings_at, s, s_list
     from App.utils.skin_paths import (
+        _find_tts_personality_yaml,
         normalize_skin_id,
         resolve_character_root,
         resolve_locale_skin_dir,
@@ -132,6 +136,39 @@ def _build_nav_page_ids(_orchestrator) -> tuple:
     insert_after = "help"
     idx = ids.index(insert_after) + 1 if insert_after in ids else len(ids) - 2
     ids.insert(idx, "voice")
+    # Avatar Editor — uniquement si plugin Data/Plugins/avatar_editor + manifest enabled
+    if _orchestrator is not None:
+        try:
+            mod = _orchestrator._load_avatar_editor_plugin()
+            if mod is not None:
+                chk = getattr(mod, "check_enabled", None)
+                enabled = True
+                if callable(chk):
+                    enabled = bool(chk(_orchestrator.paths.plugins))
+                if enabled:
+                    try:
+                        ia = ids.index("about")
+                    except ValueError:
+                        ia = len(ids)
+                    ids.insert(ia, "avatar_editor")
+        except Exception:
+            pass
+        # Brainstorm — plugin panel (A/B scenario engine), Pro-only by design.
+        try:
+            mod = _orchestrator._load_brainstorm_plugin()
+            if mod is not None:
+                chk = getattr(mod, "check_enabled", None)
+                enabled = True
+                if callable(chk):
+                    enabled = bool(chk(_orchestrator.paths.plugins))
+                if enabled and bool(getattr(_orchestrator, "is_effective_pro", lambda: False)()):
+                    try:
+                        ih = ids.index("help")
+                    except ValueError:
+                        ih = len(ids)
+                    ids.insert(ih, "brainstorm")
+        except Exception:
+            pass
     return tuple(ids)
 
 
@@ -216,7 +253,7 @@ STATUS_PULSE = {
     "speaking": (GOLD, "#FCD34D"),
 }
 
-# Fallback si header_tips.yaml absent ou invalide (Handoff + shortcuts/custom)
+# Fallback si header_tips.yaml absent ou invalide (tips + shortcuts/custom)
 HEADER_TIPS_DEFAULT = [
     "Tip · Place your cursor where you write emails, then press Alt+M to dictate a full email.",
     "Tip · Select any text and press Alt+I to instantly improve the wording.",
@@ -255,10 +292,10 @@ class Tooltip:
     """
     Hover tooltip: by default bound to card + descendants; or only to bind_widgets (e.g. Select/Download).
 
-    HANDOFF — Recommended Models: keep bind_widgets=[action_btn] so the rich tooltip shows only over the
+    Recommended Models guideline: keep bind_widgets=[action_btn] so the rich tooltip shows only over the
     action button. CustomTkinter uses inner Tk widgets whose winfo_id may not match descendant sets;
     _bind_roots + _is_allowed_widget() (master-chain) fixes "tooltip never shows". The throttled global
-    <Motion> guard fixes stuck/missed Leave. Do not remove these without reading PerkySue-HANDOFF (Section Models).
+    <Motion> guard fixes stuck/missed Leave. Keep this behavior aligned with ARCHITECTURE.md (Models section).
     """
     _current = None  # tooltip actuellement visible (pour le fermer au clic Get)
     _guard_installed_on = set()  # root widget path(s) where motion guard is installed
@@ -1237,6 +1274,8 @@ class PerkySueWidget:
         self._tip_active = False
         self._last_alert_time = 0.0
         self._thinking_dot_timers: dict = {"chat": {}, "help": {}}
+        # Alt+Q / Échap : un seul after(0) à la fois pour éviter saturation GUI si rafales sur stop.
+        self._escape_stop_coalesce_id = None
 
         ctk.set_appearance_mode("dark")
         self.root = CTk()
@@ -1281,7 +1320,7 @@ class PerkySueWidget:
             pass
 
         # Alerte "No LLM" au démarrage (blink) si aucun modèle GGUF n'est disponible.
-        # Règle handoff: notification importante = blink 3× puis 4s.
+        # Règle UI: notification importante = blink 3× puis 4s.
         try:
             llm_ok = bool(getattr(self.orch, "llm", None) and self.orch.llm.is_available())
         except Exception:
@@ -1479,7 +1518,7 @@ class PerkySueWidget:
         return ""
 
     def _default_window_title(self) -> str:
-        return s("common.window_title", default="PerkySue — Beta 0.29.3")
+        return s("common.window_title", default="PerkySue — Beta 0.29.4")
 
     def _ui_flag_stem(self) -> str:
         """Which lang-flags/*.png is selected."""
@@ -1645,10 +1684,36 @@ class PerkySueWidget:
         """Clic sur l'avatar : arrêt enregistrement (listening) ou interruption du traitement (processing). Inactif en Ready."""
         if not getattr(self, "orch", None):
             return
+        status = getattr(self, "_status_id", None)
+        # Continuous Chat must be stoppable from avatar at any time (even when status is temporarily "ready").
+        try:
+            if getattr(self.orch, "is_continuous_chat_enabled", None) and self.orch.is_continuous_chat_enabled():
+                self.orch.set_continuous_chat_enabled(False)
+                self._notify(s("chat.continuous_stopped", default="Continuous Chat stopped."), restore_after_ms=2500)
+                self.set_status("ready")
+                return
+        except Exception:
+            pass
+        # Stop TTS when avatar is clicked during speaking/loading states.
+        try:
+            tm = getattr(self.orch, "tts_manager", None)
+            if tm and (status == "tts_loading" or status == "speaking" or tm.is_speaking()):
+                self.orch.stop_voice_output()
+                self._notify(self._get_alert("regular.tts_stopped"), restore_after_ms=3000)
+                self.set_status("ready")
+                return
+        except Exception:
+            pass
         # En Ready et pas en train d'écouter/traiter : ne rien faire (bouton inactif)
-        if getattr(self, "_status_id", None) == "ready":
+        if status == "ready":
             return
         if getattr(self.orch, "recorder", None) and self.orch.recorder.is_recording:
+            self.orch.stop_recording()
+            self._notify(self._get_alert("regular.recording_stopped"), restore_after_ms=3000)
+            self.set_status("ready")
+            return
+        # Defensive fallback for rare state desyncs: UI says listening but recorder flag already dropped.
+        if status == "listening" or bool(getattr(self.orch, "_is_recording", False)):
             self.orch.stop_recording()
             self._notify(self._get_alert("regular.recording_stopped"), restore_after_ms=3000)
             self.set_status("ready")
@@ -1819,6 +1884,12 @@ class PerkySueWidget:
         else:
             capture_mode = "mic_only"
         if capture_mode not in ("mic_only", "system_only", "mix"):
+            capture_mode = "mic_only"
+        try:
+            _is_pro = bool(self.orch.is_effective_pro()) if getattr(self, "orch", None) and hasattr(self.orch, "is_effective_pro") else False
+        except Exception:
+            _is_pro = False
+        if not _is_pro:
             capture_mode = "mic_only"
         first_lang_raw = getattr(self, "_perf_first_language", None) and self._perf_first_language.get() or "Auto"
         first_lang = first_lang_raw.strip().lower() if first_lang_raw else "auto"
@@ -2609,7 +2680,7 @@ class PerkySueWidget:
         - Positionner la boîte avec le même schéma que ci-dessous : x décalé à gauche pour tripler l’espace à droite
           par rapport au centre de la fenêtre principale, y = root_y + 52 px.
         - Pour toute nouvelle boîte critique (licence, crash, etc.), réutiliser ce pattern ou factoriser un helper commun.
-        Voir aussi la section « Boîtes de dialogue critiques » dans le handoff Alpha 0.21.6.
+        Voir aussi la section « Boîtes de dialogue critiques » dans ARCHITECTURE.md.
         """
         # Ne montrer qu'une seule boîte à la fois
         if getattr(self, "_critical_mic_dialog", None):
@@ -2766,7 +2837,7 @@ class PerkySueWidget:
         for pid in self._nav_page_ids:
             label = s(f"common.nav.{pid}")
             if not label or label == f"common.nav.{pid}":
-                _nav_lbl_fb = {"voice": "🔊   Voice"}
+                _nav_lbl_fb = {"voice": "🔊   Voice", "avatar_editor": "🎨   Avatar Editor", "brainstorm": "🧠   Brainstorm"}
                 label = _nav_lbl_fb.get(pid, f"🔌   {pid.title()}")
             row_f = CTkFrame(nf, fg_color="transparent", height=45)
             row_f.pack(fill="x", pady=2)
@@ -2915,6 +2986,10 @@ class PerkySueWidget:
         self._mk_shortcuts()
         self._mk_chat()
         self._mk_voice()
+        if "brainstorm" in getattr(self, "_nav_page_ids", ()):
+            self._mk_brainstorm()
+        if "avatar_editor" in getattr(self, "_nav_page_ids", ()):
+            self._mk_avatar_editor()
         self._bind_content_wheel_fast()
         self.root.after(400, self._lift_main_window)
 
@@ -3004,7 +3079,23 @@ class PerkySueWidget:
                 pass
         self.root.bind_all("<MouseWheel>", _content_wheel, add="+")
         # Escape: cancel shortcut listen, or stop recording, or stop generation (only when app has focus)
-        self.root.bind_all("<Escape>", self._on_escape_global, add="+")
+        self.root.bind_all("<Escape>", self._request_escape_global_once, add="+")
+
+    def _request_escape_global_once(self, event=None):
+        """Planifie au plus un traitement Échap/Alt+Q par cycle — évite des dizaines de after(0) si stop répété."""
+        if getattr(self, "_escape_stop_coalesce_id", None) is not None:
+            return
+
+        def _run():
+            try:
+                self._on_escape_global()
+            finally:
+                self._escape_stop_coalesce_id = None
+
+        try:
+            self._escape_stop_coalesce_id = self.root.after(0, _run)
+        except (tk.TclError, AttributeError):
+            self._escape_stop_coalesce_id = None
 
     def _on_escape_global(self, event=None):
         """Raccourci stop (défaut Alt+Q via orchestrateur) ou Échap : écoute raccourcis, arrêt micro, ou annulation LLM.
@@ -3016,11 +3107,23 @@ class PerkySueWidget:
         orch = getattr(self, "orch", None)
         if not orch:
             return
+        cont = bool(getattr(orch, "is_continuous_chat_enabled", None) and orch.is_continuous_chat_enabled())
         # Ne pas exiger status=="listening" : set_status() est async (after(0)) — race où le micro
         # enregistre déjà mais l’avatar est encore "ready". Même logique que Abort / clic avatar.
         rec = getattr(orch, "recorder", None)
         if rec and rec.is_recording:
             orch.stop_recording()
+            if cont and hasattr(orch, "reset_continuous_chat_listen_blockers"):
+                orch.reset_continuous_chat_listen_blockers()
+            self.set_status("ready")
+            self._notify(self._get_alert("regular.recording_stopped"), restore_after_ms=3000)
+            return
+        # Defensive fallback: if UI still says listening (or orchestrator still marks recording),
+        # force the same stop path even when recorder.is_recording already flipped.
+        if status == "listening" or bool(getattr(orch, "_is_recording", False)):
+            orch.stop_recording()
+            if cont and hasattr(orch, "reset_continuous_chat_listen_blockers"):
+                orch.reset_continuous_chat_listen_blockers()
             self.set_status("ready")
             self._notify(self._get_alert("regular.recording_stopped"), restore_after_ms=3000)
             return
@@ -3028,16 +3131,26 @@ class PerkySueWidget:
         if tm:
             try:
                 if status == "tts_loading" or tm.is_speaking():
-                    tm.stop()
+                    orch.stop_voice_output()
+                    if cont and hasattr(orch, "reset_continuous_chat_listen_blockers"):
+                        orch.reset_continuous_chat_listen_blockers()
                     self.set_status("ready")
                     self._notify(self._get_alert("regular.tts_stopped"), restore_after_ms=3000)
                     return
             except Exception:
                 pass
         if status in ("processing", "generating") and orch:
+            if getattr(orch, "_cancel_requested", False):
+                if cont and hasattr(orch, "reset_continuous_chat_listen_blockers"):
+                    orch.reset_continuous_chat_listen_blockers()
+                return
             orch.request_cancel()
             self._notify(self._get_alert("regular.processing_stopped"), restore_after_ms=3000)
             self.set_status("ready")
+            return
+        # Chat continu : Alt+Q sans branche ci-dessus (ex. état coincé) — débloquer micro / pending TTS.
+        if cont and hasattr(orch, "reset_continuous_chat_listen_blockers"):
+            orch.reset_continuous_chat_listen_blockers()
 
     # ── PAGE ABOUT ─────────────────────────────────────────
     def _mk_about(self):
@@ -4833,14 +4946,25 @@ class PerkySueWidget:
         )
         self._chat_send_btn.grid(row=0, column=2, padx=(0, 8), pady=6, sticky="e")
 
+        chat_bottom = CTkFrame(chat_tab, fg_color="transparent")
+        chat_bottom.grid(row=6, column=0, sticky="ew", padx=(16, rpad_chat), pady=(0, 16))
+        chat_bottom.grid_columnconfigure(1, weight=1)
         self._chat_hint_lbl = CTkLabel(
-            chat_tab,
+            chat_bottom,
             text=s("chat.hint", default="Alt+A to speak · Enter to send · Alt+Q to stop"),
             font=("Segoe UI", 11),
             text_color=ACCENT,
         )
-        self._chat_hint_lbl.grid(row=6, column=0, sticky="ew", padx=(16, rpad_chat), pady=(0, 16))
-        self._chat_hint_lbl.configure(anchor="center")
+        self._chat_continuous_switch = CTkSwitch(
+            chat_bottom,
+            text=s("chat.continuous_label", default="Continuous Chat (beta)"),
+            font=("Segoe UI", 12),
+            text_color=TXT2,
+            command=self._on_chat_continuous_toggle,
+        )
+        self._chat_continuous_switch.grid(row=0, column=0, sticky="w", padx=(0, 10))
+        self._chat_hint_lbl.grid(row=0, column=1, sticky="e")
+        self._chat_hint_lbl.configure(anchor="e")
 
         # ─── Help tab: same layout as Chat, starts with PerkySue welcome (👋) ───
         help_tab.grid_columnconfigure(0, weight=1)
@@ -5947,6 +6071,137 @@ class PerkySueWidget:
 
         self._on_voice_model_selected()
 
+    def _mk_avatar_editor(self):
+        """Avatar Editor — actif seulement si Data/Plugins/avatar_editor (manifest enabled)."""
+        pg = CTkScrollableFrame(self.content, fg_color="transparent")
+        self.pages["avatar_editor"] = pg
+        try:
+            c = pg._parent_canvas
+
+            def _wheel_fast(e, frame=pg):
+                if getattr(frame, "_parent_canvas", None) is None:
+                    return
+                canv = frame._parent_canvas
+                y0, y1 = canv.yview()
+                at_top = y0 <= 0.0
+                at_bottom = y1 >= 1.0
+                going_up = e.delta > 0
+                going_down = e.delta < 0
+                if at_top and going_up:
+                    return "break"
+                if at_bottom and going_down:
+                    return "break"
+                step = 80
+                u = -step if (e.delta > 0) else step
+                if (y0, y1) != (0.0, 1.0):
+                    canv.yview("scroll", u, "units")
+                return "break"
+
+            c.bind("<MouseWheel>", _wheel_fast)
+        except Exception:
+            pass
+        try:
+            from .avatar_editor_page import mount_avatar_editor_page
+        except ImportError:
+            from App.gui.avatar_editor_page import mount_avatar_editor_page
+
+        self._avatar_editor_ui = mount_avatar_editor_page(self, pg)
+
+    def _brainstorm_list_skins(self) -> list[dict]:
+        out: list[dict] = []
+        paths = getattr(self, "paths", None)
+        try:
+            for skin in discover_skins(paths):
+                sid = str(skin.get("id") or "").strip()
+                if not sid:
+                    continue
+                char = str(skin.get("name") or "").strip()
+                loc = str(skin.get("lang") or "").strip()
+                sid_canon = normalize_skin_id(paths, sid) if paths is not None else sid
+                pers_path: Optional[str] = None
+                if paths is not None:
+                    char_root = resolve_character_root(paths, sid_canon)
+                    if char_root is not None:
+                        p_yaml = _find_tts_personality_yaml(char_root)
+                        if p_yaml is not None:
+                            pers_path = str(p_yaml)
+                    if pers_path is None:
+                        loc_dir = resolve_locale_skin_dir(paths, sid_canon)
+                        if loc_dir is not None:
+                            p_yaml = _find_tts_personality_yaml(loc_dir)
+                            if p_yaml is not None:
+                                pers_path = str(p_yaml)
+                out.append(
+                    {
+                        "id": sid,
+                        "character": char,
+                        "locale": loc,
+                        "display_name": sid,
+                        "personality_yaml_path": pers_path,
+                    }
+                )
+        except Exception:
+            return []
+        return out
+
+    def _brainstorm_invoke_llm(
+        self,
+        system: str,
+        user: str,
+        *,
+        max_tokens: int = 400,
+        mode_hint: str = "brainstorm",
+    ) -> str:
+        orch = getattr(self, "orch", None)
+        if orch is None or not getattr(orch, "llm", None) or not orch.llm.is_available():
+            raise RuntimeError("LLM unavailable")
+        if hasattr(orch, "is_effective_pro") and not bool(orch.is_effective_pro()):
+            raise PermissionError("Brainstorm is Pro-only")
+        if getattr(orch, "_cancel_requested", False):
+            raise RuntimeError("brainstorm_llm_cancelled")
+        result = orch._run_llm_on_main_thread(
+            text=str(user or ""),
+            system_prompt=str(system or ""),
+            temperature=0.6,
+            max_tokens=max(64, min(int(max_tokens or 400), 1024)),
+            gui_debug_label=f"plugin:{mode_hint}",
+        )
+        if getattr(orch, "_cancel_requested", False):
+            raise RuntimeError("brainstorm_llm_cancelled")
+        text = getattr(result, "text", "") if result is not None else ""
+        return str(text or "").strip()
+
+    def _mk_brainstorm(self):
+        """Brainstorm plugin page — mounted only when plugin is present + enabled + Pro."""
+        pg = CTkScrollableFrame(self.content, fg_color="transparent")
+        self.pages["brainstorm"] = pg
+        orch = getattr(self, "orch", None)
+        if orch is None:
+            return
+        try:
+            mod = orch._load_brainstorm_plugin()
+            if mod is None:
+                return
+            register_gui = getattr(mod, "register_gui", None)
+            if not callable(register_gui):
+                return
+            ctx = PluginHostContext(
+                paths=getattr(orch, "paths", None),
+                get_orchestrator=lambda: getattr(self, "orch", None),
+                invoke_llm=self._brainstorm_invoke_llm,
+                list_skins=self._brainstorm_list_skins,
+                emit_progress=lambda _event: None,
+                is_effective_pro=lambda: bool(getattr(self, "orch", None) and self.orch.is_effective_pro()),
+            )
+            spec = register_gui(ctx) or {}
+            factory = spec.get("page_factory")
+            if not callable(factory):
+                return
+            self._brainstorm_gui_spec = spec
+            self._brainstorm_ui = factory(pg)
+        except Exception:
+            logging.getLogger("perkysue").exception("Brainstorm plugin mount failed")
+
     @staticmethod
     def _voice_tts_manager_class():
         try:
@@ -6301,6 +6556,31 @@ class PerkySueWidget:
         elif tts.is_installed():
             err = getattr(tts, "engine_load_error", None)
             if err:
+                full_repair_needed = any(
+                    marker in str(err).lower()
+                    for marker in (
+                        "torchcodec installed but cannot load ffmpeg",
+                        "ffmpeg shared dlls",
+                        "libtorchcodec_core",
+                        "torchcodec still not importable",
+                    )
+                )
+                needs_repair = any(
+                    marker in str(err).lower()
+                    for marker in ("no_manifest", "snapshot_unavailable", "repair/install", "manifest invalid")
+                )
+                if getattr(self, "_voice_engine_retry_btn", None):
+                    self._voice_engine_retry_btn.configure(
+                        text=(
+                            s("voice.output.full_repair", default="Run full repair")
+                            if full_repair_needed
+                            else (
+                                s("voice.install.retry", default="Repair/Install")
+                                if needs_repair
+                                else s("voice.output.retry_engine", default="Retry load")
+                            )
+                        )
+                    )
                 lbl.configure(
                     text=s("voice.output.engine_load_failed_short", default="❌ Load failed — detail below"),
                     text_color="#EF4444",
@@ -6357,9 +6637,45 @@ class PerkySueWidget:
         tts = getattr(getattr(self, "orch", None), "tts_manager", None)
         if not tts:
             return
+        err = str(getattr(tts, "engine_load_error", "") or "").lower()
+        full_repair_needed = any(
+            marker in err
+            for marker in (
+                "torchcodec installed but cannot load ffmpeg",
+                "ffmpeg shared dlls",
+                "libtorchcodec_core",
+                "torchcodec still not importable",
+            )
+        )
+        if full_repair_needed:
+            self._voice_run_full_repair_install_bat()
+            return
+        needs_repair = any(
+            marker in err
+            for marker in ("no_manifest", "snapshot_unavailable", "repair/install", "manifest invalid")
+        )
+        if needs_repair:
+            self._on_voice_install()
+            return
         if getattr(tts, "clear_engine_load_error", None):
             tts.clear_engine_load_error()
         self._refresh_voice_tab()
+
+    def _voice_run_full_repair_install_bat(self):
+        app_root = Path(__file__).resolve().parent.parent.parent
+        install_bat = app_root / "install.bat"
+        if not install_bat.exists():
+            self._notify("install.bat not found in app root.", restore_after_ms=6000)
+            return
+        try:
+            subprocess.Popen(["cmd", "/c", str(install_bat)], cwd=str(app_root), shell=False)
+            try:
+                self.root.destroy()
+            except Exception:
+                pass
+            sys.exit(0)
+        except Exception as e:
+            self._notify(f"Could not launch install.bat: {e}", restore_after_ms=9000)
 
     def _tts_install_sync_header_progress(self, pct: int, display_name: str):
         """Pendant install TTS (Voice) : même barre / titre que téléchargement modèle LLM."""
@@ -6453,6 +6769,14 @@ class PerkySueWidget:
                         text=s("voice.install.retry", default="Retry install"),
                     )
                     self._voice_progress_label.configure(text=f"❌ {error}", text_color="#EF4444")
+                    try:
+                        tts._engine_load_error = str(error or "")
+                    except Exception:
+                        pass
+                    try:
+                        self.root.after(300, self._refresh_voice_tab)
+                    except Exception:
+                        pass
 
             try:
                 self.root.after(0, _finish)
@@ -6790,6 +7114,12 @@ class PerkySueWidget:
             elif re.match(r"(?i)^llama-server\s+", disp):
                 disp = re.sub(r"(?i)^llama-server\s+", "", disp).strip()
             self._chat_model_lbl.configure(text=f"{disp or '—'}")
+            sw = getattr(self, "_chat_continuous_switch", None)
+            if sw and getattr(self, "orch", None) and hasattr(self.orch, "is_continuous_chat_enabled"):
+                if self.orch.is_continuous_chat_enabled():
+                    sw.select()
+                else:
+                    sw.deselect()
 
             history = getattr(self.orch, "_answer_history", []) if getattr(self, "orch", None) else []
             # When context limit was reached, show bar at full so it matches the alert (no 1388 vs 2048 inconsistency); cleared on New chat
@@ -7421,6 +7751,13 @@ class PerkySueWidget:
         """Start Ask mode from chat (voice). Ouvre Chat, affiche Listening + micro rouge, lance l'enregistrement en thread (pas de double son STT)."""
         if not getattr(self, "orch", None) or not getattr(self.orch, "_on_hotkey_toggle", None):
             return
+        if getattr(self.orch, "is_continuous_chat_enabled", None) and self.orch.is_continuous_chat_enabled():
+            self.orch.set_continuous_chat_enabled(False)
+            self._notify(
+                s("chat.continuous_stopped", default="Continuous Chat stopped."),
+                restore_after_ms=2500,
+            )
+            return
         self._go("chat")
         # Mettre à jour le statut sur le thread principal pour que la colonne gauche et le micro passent tout de suite en Listening/rouge
         self.set_status("listening")
@@ -7432,6 +7769,37 @@ class PerkySueWidget:
                 pass
         t = threading.Thread(target=_run, daemon=True)
         t.start()
+
+    def _on_chat_continuous_toggle(self):
+        orch = getattr(self, "orch", None)
+        sw = getattr(self, "_chat_continuous_switch", None)
+        if not orch or sw is None:
+            return
+        want = _ctk_switch_is_on(sw)
+        ok, msg = orch.set_continuous_chat_enabled(want)
+        now_on = bool(getattr(orch, "is_continuous_chat_enabled", None) and orch.is_continuous_chat_enabled())
+        if now_on:
+            sw.select()
+        else:
+            sw.deselect()
+        if not ok and want:
+            self._notify(
+                s("chat.continuous_no_llm", default="Continuous Chat needs a working local LLM."),
+                restore_after_ms=4000,
+                blink_times=2,
+            )
+            return
+        if now_on:
+            self._go("chat")
+            self._notify(
+                s("chat.continuous_started", default="Continuous Chat started — speak naturally."),
+                restore_after_ms=2500,
+            )
+        elif msg != "already_off":
+            self._notify(
+                s("chat.continuous_stopped", default="Continuous Chat stopped."),
+                restore_after_ms=2500,
+            )
 
     def _on_shortcut_edit_click(self, mode_id: str, slot: str = "main"):
         """Start listening for a new key combination for this mode/slot (main or altgr); show Listening state."""
@@ -8388,7 +8756,7 @@ class PerkySueWidget:
         except Exception:
             pass
 
-        # Close live test box on Save (handoff rule) and restore header Test button.
+        # Close live test box on Save (UI rule) and restore header Test button.
         if ui["test_frame"].winfo_ismapped():
             ui["test_frame"].pack_forget()
 
@@ -8817,6 +9185,20 @@ class PerkySueWidget:
             self._voice_pytorch_cuda_auto_prompt_done_this_visit = False
             self._voice_pytorch_cuda_prompt_pending = False
             self._refresh_voice_tab()
+        elif name == "brainstorm":
+            try:
+                ui = getattr(self, "_brainstorm_ui", None)
+                if ui is not None and hasattr(ui, "refresh"):
+                    ui.refresh()
+            except Exception:
+                pass
+        elif name == "avatar_editor":
+            try:
+                ui = getattr(self, "_avatar_editor_ui", None)
+                if ui is not None:
+                    ui.refresh_list()
+            except Exception:
+                pass
         if name == "console":
             self._refresh_console_last_boxes()
         for pid, nav_tuple in self._nav.items():
@@ -9012,7 +9394,15 @@ class PerkySueWidget:
                         self.set_status("speaking")
             else:
                 if cur == "speaking":
-                    self.set_status("ready")
+                    try:
+                        cont = bool(
+                            orch
+                            and getattr(orch, "is_continuous_chat_enabled", None)
+                            and orch.is_continuous_chat_enabled()
+                        )
+                    except Exception:
+                        cont = False
+                    self.set_status("listening" if cont else "ready")
         except Exception:
             pass
 
@@ -11560,6 +11950,9 @@ class PerkySueWidget:
         self._perf_capture_cfg_order = ("mic_only", "system_only", "mix")
         self._perf_capture_display_to_cfg = dict(zip(self._perf_capture_labels, self._perf_capture_cfg_order))
         self._perf_capture_cfg_to_display = {v: k for k, v in self._perf_capture_display_to_cfg.items()}
+        _capture_mode_disabled = not bool(self.orch.is_effective_pro()) if getattr(self, "orch", None) and hasattr(self.orch, "is_effective_pro") else True
+        if _capture_mode_disabled:
+            _cap_raw = "mic_only"
         self._perf_capture_mode = tk.StringVar(value=self._perf_capture_cfg_to_display.get(_cap_raw, _lbl_mic))
         capture_opts = list(self._perf_capture_labels)
         mic_sel_opts, self._perf_mic_label_to_device_index, mic_cur_lbl = self._perf_mic_build_option_data(audio_cfg)
@@ -11674,7 +12067,7 @@ class PerkySueWidget:
                 "🎧",
                 self._perf_capture_mode,
                 capture_opts,
-                False,
+                _capture_mode_disabled,
             ),
             (
                 s("settings.performance.mic_select", default="Microphone input"),
@@ -11719,7 +12112,7 @@ class PerkySueWidget:
             icon_padx = (0, 10)  # uniforme pour aligner toutes les icônes (STT Device avait 6px de plus)
             CTkLabel(row_f, text=icon_emoji, font=("Segoe UI", 14), text_color=TXT2, width=32).pack(side="left", padx=icon_padx)
             CTkLabel(row_f, text=label, font=("Segoe UI", 14), text_color=TXT).pack(side="left", padx=(0, 12))
-            _om_w = 340 if var is self._perf_mic_device or var is self._perf_vad_sensitivity else 220
+            _om_w = 220
             om = CTkOptionMenu(
                 row_f, variable=var, values=options, width=_om_w, font=("Segoe UI", 13),
                 fg_color=INPUT, button_color=SIDEBAR, button_hover_color=SEL_BG,
@@ -13428,8 +13821,11 @@ class PerkySueWidget:
             pass
 
     def _poll_logs(self):
+        # Bound work per timer tick so the Tk thread stays responsive (Windows "Not responding"
+        # if a burst of INFO logs arrives while STT/LLM runs on a worker thread).
+        _max_lines_per_tick = 120
         try:
-            while True:
+            for _ in range(_max_lines_per_tick):
                 line = self.log_q.get_nowait()
                 self._log_lines.append(line)
                 if len(self._log_lines) > 2000:

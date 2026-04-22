@@ -15,6 +15,10 @@ import json
 import subprocess
 import sys
 import threading
+import tempfile
+import urllib.error
+import urllib.request
+import zipfile
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Callable, Optional, Tuple
@@ -270,6 +274,25 @@ class TTSInstaller:
             env["HF_HOME"] = root
             env["HF_HUB_CACHE"] = str(self.cache_dir.resolve() / "hub")
             env["HUGGINGFACE_HUB_CACHE"] = env["HF_HUB_CACHE"]
+        try:
+            py_dir = str(Path(self.python_exe).resolve().parent)
+            site_packages = Path(py_dir) / "Lib" / "site-packages"
+            torch_lib = site_packages / "torch" / "lib"
+            torchcodec_dir = site_packages / "torchcodec"
+            ffmpeg_bin = self.models_dir.parent.parent / "Tools" / "ffmpeg-shared" / "bin"
+            path_chunks = []
+            if Path(py_dir).is_dir():
+                path_chunks.append(py_dir)
+            if torch_lib.is_dir():
+                path_chunks.append(str(torch_lib.resolve()))
+            if torchcodec_dir.is_dir():
+                path_chunks.append(str(torchcodec_dir.resolve()))
+            if self._has_ffmpeg_shared_dlls(ffmpeg_bin):
+                path_chunks.append(str(ffmpeg_bin.resolve()))
+            if path_chunks:
+                env["PATH"] = os.pathsep.join(path_chunks + [env.get("PATH", "")])
+        except Exception:
+            pass
         return env
 
     def _run_python(self, code: str, timeout: int = 900) -> Tuple[bool, str]:
@@ -379,16 +402,42 @@ class TTSInstaller:
             logger.error("TTS OmniVoice: torchvision align failed: %s", tail[-1200:])
         return ok
 
-    def _ensure_torchcodec(self, on_progress, _report) -> bool:
+    def _ensure_torchcodec(self, on_progress, _report) -> Tuple[bool, str]:
         """TorchAudio loads WAV via torchcodec; OmniVoice clone/ref paths call torchaudio.load."""
+        probe_code = r"""
+import os
+from pathlib import Path
+
+py = Path(__file__).resolve() if "__file__" in globals() else None
+exe = Path(os.environ.get("PYTHONHOME", "")) if os.environ.get("PYTHONHOME") else None
+base = Path(os.path.dirname(os.path.abspath(os.__file__))).parent
+site = base / "Lib" / "site-packages"
+dirs = [
+    base,
+    site / "torch" / "lib",
+    site / "torchcodec",
+]
+ff = base.parent / "Data" / "Tools" / "ffmpeg-shared" / "bin"
+if ff.is_dir():
+    dirs.append(ff)
+
+for d in dirs:
+    try:
+        if d.is_dir() and hasattr(os, "add_dll_directory"):
+            os.add_dll_directory(str(d))
+    except Exception:
+        pass
+
+import torchcodec
+print("ok")
+"""
         try:
             import importlib.util
-
-            if importlib.util.find_spec("torchcodec") is None:
-                raise ImportError("torchcodec not found")
-            import torchcodec  # noqa: F401
-            return True
-        except ImportError:
+            if importlib.util.find_spec("torchcodec") is not None:
+                ok, _tail = self._run_python(probe_code, timeout=180)
+                if ok:
+                    return True, ""
+        except Exception:
             pass
         _report(
             STATE_PIP,
@@ -399,14 +448,170 @@ class TTSInstaller:
         ok, tail = self._run_pip(["torchcodec"], timeout=600)
         if not ok:
             logger.error("TTS OmniVoice: torchcodec install failed: %s", tail[-1200:])
+            return False, "pip install torchcodec failed"
+        ok, tail = self._run_python(probe_code, timeout=180)
+        if not ok:
+            logger.error("TTS OmniVoice: torchcodec still not importable after pip: %s", tail[-1200:])
+            if sys.platform == "win32" and (
+                "libtorchcodec_core4.dll" in tail
+                or "libtorchcodec_core5.dll" in tail
+                or "ffmpeg version 4" in tail.lower()
+                or "ffmpeg" in tail.lower()
+            ):
+                ff_ok, ff_msg = self._install_windows_ffmpeg_shared(on_progress, _report)
+                if ff_ok:
+                    ok2, tail2 = self._run_python(probe_code, timeout=180)
+                    if ok2:
+                        return True, ""
+                    logger.error(
+                        "TTS OmniVoice: torchcodec still not importable after FFmpeg auto-install: %s",
+                        tail2[-1200:],
+                    )
+                    return (
+                        False,
+                        "TorchCodec still not importable after FFmpeg auto-install. "
+                        "Run Voice full repair and verify FFmpeg shared DLLs.",
+                    )
+                return False, (ff_msg or "Failed to auto-install FFmpeg shared DLLs.")
+            return False, "torchcodec import failed after pip install"
+        return True, ""
+
+    @staticmethod
+    def _has_ffmpeg_shared_dlls(folder: Path) -> bool:
+        if not folder.is_dir():
             return False
-        self._purge_tts_extension_modules()
         try:
-            import torchcodec  # noqa: F401
-            return True
-        except ImportError:
-            logger.error("TTS OmniVoice: torchcodec still not importable after pip")
+            for p in folder.iterdir():
+                if not p.is_file():
+                    continue
+                n = p.name.lower()
+                if (n.startswith("avutil-") or n.startswith("avcodec-")) and n.endswith(".dll"):
+                    return True
+        except OSError:
             return False
+        return False
+
+    @staticmethod
+    def _ffmpeg_major_versions(folder: Path) -> set[int]:
+        majors: set[int] = set()
+        if not folder.is_dir():
+            return majors
+        try:
+            for p in folder.iterdir():
+                if not p.is_file():
+                    continue
+                n = p.name.lower()
+                m = re.match(r"^avcodec-(\d+)\.dll$", n)
+                if m:
+                    try:
+                        majors.add(int(m.group(1)))
+                    except ValueError:
+                        pass
+        except OSError:
+            return majors
+        return majors
+
+    @classmethod
+    def _has_torchcodec_compatible_ffmpeg(cls, folder: Path) -> bool:
+        # torchcodec in our bundle currently looks for core4/core5 (FFmpeg 4/5 ABIs),
+        # which maps to avcodec major 58 (FFmpeg 4) or 59 (FFmpeg 5).
+        majors = cls._ffmpeg_major_versions(folder)
+        return bool({58, 59} & majors)
+
+    def _install_windows_ffmpeg_shared(self, on_progress, _report) -> Tuple[bool, str]:
+        if sys.platform != "win32":
+            return False, "FFmpeg auto-install is only supported on Windows."
+        py_dir = Path(self.python_exe).resolve().parent
+        ffmpeg_bin = self.models_dir.parent.parent / "Tools" / "ffmpeg-shared" / "bin"
+        ffmpeg_bin.mkdir(parents=True, exist_ok=True)
+        if self._has_torchcodec_compatible_ffmpeg(py_dir) or self._has_torchcodec_compatible_ffmpeg(ffmpeg_bin):
+            return True, ""
+
+        _report(STATE_PIP, 12, "Downloading FFmpeg shared DLLs for TorchCodec...")
+
+        def _pick_compatible_asset() -> Optional[str]:
+            # Prefer FFmpeg 5.1 shared builds for torchcodec core5/core4 compatibility.
+            api_url = "https://api.github.com/repos/BtbN/FFmpeg-Builds/releases?per_page=30"
+            req = urllib.request.Request(api_url, headers={"User-Agent": "PerkySue-TTSInstaller"})
+            with urllib.request.urlopen(req, timeout=45) as resp:
+                rels = json.loads(resp.read().decode("utf-8", errors="replace"))
+            if not isinstance(rels, list):
+                return None
+            best: tuple[int, str] | None = None
+            for rel in rels:
+                assets = rel.get("assets") if isinstance(rel, dict) else None
+                if not isinstance(assets, list):
+                    continue
+                for a in assets:
+                    if not isinstance(a, dict):
+                        continue
+                    name = str(a.get("name") or "").lower()
+                    url = str(a.get("browser_download_url") or "").strip()
+                    if not url:
+                        continue
+                    if "win64" not in name or "shared" not in name or not name.endswith(".zip"):
+                        continue
+                    # scoring: n5.1 preferred, then any n5, gpl preferred over lgpl
+                    score = 0
+                    if "n5.1" in name and "shared-5.1" in name:
+                        score += 100
+                    elif "n5." in name:
+                        score += 70
+                    if "gpl-shared" in name:
+                        score += 10
+                    elif "lgpl-shared" in name:
+                        score += 5
+                    if score <= 0:
+                        continue
+                    if best is None or score > best[0]:
+                        best = (score, url)
+            return best[1] if best else None
+
+        try:
+            zip_url = _pick_compatible_asset()
+        except Exception as e:
+            logger.error("FFmpeg shared auto-install: cannot query releases: %s", e)
+            return False, "Could not query FFmpeg shared release metadata."
+        if not zip_url:
+            return False, "Could not find a compatible FFmpeg 5.1 shared win64 package."
+
+        try:
+            with tempfile.TemporaryDirectory(prefix="perkysue_ffmpeg_") as tmp:
+                zip_path = Path(tmp) / "ffmpeg-shared.zip"
+                _report(STATE_PIP, 13, "Downloading FFmpeg shared package...")
+                req = urllib.request.Request(zip_url, headers={"User-Agent": "PerkySue-TTSInstaller"})
+                with urllib.request.urlopen(req, timeout=300) as resp, open(zip_path, "wb") as out:
+                    out.write(resp.read())
+                copied = 0
+                _report(STATE_PIP, 14, "Extracting FFmpeg shared DLLs...")
+                for old in ffmpeg_bin.glob("*.dll"):
+                    try:
+                        old.unlink()
+                    except OSError:
+                        pass
+                with zipfile.ZipFile(zip_path) as zf:
+                    for info in zf.infolist():
+                        if info.is_dir():
+                            continue
+                        name = info.filename.replace("\\", "/")
+                        low = name.lower()
+                        if "/bin/" not in low or not low.endswith(".dll"):
+                            continue
+                        dest = ffmpeg_bin / Path(name).name
+                        with zf.open(info, "r") as src, open(dest, "wb") as dst:
+                            dst.write(src.read())
+                        copied += 1
+                if copied <= 0:
+                    return False, "FFmpeg package downloaded but no bin/*.dll was extracted."
+        except Exception as e:
+            logger.error("FFmpeg shared auto-install failed: %s", e)
+            return False, f"Failed to download/extract FFmpeg shared DLLs: {e}"
+
+        if not self._has_torchcodec_compatible_ffmpeg(ffmpeg_bin):
+            return False, "FFmpeg DLLs installed but not compatible (need FFmpeg 4/5 ABI for current torchcodec)."
+        logger.info("FFmpeg shared auto-install complete: %s", ffmpeg_bin)
+        _report(STATE_PIP, 15, "FFmpeg shared DLLs installed.")
+        return True, ""
 
     def _repair_numpy_abi(
         self,
@@ -626,10 +831,9 @@ print("ok" if ok else "empty")
             logger.warning("TTS installer: chatterbox registry refresh skipped: %s", e)
 
     def _verify_omnivoice_import(self, on_progress, _report) -> None:
-        import importlib
-        if "omnivoice" in sys.modules:
-            del sys.modules["omnivoice"]
-        import omnivoice  # noqa: F401
+        ok, tail = self._run_python("import omnivoice; print('ok')", timeout=300)
+        if not ok:
+            raise ImportError(tail)
 
     def _download_and_verify_omnivoice(self, on_progress, _report) -> None:
         import os
@@ -675,8 +879,18 @@ print("ok" if ok else "empty")
         )
         _report(STATE_MODEL, 85, "Generating test audio...")
         audios = model.generate(text="Test.", language="en", num_step=16)
-        if not audios or audios[0] is None or audios[0].numel() == 0:
+        first_audio = audios[0] if audios else None
+        if first_audio is None:
             raise RuntimeError("OmniVoice generate returned empty audio")
+        # Some OmniVoice builds return torch.Tensor, others return numpy.ndarray.
+        if hasattr(first_audio, "numel"):
+            if first_audio.numel() == 0:
+                raise RuntimeError("OmniVoice generate returned empty audio")
+        elif hasattr(first_audio, "size"):
+            if int(first_audio.size) == 0:
+                raise RuntimeError("OmniVoice generate returned empty audio")
+        else:
+            raise RuntimeError("OmniVoice generate returned an unsupported audio type")
 
         del model
         del audios
@@ -736,7 +950,6 @@ print("ok" if ok else "empty")
                         e,
                     )
                     self._align_torchvision_with_torch(on_progress, _report)
-                    self._purge_tts_extension_modules()
                     continue
                 if torchcodec_repairs_import < max_torchcodec_repairs_import and _is_torchcodec_missing_error(e):
                     torchcodec_repairs_import += 1
@@ -745,7 +958,8 @@ print("ok" if ok else "empty")
                         torchcodec_repairs_import,
                         e,
                     )
-                    if self._ensure_torchcodec(on_progress, _report):
+                    ok_tc, _tc_err = self._ensure_torchcodec(on_progress, _report)
+                    if ok_tc:
                         continue
                 if isinstance(e, ImportError):
                     if pip_done:
@@ -776,7 +990,6 @@ print("ok" if ok else "empty")
                         raise RuntimeError(f"pip install failed: {err_msg}")
                     pip_done = True
                     self._align_torchvision_with_torch(on_progress, _report)
-                    self._purge_tts_extension_modules()
                     continue
                 raise RuntimeError(f"omnivoice import failed: {e}") from e
 
@@ -788,10 +1001,14 @@ print("ok" if ok else "empty")
         if self._cancel:
             return
 
-        if not self._ensure_torchcodec(on_progress, _report):
+        ok_tc, tc_err = self._ensure_torchcodec(on_progress, _report)
+        if not ok_tc:
             raise RuntimeError(
-                "torchcodec is required for TorchAudio to load WAV files (voice cloning). "
-                "pip install torchcodec failed — check the log."
+                tc_err
+                or (
+                    "torchcodec is required for TorchAudio to load WAV files (voice cloning). "
+                    "pip install torchcodec failed — check the log."
+                )
             )
 
         _report(STATE_MODEL, 0, "Preparing OmniVoice model...")
@@ -812,7 +1029,8 @@ print("ok" if ok else "empty")
                         torchcodec_repairs_model,
                         e,
                     )
-                    if self._ensure_torchcodec(on_progress, _report):
+                    ok_tc, _tc_err = self._ensure_torchcodec(on_progress, _report)
+                    if ok_tc:
                         continue
                 if numpy_repairs_model < max_numpy_repairs_model and _is_numpy_abi_error(e):
                     numpy_repairs_model += 1

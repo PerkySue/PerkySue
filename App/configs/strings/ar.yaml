@@ -196,7 +196,7 @@
       url: ''
     credit: صنعه Jérôme Corbiau  ·  رخصة Apache 2.0
 common:
-  window_title: PerkySue — Beta 0.29.3
+  window_title: PerkySue — Beta 0.29.4
   header_banner:
     free_invite: PerkySue Beta — مجاني · جرّب Pro (٣٠ يومًا، بدون بطاقة)
     free_after_trial: PerkySue Beta — مجاني
@@ -254,18 +254,56 @@ voice:
     button: تثبيت المحرك
     button_working: جارٍ التثبيت…
     retry: حاول مرة أخرى
+    progress_name_chatterbox: Chatterbox Turbo
+    progress_name_omnivoice: OmniVoice
   engine:
+    chatterbox_multilingual_hint: "English (Turbo) سريع. اللغات الأخرى تستخدم نموذجًا متعدد اللغات منفصلًا وقد يكون أبطأ على CPU."
+    chatterbox_last_stt_not_english: "⚠ آخر لغة مكتشفة ليست English. سيستخدم Chatterbox نموذجًا متعدد اللغات وقد يكون أبطأ على CPU."
+    chatterbox_ui_locale_hint: "⚠ لغة التطبيق ليست English. للاستخدام متعدد اللغات يوميًا، OmniVoice غالبًا أنسب."
+    tts_pytorch_cpu_only: "⚠ TTS يستخدم PyTorch {version} بدون CUDA، أو نسخة CUDA غير متوافقة مع GPU لديك. Whisper/llama-server قد يواصلان استخدام GPU. RTX 50xx: شغّل install_pytorch_cuda_cu128.bat. الباقي: install_pytorch_cuda_cu124.bat ثم أعد تشغيل PerkySue."
+    tts_cpu_chatterbox: "⚠ Chatterbox يعمل على CPU. التخليق أبطأ بكثير من GPU مع CUDA."
+    tts_cpu_generic: "⚠ تحويل النص إلى كلام يعمل على CPU. أبطأ من GPU."
     recommended_suffix: " (موصى به)"
+  pytorch_cuda:
+    button: "تثبيت PyTorch CUDA"
+    dialog_title: "تسريع تحويل النص إلى كلام (GPU)"
+    dialog_body: "PerkySue يستخدم الآن نسخة PyTorch تعمل على CPU فقط، لذلك Chatterbox وOmniVoice لا يستطيعان استخدام NVIDIA لديك.\n\nهل تريد تثبيت PyTorch مع CUDA الآن؟ تنزيل كبير (~2+ GB) وقد يستغرق عدة دقائق."
+    dialog_message: "PerkySue يستخدم الآن نسخة PyTorch تعمل على CPU فقط، لذلك Chatterbox وOmniVoice لا يستطيعان استخدام NVIDIA لديك.\n\nهل تريد تثبيت PyTorch مع CUDA الآن؟ تنزيل كبير (~2+ GB) وقد يستغرق عدة دقائق."
+    btn_yes: "نعم، ثبّت"
+    btn_no: "ليس الآن"
+    btn_never_ask: "لا تسألني مرة أخرى"
+    modal_ok: "حسنًا"
+    progress_start: "جارٍ تثبيت PyTorch CUDA…"
+    progress_name: "PyTorch CUDA"
+    restart_sidebar_note: "أعد تشغيل PerkySue لتحميل PyTorch الجديد (CUDA)."
+    done_title: "PyTorch"
+    done_message: "اكتمل التثبيت. أغلق PerkySue بالكامل ثم افتحه من جديد لتحميل PyTorch الجديد."
+    error_title: "فشل تثبيت PyTorch CUDA"
+  omnivoice:
+    section_title: OmniVoice
+    mode_clone: استنساخ
+    steps_label: الجودة / السرعة
+    steps_16: 16
+    steps_32: 32
+    steps_48: 48
   output:
     section_title: المخرجات
     enabled: مفعّل
     engine_label: المحرك
+    engine_switch_label: محرك TTS
+    retry_engine: أعد التحميل
+    full_repair: إصلاح كامل
+    engine_load_failed_short: "❌ فشل التحميل — راجع أدناه"
   playback:
     section_title: التشغيل
     volume: مستوى الصوت
     speed: السرعة
     auto_speak: قراءة تلقائية
     auto_speak_hint: بعد وضعي Answer وHelp
+    voice_payload: إدراج ذكي (payload فقط)
+    voice_payload_hint: عند تفعيل Voice، استخدم تنسيق <PS_PAYLOAD> والصق هذا الجزء فقط
+    read_aloud_payload: اقرأ payload بصوت عالٍ
+    read_aloud_payload_hint: TTS يقرأ أيضًا النص القابل للإدراج
   packs:
     section_title: حزم الأصوات
     default_body: صوت البرو الافتراضي حاليًا. أضف voice_ref.wav للسكن للاستنساخ، أو احصل على حزم شخصيات من Patreon.
@@ -626,7 +664,7 @@ header_alerts:
     omnivoice_requires_nvidia: يتطلب OmniVoice بطاقة NVIDIA/CUDA (غير متاح على CPU/Vulkan).
     tts_install_in_progress: التثبيت قيد التنفيذ بالفعل — يرجى الانتظار.
     ai_disclaimer: ⚠️ قد تكون ردود الذكاء الاصطناعي غير دقيقة. تحقّق من الحقائق.
-    recording_no_audio: لم يُلتقط أي صوت — تحقق من الميكروفون.
+    recording_no_audio: لا يوجد صوت. اختر ميكروفون في -> الإعدادات -> الأداء
     recording_too_short: التسجيل قصير جداً — لم يُكتشف نص. تحقق من الميكروفون أو تكلّم أطول.
     copied_to_clipboard: نُسخ إلى الحافظة
     llm_not_available: منسق LLM غير متاح.

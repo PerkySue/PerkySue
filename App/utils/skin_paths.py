@@ -367,17 +367,17 @@ def _is_effective_locale_subdir(sub: Path) -> bool:
     return _subdir_looks_like_locale_pack_assets(sub)
 
 
-def _find_tts_personality_yaml(char_dir: Path) -> Optional[Path]:
+def _find_tts_personality_yaml(folder: Path) -> Optional[Path]:
     """
-    ``tts_personality.yaml`` at character root, same as TTS resolution — **case-insensitive** basename
-    (Windows often ships ``TTS_personality.yaml`` from archives).
+    Find ``tts_personality.yaml`` under ``folder`` — **case-insensitive** basename
+    (Windows archives sometimes ship ``TTS_personality.yaml``).
     """
     want = "tts_personality.yaml"
-    direct = char_dir / want
+    direct = folder / want
     if direct.is_file():
         return direct
     try:
-        for p in char_dir.iterdir():
+        for p in folder.iterdir():
             if p.is_file() and p.name.casefold() == want.casefold():
                 return p
     except OSError:
@@ -391,7 +391,8 @@ def iter_data_skins_for_appearance(paths: Any) -> Iterator[Tuple[str, str, Path]
 
     For each ``Data/Skins/<Character>/``:
 
-    - ``tts_personality.yaml`` is present (voice / persona).
+    - A personality file exists either at character root **or** in at least one locale folder
+      (``tts_personality.yaml``; basename match is case-insensitive).
     - ``profile.png`` or ``images/profile.png`` exists at character root (avatar for the list).
     - At least one **immediate** subdirectory whose name is treated as a locale (``EN``, ``FR``, …).
 
@@ -418,14 +419,22 @@ def iter_data_skins_for_appearance(paths: Any) -> Iterator[Tuple[str, str, Path]
             char = char_dir.name
             if char == "Default":
                 continue
-            if _find_tts_personality_yaml(char_dir) is None:
-                continue
             profile = _character_profile_png(char_dir)
             if profile is None:
                 continue
             locale_dirs = [sub for sub in sorted(char_dir.iterdir()) if _is_effective_locale_subdir(sub)]
             if not locale_dirs:
                 continue
+            # Personality may be character-wide (root) or locale-specific (inside <Locale>/).
+            # We require at least one personality file so random folders under Data/Skins don't show up.
+            if _find_tts_personality_yaml(char_dir) is None:
+                has_locale_personality = False
+                for loc_dir in locale_dirs:
+                    if _find_tts_personality_yaml(loc_dir) is not None:
+                        has_locale_personality = True
+                        break
+                if not has_locale_personality:
+                    continue
             for loc_dir in locale_dirs:
                 loc = loc_dir.name
                 key = f"{char}/{loc}".casefold()

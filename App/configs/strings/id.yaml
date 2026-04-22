@@ -196,7 +196,7 @@
       url: ''
     credit: Dibuat oleh Jérôme Corbiau  ·  Lisensi Apache 2.0
 common:
-  window_title: PerkySue — Beta 0.29.3
+  window_title: PerkySue — Beta 0.29.4
   header_banner:
     free_invite: PerkySue Beta — Gratis · Coba Pro (30 hari, tanpa kartu)
     free_after_trial: PerkySue Beta — Gratis
@@ -254,18 +254,56 @@ voice:
     button: Pasang mesin
     button_working: Memasang…
     retry: Coba lagi
+    progress_name_chatterbox: Chatterbox Turbo
+    progress_name_omnivoice: OmniVoice
   engine:
+    chatterbox_multilingual_hint: "English (Turbo) cepat. Bahasa lain pakai model multilingual terpisah dan bisa lambat di CPU."
+    chatterbox_last_stt_not_english: "⚠ Bahasa terakhir bukan English. Chatterbox akan pakai model multilingual, biasanya lebih lambat di CPU."
+    chatterbox_ui_locale_hint: "⚠ Bahasa app bukan English. Untuk pakai multibahasa harian, OmniVoice biasanya lebih cocok."
+    tts_pytorch_cpu_only: "⚠ TTS pakai PyTorch {version} tanpa CUDA, atau build CUDA yang tidak cocok dengan GPU-mu. Whisper/llama-server bisa tetap pakai GPU. RTX 50xx: pakai install_pytorch_cuda_cu128.bat. Lainnya: install_pytorch_cuda_cu124.bat lalu restart PerkySue."
+    tts_cpu_chatterbox: "⚠ Chatterbox jalan di CPU. Sintesis akan jauh lebih lambat dibanding GPU CUDA."
+    tts_cpu_generic: "⚠ Teks-ke-ucapan jalan di CPU. Lebih lambat daripada GPU."
     recommended_suffix: " (disarankan)"
+  pytorch_cuda:
+    button: "Pasang PyTorch CUDA"
+    dialog_title: "Percepat teks-ke-ucapan (GPU)"
+    dialog_body: "PerkySue sekarang pakai PyTorch CPU-only, jadi Chatterbox dan OmniVoice belum bisa pakai NVIDIA-mu.\n\nPasang PyTorch CUDA sekarang? Unduhan besar (~2+ GB), bisa butuh beberapa menit."
+    dialog_message: "PerkySue sekarang pakai PyTorch CPU-only, jadi Chatterbox dan OmniVoice belum bisa pakai NVIDIA-mu.\n\nPasang PyTorch CUDA sekarang? Unduhan besar (~2+ GB), bisa butuh beberapa menit."
+    btn_yes: "Ya, pasang"
+    btn_no: "Nanti saja"
+    btn_never_ask: "Jangan tanya lagi"
+    modal_ok: "OK"
+    progress_start: "Memasang PyTorch CUDA…"
+    progress_name: "PyTorch CUDA"
+    restart_sidebar_note: "Restart PerkySue untuk memuat PyTorch (CUDA) baru."
+    done_title: "PyTorch"
+    done_message: "Pemasangan selesai. Tutup PerkySue sepenuhnya lalu buka lagi agar PyTorch baru aktif."
+    error_title: "Pemasangan PyTorch CUDA gagal"
+  omnivoice:
+    section_title: OmniVoice
+    mode_clone: Kloning
+    steps_label: Kualitas / kecepatan
+    steps_16: 16
+    steps_32: 32
+    steps_48: 48
   output:
     section_title: Keluaran
     enabled: Aktif
     engine_label: Mesin
+    engine_switch_label: Mesin TTS
+    retry_engine: Muat ulang
+    full_repair: Perbaikan penuh
+    engine_load_failed_short: "❌ Gagal memuat — lihat di bawah"
   playback:
     section_title: Pemutaran
     volume: Volume
     speed: Kecepatan
     auto_speak: Bicara otomatis
     auto_speak_hint: Setelah mode Answer & Help
+    voice_payload: Smart inject (hanya payload)
+    voice_payload_hint: Saat Voice aktif, pakai <PS_PAYLOAD> dan tempel blok itu saja
+    read_aloud_payload: Baca payload keras
+    read_aloud_payload_hint: TTS juga membaca teks yang bisa ditempel
   packs:
     section_title: Pak suara
     default_body: Suara Pro bawaan. Tambah voice_ref.wav di skin untuk kloning, atau ambil pak karakter di Patreon.
@@ -626,7 +664,7 @@ header_alerts:
     omnivoice_requires_nvidia: OmniVoice memerlukan NVIDIA/CUDA (tidak tersedia di CPU/Vulkan).
     tts_install_in_progress: Instalasi sudah berjalan — mohon tunggu.
     ai_disclaimer: ⚠️ Jawaban AI bisa tidak akurat. Periksa faktanya.
-    recording_no_audio: Audio tidak tertangkap — rekaman dihentikan atau cek mikrofon.
+    recording_no_audio: Tidak ada suara. Pilih Mikrofon di -> Pengaturan -> Performa
     recording_too_short: Rekaman terlalu singkat — tidak ada teks. Cek mikrofon atau bicara lebih lama.
     copied_to_clipboard: Disalin ke clipboard
     llm_not_available: Orkestrator LLM tidak tersedia.

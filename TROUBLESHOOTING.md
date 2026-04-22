@@ -34,6 +34,25 @@ PerkySue uses Voice Activity Detection (VAD) to stop recording when you stop tal
 
 ---
 
+## 🔧 Debug logs — mix capture + Continuous Chat
+
+If you need to trace **STT source = mix** (micro + system loopback) or the **Continuous Chat** worker (cooldowns, arm turns, empty buffers), enable pipeline logging on the main app logger (`perkysue` / your console log).
+
+**Option A — Settings only:** **Settings → Advanced → Debug mode** → **Save & Restart**. That turns on `feedback.debug_mode` (includes Full Console LLM/STT dumps) **and** pipeline logs.
+
+**Option B — Logs only (no Full Console dumps):** In `Data/Configs/config.yaml` under `audio:` add:
+
+```yaml
+audio:
+  pipeline_debug: true
+```
+
+Then **Save & Restart** so the audio recorder is rebuilt with the flag.
+
+**What you should see:** lines prefixed with `[pipeline]` (VAD stop, capture length, mix mic/loopback sample counts, mic queue drops) and `[continuous]` (worker wait vs arm, TTS cooldown extension, listen-blocker resets). At most one `[continuous] wait | …` line per second while blocked.
+
+---
+
 ## ⌨️ Hotkeys not working / conflicts
 
 PerkySue uses Win32 `RegisterHotKey` — keystrokes are consumed so you won't hear an error "ding". If a hotkey doesn't register:

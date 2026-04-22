@@ -196,7 +196,7 @@
       url: ''
     credit: তৈরি করেছেন Jérôme Corbiau  ·  Apache 2.0 লাইসেন্স
 common:
-  window_title: PerkySue — Beta 0.29.3
+  window_title: PerkySue — Beta 0.29.4
   header_banner:
     free_invite: PerkySue Beta — ফ্রি · Pro ৩০ দিন, কার্ড ছাড়া
     free_after_trial: PerkySue Beta — ফ্রি
@@ -254,18 +254,56 @@ voice:
     button: ইঞ্জিন ইনস্টল করো
     button_working: ইনস্টল হচ্ছে…
     retry: আবার চেষ্টা করো
+    progress_name_chatterbox: Chatterbox Turbo
+    progress_name_omnivoice: OmniVoice
   engine:
+    chatterbox_multilingual_hint: "English (Turbo) দ্রুত। অন্য ভাষায় আলাদা multilingual মডেল লাগে, CPU-তে ধীর হতে পারে।"
+    chatterbox_last_stt_not_english: "⚠ শেষ ধরা ভাষা English ছিল না। Chatterbox এখন multilingual মডেল নেবে, CPU-তে ধীর হতে পারে।"
+    chatterbox_ui_locale_hint: "⚠ তোমার app ভাষা English না। দৈনন্দিন multilingual ব্যবহারে OmniVoice সাধারণত বেশি মানায়।"
+    tts_pytorch_cpu_only: "⚠ TTS এখন PyTorch {version} (CUDA ছাড়া) বা GPU-এর সাথে না-মেলা CUDA build ব্যবহার করছে। Whisper/llama-server GPU ব্যবহার করতে পারে। RTX 50xx: install_pytorch_cuda_cu128.bat চালাও। অন্যগুলো: install_pytorch_cuda_cu124.bat, তারপর PerkySue রিস্টার্ট করো।"
+    tts_cpu_chatterbox: "⚠ Chatterbox CPU-তে চলছে। CUDA GPU-এর তুলনায় synthesis অনেক ধীর হবে।"
+    tts_cpu_generic: "⚠ টেক্সট-টু-স্পিচ CPU-তে চলছে। GPU-এর চেয়ে ধীর।"
     recommended_suffix: " (সুপারিশকৃত)"
+  pytorch_cuda:
+    button: "PyTorch CUDA ইনস্টল করো"
+    dialog_title: "টেক্সট-টু-স্পিচ দ্রুত করো (GPU)"
+    dialog_body: "PerkySue এখন CPU-only PyTorch ব্যবহার করছে, তাই Chatterbox আর OmniVoice তোমার NVIDIA ব্যবহার করতে পারছে না।\n\nএখন CUDA-enabled PyTorch ইনস্টল করবে? ডাউনলোড বড় (~2+ GB), কয়েক মিনিট লাগতে পারে।"
+    dialog_message: "PerkySue এখন CPU-only PyTorch ব্যবহার করছে, তাই Chatterbox আর OmniVoice তোমার NVIDIA ব্যবহার করতে পারছে না।\n\nএখন CUDA-enabled PyTorch ইনস্টল করবে? ডাউনলোড বড় (~2+ GB), কয়েক মিনিট লাগতে পারে।"
+    btn_yes: "হ্যাঁ, ইনস্টল"
+    btn_no: "এখন না"
+    btn_never_ask: "আর জিজ্ঞেস কোরো না"
+    modal_ok: "OK"
+    progress_start: "PyTorch CUDA ইনস্টল হচ্ছে…"
+    progress_name: "PyTorch CUDA"
+    restart_sidebar_note: "নতুন PyTorch (CUDA) চালু করতে PerkySue রিস্টার্ট করো।"
+    done_title: "PyTorch"
+    done_message: "ইনস্টল শেষ। PerkySue পুরো বন্ধ করে আবার চালু করো, তাহলে নতুন PyTorch লোড হবে।"
+    error_title: "PyTorch CUDA ইনস্টল ব্যর্থ"
+  omnivoice:
+    section_title: OmniVoice
+    mode_clone: ক্লোন
+    steps_label: মান / গতি
+    steps_16: 16
+    steps_32: 32
+    steps_48: 48
   output:
     section_title: আউটপুট
     enabled: চালু
     engine_label: ইঞ্জিন
+    engine_switch_label: TTS ইঞ্জিন
+    retry_engine: আবার লোড করো
+    full_repair: ফুল রিপেয়ার
+    engine_load_failed_short: "❌ লোড ব্যর্থ — নিচে দেখো"
   playback:
     section_title: প্লেব্যাক
     volume: ভলিউম
     speed: গতি
     auto_speak: অটো-বলা
     auto_speak_hint: Answer আর Help মোডের পরে
+    voice_payload: স্মার্ট ইনজেক্ট (শুধু payload)
+    voice_payload_hint: Voice চালু থাকলে <PS_PAYLOAD> ফরম্যাট ব্যবহার করো এবং শুধু ওই ব্লক পেস্ট করো
+    read_aloud_payload: payload জোরে পড়ো
+    read_aloud_payload_hint: TTS ইনজেক্টযোগ্য টেক্সটও পড়ে শোনাবে
   packs:
     section_title: ভয়েস প্যাক
     default_body: এখন ডিফল্ট Pro ভয়েস। ক্লোনের জন্য স্কিনে voice_ref.wav যোগ করো বা Patreon থেকে ক্যারেক্টার প্যাক নাও।
@@ -626,7 +664,7 @@ header_alerts:
     omnivoice_requires_nvidia: OmniVoice-এর জন্য NVIDIA/CUDA দরকার (CPU/Vulkan-এ উপলভ্য নয়)।
     tts_install_in_progress: ইনস্টলেশন ইতোমধ্যে চলছে — অনুগ্রহ করে অপেক্ষা করুন।
     ai_disclaimer: ⚠️ AI-এর উত্তর ভুল হতে পারে। তথ্য যাচাই করুন।
-    recording_no_audio: কোনো অডিও ধরা যায়নি — রেকর্ডিং বন্ধ। মাইক চেক করো।
+    recording_no_audio: ভয়েস নেই। মাইক্রো বাছুন এ -> সেটিংস -> পারফরম্যান্স
     recording_too_short: রেকর্ডিং অনেক ছোট — কোনো টেক্সট নেই। মাইক চেক করো বা বেশিক্ষণ বলো।
     copied_to_clipboard: ক্লিপবোর্ডে কপি হয়েছে
     llm_not_available: LLM অর্কেস্ট্রেটর পাওয়া যাচ্ছে না।
