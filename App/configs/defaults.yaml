@@ -57,8 +57,15 @@ llm:
   # CPU threads (0 = auto)
   n_threads: 0
 
-  # Temperature (0.0 = deterministic, 0.7 = creative)
-  temperature: 0.3
+  # Sampling (llama-server). Defaults align with Qwen3 / Qwen3.5 **instruct (non-thinking)** guidance
+  # (see Qwen llama.cpp docs: temp ~0.7, top_p ~0.8, top_k 20, min_p 0; presence_penalty 1–2 cuts loops).
+  temperature: 0.7
+  top_p: 0.8
+  top_k: 20
+  min_p: 0.0
+  repeat_penalty: 1.0
+  presence_penalty: 1.5
+  frequency_penalty: 0.0
 
   # Max output tokens: maximum new tokens per reply (same idea as Max input: 0 = Auto).
   # Auto scales with effective context (~n_ctx/3, capped so prompt+completion stay in window).
@@ -75,7 +82,7 @@ llm:
   # Allowed: 2 | 3 | 4 (default 2). Lower values reduce prompt size and summarize more often.
   answer_context_keep: 2
   # Pro only: when true, LLM exchanges from non-Ask modes are also mirrored into Chat history for follow-ups.
-  inject_all_modes_in_chat: true
+  inject_all_modes_in_chat: false
 
 # --- Skin & Audio ---
 skin:
@@ -213,3 +220,7 @@ feedback:
   console_output: true
   # Verbose LLM logs, raw TTS tags in UI/paste, Alt+A injection includes PreviousAnswersSummary (Settings → Advanced).
   debug_mode: false
+  # LLM diagnostic (Advanced): bisect Thinking / chat template vs prompts — llama-server only.
+  llm_diag_bypass_system: false
+  llm_diag_skip_chat_template_kwargs: false
+  llm_diag_show_request_payload: false

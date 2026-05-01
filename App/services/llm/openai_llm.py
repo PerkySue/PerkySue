@@ -40,21 +40,44 @@ class OpenAICompatibleLLM(LLMProvider):
             timeout=120.0,
         )
 
-    def process(self, text: str, system_prompt: str,
-                temperature: float = 0.3, max_tokens: int = 1024) -> LLMResult:
+    def process(
+        self,
+        text: str,
+        system_prompt: str,
+        temperature: float = 0.7,
+        max_tokens: int = 1024,
+        **kwargs,
+    ) -> LLMResult:
         """Envoie le texte au serveur compatible OpenAI."""
         start = time.time()
         client = self._get_client()
 
-        response = client.chat.completions.create(
-            model=self.model,
-            messages=[
+        create_kwargs = {
+            "model": self.model,
+            "messages": [
                 {"role": "system", "content": system_prompt},
                 {"role": "user", "content": text},
             ],
-            temperature=temperature,
-            max_tokens=max_tokens,
-        )
+            "temperature": temperature,
+            "max_tokens": max_tokens,
+        }
+        if kwargs.get("top_p") is not None:
+            try:
+                create_kwargs["top_p"] = float(kwargs["top_p"])
+            except (TypeError, ValueError):
+                pass
+        if kwargs.get("frequency_penalty") is not None:
+            try:
+                create_kwargs["frequency_penalty"] = float(kwargs["frequency_penalty"])
+            except (TypeError, ValueError):
+                pass
+        if kwargs.get("presence_penalty") is not None:
+            try:
+                create_kwargs["presence_penalty"] = float(kwargs["presence_penalty"])
+            except (TypeError, ValueError):
+                pass
+
+        response = client.chat.completions.create(**create_kwargs)
 
         result_text = response.choices[0].message.content.strip()
         duration = time.time() - start

@@ -196,7 +196,7 @@
       url: ''
     credit: Gemaakt door Jérôme Corbiau  ·  Apache 2.0-licentie
 common:
-  window_title: PerkySue — Beta 0.29.4
+  window_title: PerkySue — Beta 0.29.5
   header_banner:
     free_invite: PerkySue Beta — Gratis · Pro proberen (30 dgn · geen kaart)
     free_after_trial: PerkySue Beta — Gratis
@@ -404,6 +404,15 @@ settings:
     no_gguf: Geen .gguf in Data/Models/LLM
     auto: Auto
   save_restart: Opslaan en herstarten
+  advanced:
+    llm_diag_section: Modeldiagnose
+    llm_diag_bypass_system: Zonder instructies
+    llm_diag_skip_chat_template_kwargs: Redeneren toestaan
+    llm_diag_show_payload: Ruwe request tonen
+    llm_diag_hint: Snelle Hello-test. Combineer opties om te zien wat redeneren blokkeert.
+    llm_diag_run: Test starten
+    llm_diag_running: Test loopt…
+    llm_diag_warn_not_server: Alleen met llama-server.
   plan_management:
     section_title: Abonnementen
     badge_current: Huidig
@@ -689,3 +698,60 @@ header_alerts:
     trial_request:
       newsletter_title: Nieuwsbriefvoorkeur
       newsletter_question: Ontvang updates, geen spam. We mailen je alleen als er echt iets nuttigs is — nieuwe functies, tips & trucs.
+plugins:
+  brainstorm:
+    nav_label: Brainstorm
+    pill_configuration: Configuratie
+    pill_session: Sessie
+    config_title: Brainstorm setup
+    subject: Onderwerp
+    subject_placeholder: "bv. thema"
+    brief: Brief
+    mode: Modus
+    mode_roundtable: Rondetafel
+    mode_debate: Debat
+    cycle: Cyclus
+    cycle_auto: Auto (willekeurig)
+    debate_language: Debat-taal
+    role_assignments: Rollen
+    role_strategist: Strateeg
+    role_critic: Criticus
+    role_pragmatist: Pragmatist
+    role_narrator: Verteller
+    role_arbiter: Arbiter
+    angle_placeholder: "Standpunt (opt., weg bij Mens)"
+    start_session: Start
+    status_ready: Gereed
+    session_header: Sessie
+    continue: Doorgaan
+    stop_session: Stoppen
+    status_idle: Leeg
+    chat_empty: "Nog geen sessie. Stel in, start dan."
+    synthesis: Synthese
+    synthesis_placeholder: Samenvatting volgt.
+    input_placeholder: Jouw bericht…
+    send: Verzenden
+    status_stopped: Gestopt
+    status_session_stopped: Sessie gestopt
+    status_done: Klaar
+    err_session_running: Sessie loopt al
+    err_subject_brief: Onderwerp en brief verplicht
+    status_running: Bezig…
+    status_stopping: Stoppen… (LLM annuleert)
+    err_one_human: Eén mens (MVP)
+    error_label: Fout
+    error_with_detail: "Fout: {detail}"
+    waiting_line: "Wacht: {name} ({role})"
+    interjection_reply: "Tussenuitspraak — antwoord {who}"
+    interjection_cancelled: Tussenuitspraak geannuleerd
+    interjection_failed: "Tussenuitspraak: {err}"
+    interjection_busy: Tussenuitspraak bezig
+    interjection_wait: Wacht ronde of Stop
+    interjection_no_ai: Geen AI-deelnemer
+    interjection_to: "Tussenuitspraak → {who}…"
+    msg_stop_relaunch: Oké — stop, dan herstart…
+    paused_hint: "Gepauzeerd. Doorgaan hervat. Tussen. = geschiedenis + AI."
+    msg_not_sent: Start een sessie of (na Klaar) @naam.
+    mic_error: "Mic: {err}"
+    mic_stt_unavailable: Mic / STT ontbreekt.
+    synthesis_working: Bezig…

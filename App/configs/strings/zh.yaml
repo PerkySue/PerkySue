@@ -196,7 +196,7 @@
       url: ''
     credit: 由 Jérôme Corbiau 创作  ·  Apache 2.0 许可证
 common:
-  window_title: PerkySue — Beta 0.29.4
+  window_title: PerkySue — Beta 0.29.5
   header_banner:
     free_invite: PerkySue Beta — 免费 · 试用 Pro（30 天·免卡）
     free_after_trial: PerkySue Beta — 免费
@@ -404,6 +404,15 @@ settings:
     no_gguf: Data/Models/LLM 中没有 .gguf 文件
     auto: 自动
   save_restart: 保存并重启
+  advanced:
+    llm_diag_section: 模型诊断
+    llm_diag_bypass_system: 跳过指令
+    llm_diag_skip_chat_template_kwargs: 允许推理
+    llm_diag_show_payload: 显示原始请求
+    llm_diag_hint: 快速 Hello 测试。组合开关查看哪一层在阻止推理。
+    llm_diag_run: 运行测试
+    llm_diag_running: 测试进行中…
+    llm_diag_warn_not_server: 仅在 llama-server 后端可用。
   plan_management:
     section_title: 订阅管理
     badge_current: 当前
@@ -689,3 +698,60 @@ header_alerts:
     trial_request:
       newsletter_title: 邮件订阅偏好
       newsletter_question: 只发有用更新，不发垃圾邮件。只有在有值得知道的新内容时我们才会联系你——新功能、技巧，仅此而已。
+plugins:
+  brainstorm:
+    nav_label: 头脑风暴
+    pill_configuration: 设置
+    pill_session: 会话
+    config_title: 头脑风暴设置
+    subject: 主题
+    subject_placeholder: "例：话题"
+    brief: 说明
+    mode: 模式
+    mode_roundtable: 圆桌
+    mode_debate: 辩论
+    cycle: 周期
+    cycle_auto: 自动(随机)
+    debate_language: 语言
+    role_assignments: 角色
+    role_strategist: 战略
+    role_critic: 批评
+    role_pragmatist: 务实
+    role_narrator: 旁白
+    role_arbiter: 仲裁
+    angle_placeholder: "角度（可选，人类隐藏）"
+    start_session: 开始
+    status_ready: 就绪
+    session_header: 会话
+    continue: 继续
+    stop_session: 停止
+    status_idle: 空闲
+    chat_empty: "无会话。先设置再开始"
+    synthesis: 摘要
+    synthesis_placeholder: 摘要会显示在这
+    input_placeholder: 输入…
+    send: 发送
+    status_stopped: 已停
+    status_session_stopped: 已停止
+    status_done: 完成
+    err_session_running: 已在运行
+    err_subject_brief: 需填主题和说明
+    status_running: 运行中…
+    status_stopping: 停止中…
+    err_one_human: 仅一名人类
+    error_label: 错误
+    error_with_detail: "错误: {detail}"
+    waiting_line: "等待: {name} ({role})"
+    interjection_reply: "插话 — {who}回复"
+    interjection_cancelled: 已取消
+    interjection_failed: "插话: {err}"
+    interjection_busy: 插话中
+    interjection_wait: 等回合或点停止
+    interjection_no_ai: 无AI参加
+    interjection_to: "插话 → {who}…"
+    msg_stop_relaunch: 收到—停止后重启
+    paused_hint: 已暂停。继续恢复。
+    msg_not_sent: 先开会话或(完成后)@人名
+    mic_error: "麦克风: {err}"
+    mic_stt_unavailable: 麦克风/STT不可用
+    synthesis_working: 处理中…

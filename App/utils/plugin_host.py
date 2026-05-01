@@ -140,6 +140,9 @@ class PluginHostContext:
 
     Keep this object small and stable so proprietary code depends only on
     documented fields. Plugins should use ``logging.getLogger(__name__)`` for logs.
+
+    ``play_system_sound(name)`` plays ``audios/system/<name>.<ext>`` on the active skin
+    (fallback Default), e.g. ``gong`` → ``gong.mp3``.
     """
 
     paths: Any
@@ -148,3 +151,4 @@ class PluginHostContext:
     list_skins: Optional[Callable[[], list[dict[str, Any]]]] = None
     emit_progress: Optional[Callable[[dict[str, Any]], None]] = None
     is_effective_pro: Optional[Callable[[], bool]] = None
+    play_system_sound: Optional[Callable[[str], bool]] = None

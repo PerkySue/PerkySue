@@ -196,7 +196,7 @@
       url: ''
     credit: Criado por Jérôme Corbiau  ·  Licença Apache 2.0
 common:
-  window_title: PerkySue — Beta 0.29.4
+  window_title: PerkySue — Beta 0.29.5
   header_banner:
     free_invite: PerkySue Beta — Grátis · Teste Pro (30 d. · sem cartão)
     free_after_trial: PerkySue Beta — Grátis
@@ -404,6 +404,15 @@ settings:
     no_gguf: Sem .gguf em Data/Models/LLM
     auto: Auto
   save_restart: Guardar & Reiniciar
+  advanced:
+    llm_diag_section: Diagnóstico modelo
+    llm_diag_bypass_system: Sem instruções
+    llm_diag_skip_chat_template_kwargs: Permitir raciocínio
+    llm_diag_show_payload: Ver requisição bruta
+    llm_diag_hint: Teste Hello rápido. Combina as opções para ver o que bloqueia o raciocínio.
+    llm_diag_run: Executar teste
+    llm_diag_running: Teste em execução…
+    llm_diag_warn_not_server: Disponível só com llama-server.
   plan_management:
     section_title: Gestão de plano
     badge_current: Atual
@@ -689,3 +698,60 @@ header_alerts:
     trial_request:
       newsletter_title: Preferência de newsletter
       newsletter_question: Receba atualizações sem spam. Só enviamos e-mail quando houver algo realmente útil — novos recursos, dicas e truques.
+plugins:
+  brainstorm:
+    nav_label: Brainstorm
+    pill_configuration: Configuração
+    pill_session: Sessão
+    config_title: Ajustes Brainstorm
+    subject: Tema
+    subject_placeholder: "ex. tópico"
+    brief: Brief
+    mode: Modo
+    mode_roundtable: Rodada
+    mode_debate: Debate
+    cycle: Ciclo
+    cycle_auto: Auto (aleatório)
+    debate_language: Idioma
+    role_assignments: Papéis
+    role_strategist: Estrategista
+    role_critic: Crítico
+    role_pragmatist: Pragmático
+    role_narrator: Narrador
+    role_arbiter: Árbitro
+    angle_placeholder: "Ângulo (opc., oculto se Humano)"
+    start_session: Iniciar
+    status_ready: Pronto
+    session_header: Sessão
+    continue: Continuar
+    stop_session: Parar
+    status_idle: Ocioso
+    chat_empty: "Sem sessão. Configure, depois Iniciar."
+    synthesis: Síntese
+    synthesis_placeholder: O resumo aparece aqui.
+    input_placeholder: Sua mensagem…
+    send: Enviar
+    status_stopped: Parado
+    status_session_stopped: Sessão parada
+    status_done: Concluído
+    err_session_running: Sessão já a correr
+    err_subject_brief: Tema e brief necessários
+    status_running: A correr…
+    status_stopping: A parar… (cancela LLM)
+    err_one_human: Só um Humano (MVP)
+    error_label: Erro
+    error_with_detail: "Erro: {detail}"
+    waiting_line: "À espera: {name} ({role})"
+    interjection_reply: "Inserção — resposta de {who}"
+    interjection_cancelled: Inserção cancelada
+    interjection_failed: "Inserção: {err}"
+    interjection_busy: Inserção em curso
+    interjection_wait: Aguarde a ronda ou Stop
+    interjection_no_ai: Sem participante IA
+    interjection_to: "Inserção → {who}…"
+    msg_stop_relaunch: Ok — parar e relançar…
+    paused_hint: "Pausado. Continuar retoma. Inser. precisa histórico + IA."
+    msg_not_sent: Inicie a sessão ou (após Fim) @nome.
+    mic_error: "Micro: {err}"
+    mic_stt_unavailable: Micro / STT indisponível.
+    synthesis_working: A processar…

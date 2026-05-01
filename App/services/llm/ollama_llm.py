@@ -23,8 +23,14 @@ class OllamaLLM(LLMProvider):
         self.base_url = base_url.rstrip("/")
         self._client = httpx.Client(timeout=120.0)
 
-    def process(self, text: str, system_prompt: str,
-                temperature: float = 0.3, max_tokens: int = 1024) -> LLMResult:
+    def process(
+        self,
+        text: str,
+        system_prompt: str,
+        temperature: float = 0.7,
+        max_tokens: int = 1024,
+        **kwargs,
+    ) -> LLMResult:
         """Envoie le texte à Ollama pour traitement."""
         start = time.time()
 
@@ -41,6 +47,11 @@ class OllamaLLM(LLMProvider):
                 "options": {
                     "temperature": temperature,
                     "num_predict": max_tokens,
+                    **(
+                        {"top_p": float(kwargs["top_p"])}
+                        if kwargs.get("top_p") is not None
+                        else {}
+                    ),
                 },
             },
         )

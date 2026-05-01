@@ -5,7 +5,7 @@
 </p>
 
 **Voice-to-text with AI superpowers. 100% local. 100% private.**  
-*Created by Jérôme Corbiau | Apache 2.0 | 0.29.3*
+*Created by Jérôme Corbiau | Apache 2.0 | 0.29.5*
 
 Press a hotkey, speak, and polished text appears wherever your cursor is — in any app, any window, any text field. No cloud. No account. No data leaves your machine. Ever.
 
@@ -170,6 +170,13 @@ stt:
 llm:
   n_ctx: 0
   max_tokens: 2048
+  temperature: 0.7
+  top_p: 0.8
+  top_k: 20
+  min_p: 0.0
+  repeat_penalty: 1.0
+  presence_penalty: 1.5
+  frequency_penalty: 0.0
 hotkeys:
   transcribe: "ctrl+shift+t"
 ```
@@ -179,6 +186,8 @@ Most options are in **Settings** in the GUI. Factory reference: `App/configs/def
 **TTS model governance:** PerkySue ships a pinned TTS model registry spec (`App/configs/model_registry.yaml`) and keeps a deterministic local status under `Data/Models/TTS/registry.json`. This reduces surprise redownloads and keeps model updates tied to PerkySue releases.
 
 **Custom avatars/skins:** user-created content belongs under `Data/Skins/...` (portable user data). You do not need to add custom avatars into app-bundled skin folders.
+
+**LLM generation tuning (local llama-server):** Under **Settings → Performance**, adjust **temperature**, **top-p**, **top-k**, **min-p**, **repeat penalty**, **presence penalty**, and **frequency penalty**. These shape how the backend samples tokens on each completion; **`repeat_penalty`** / **`presence_penalty`** especially help discourage verbatim loops on long exchanges. Applies after **Save & Restart**. See **`GETTING_STARTED.md`** and **`CHANGELOG.md`** for defaults and rationale.
 
 ---
 
@@ -210,10 +219,10 @@ PerkySue started as a **personal productivity** tool — voice → **local STT**
 
 ## 📋 Changelog
 
-### Beta 0.29.4 (April 2026) — shipped
-- **TTS stabilization:** OmniVoice install/repair flow is stable again, including TorchCodec/FFmpeg shared handling on Windows.
-- **Voice verify fix:** OmniVoice final test now accepts both `torch.Tensor` and `numpy.ndarray` audio outputs.
-- **Voice UX hardening:** repair/full-repair paths are clearer and safer for non-technical users.
+### Beta 0.29.5 (May 2026) — shipped
+- **Reasoning/thinking control:** stronger llama-server diagnostic tools (payload preview + kwargs bisection), robust strip of leaked thinking tags, and cleaner Chat/Help rendering.
+- **Chat UX polish:** clearer Advanced diagnostic labels, shorter controls, and full 16-locale wording updates to avoid truncation in narrower windows.
+- **Ask memory default:** **Inject all modes in chat** now defaults to **Off** unless explicitly enabled.
 - **Details:** **[CHANGELOG.md](CHANGELOG.md)**.
 
 ### Beta 0.29.2 (April 2026) — shipped

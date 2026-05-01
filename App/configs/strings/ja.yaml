@@ -196,7 +196,7 @@
       url: ''
     credit: Jérôme Corbiau 作  ·  Apache 2.0 ライセンス
 common:
-  window_title: PerkySue — Beta 0.29.4
+  window_title: PerkySue — Beta 0.29.5
   header_banner:
     free_invite: PerkySue Beta — 無料 · Proお試し（30日・カード不要）
     free_after_trial: PerkySue Beta — 無料
@@ -404,6 +404,15 @@ settings:
     no_gguf: Data/Models/LLMに.ggufがない
     auto: 自動
   save_restart: 保存して再起動
+  advanced:
+    llm_diag_section: モデル診断
+    llm_diag_bypass_system: 指示なし
+    llm_diag_skip_chat_template_kwargs: 推論を許可
+    llm_diag_show_payload: 生リクエスト表示
+    llm_diag_hint: Helloテストで、どの設定が推論を止めるかを確認します。
+    llm_diag_run: テスト実行
+    llm_diag_running: テスト実行中…
+    llm_diag_warn_not_server: llama-server のときのみ利用できます。
   plan_management:
     section_title: プラン管理
     badge_current: 現在
@@ -689,3 +698,60 @@ header_alerts:
     trial_request:
       newsletter_title: ニュースレター設定
       newsletter_question: スパムではなく、有益な更新だけをお届けします。新機能やヒントなど、本当に価値のある内容があるときだけメールします。
+plugins:
+  brainstorm:
+    nav_label: ブレインストーム
+    pill_configuration: 設定
+    pill_session: セッション
+    config_title: ブレスト設定
+    subject: テーマ
+    subject_placeholder: "例: テーマ"
+    brief: ブリーフ
+    mode: モード
+    mode_roundtable: 円卓
+    mode_debate: 討論
+    cycle: サイクル
+    cycle_auto: 自動（乱数）
+    debate_language: 言語
+    role_assignments: 役割
+    role_strategist: 戦略家
+    role_critic: 批評家
+    role_pragmatist: 現実家
+    role_narrator: ナレーター
+    role_arbiter: 審判
+    angle_placeholder: "角度（任意、人間は非表示）"
+    start_session: 開始
+    status_ready: 待機
+    session_header: セッション
+    continue: 続行
+    stop_session: 停止
+    status_idle: 空
+    chat_empty: "まだセッションなし。設定→開始"
+    synthesis: 要約
+    synthesis_placeholder: 要約はここに
+    input_placeholder: メッセージ…
+    send: 送信
+    status_stopped: 停止済
+    status_session_stopped: 停止
+    status_done: 完了
+    err_session_running: 実行中
+    err_subject_brief: テーマとブリーフが必要
+    status_running: 実行中…
+    status_stopping: 停止中…
+    err_one_human: 人間1名のみ
+    error_label: エラー
+    error_with_detail: "エラー: {detail}"
+    waiting_line: "待ち: {name} ({role})"
+    interjection_reply: "割込 — {who}から"
+    interjection_cancelled: 割込キャンセル
+    interjection_failed: "割込: {err}"
+    interjection_busy: 割込中
+    interjection_wait: ラウンド終了か停止を
+    interjection_no_ai: AI不在
+    interjection_to: "割込 → {who}…"
+    msg_stop_relaunch: 了解 — 停止して再開…
+    paused_hint: 一時停止。続行で再開。
+    msg_not_sent: セッション開始か完了後@指定
+    mic_error: "マイク: {err}"
+    mic_stt_unavailable: マイク/STT不可
+    synthesis_working: 処理中…

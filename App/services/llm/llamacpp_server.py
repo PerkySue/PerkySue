@@ -9,7 +9,7 @@ import subprocess
 import time
 import requests
 from pathlib import Path
-from typing import Optional, Tuple
+from typing import Any, Optional, Tuple
 
 from .base import LLMProvider, LLMResult
 
@@ -252,6 +252,9 @@ class LlamaCppServerLLM(LLMProvider):
             logger.info(f"  Context size: {self.n_ctx} (auto)")
         
         # Construire la commande
+        # When thinking is OFF (budget 0), avoid --reasoning-format deepseek: that splitter targets
+        # DeepSeek-R1-style models; pairing it with Gemma / Qwen-instruct GGUF can garble assistant
+        # content or expose pseudo-plan rubrics in message.content (see llamacpp: deepseek vs none).
         cmd = [
             str(server_exe),
             "-m", str(self._model_path),
@@ -260,9 +263,13 @@ class LlamaCppServerLLM(LLMProvider):
             "-ngl", str(self.n_gpu_layers),
             "--host", "127.0.0.1",
             "--jinja",
-            "--reasoning-format", "deepseek",
-            "--reasoning-budget", str(self._reasoning_budget),
         ]
+        if self._reasoning_budget == 0:
+            cmd.extend(["--reasoning-format", "none", "--reasoning-budget", "0"])
+        else:
+            cmd.extend(
+                ["--reasoning-format", "deepseek", "--reasoning-budget", str(self._reasoning_budget)]
+            )
 
         logger.info(f"Starting llama-server on port {self.port}...")
         logger.info(f"  Binary: {server_exe}")
@@ -381,28 +388,159 @@ class LlamaCppServerLLM(LLMProvider):
 
         return "", reasoning_api, "none"
 
-    def process(self, text: str, system_prompt: str,
-                temperature: float = 0.3, max_tokens: int = 1024) -> LLMResult:
+    _SAMPLING_PAYLOAD_KEYS = (
+        "top_p",
+        "top_k",
+        "min_p",
+        "repeat_penalty",
+        "presence_penalty",
+        "frequency_penalty",
+    )
+
+    def build_chat_completions_payload(
+        self,
+        messages: list,
+        *,
+        temperature: float,
+        max_tokens: int,
+        sampling: dict[str, Any],
+        skip_chat_template_kwargs: bool,
+        extra_chat_template_kwargs: Optional[dict] = None,
+    ) -> dict[str, Any]:
+        """Structured body for POST /v1/chat/completions (OpenAI-compat). Used by ``process`` and diagnostics."""
+        payload: dict[str, Any] = {
+            "messages": messages,
+            "temperature": float(temperature),
+            "max_tokens": int(max_tokens),
+            "stream": False,
+        }
+        skip_ct = bool(skip_chat_template_kwargs)
+        # Gemma / Qwen-style templates honour ``enable_thinking: false`` in llama-server: without it,
+        # visible thinking can spill into assistant ``content`` (``thoughtTHE PLAN`` / ``thoughtrex_*`` junk).
+        if self._reasoning_budget == 0 and not skip_ct:
+            merged = dict(extra_chat_template_kwargs) if isinstance(extra_chat_template_kwargs, dict) else {}
+            merged["enable_thinking"] = False
+            payload["chat_template_kwargs"] = merged
+        elif isinstance(extra_chat_template_kwargs, dict) and extra_chat_template_kwargs:
+            payload["chat_template_kwargs"] = dict(extra_chat_template_kwargs)
+
+        sam = sampling if isinstance(sampling, dict) else {}
+        for key in self._SAMPLING_PAYLOAD_KEYS:
+            if key not in sam:
+                continue
+            val = sam[key]
+            if val is None:
+                continue
+            try:
+                if key == "top_k":
+                    payload[key] = int(val)
+                else:
+                    payload[key] = float(val)
+            except (TypeError, ValueError):
+                continue
+        return payload
+
+    def fetch_rendered_prompt_via_apply_template(
+        self, chat_completions_payload: dict[str, Any]
+    ) -> Tuple[Optional[str], str, Optional[str]]:
+        """Call llama-server ``POST /apply-template`` (or ``/v1/apply-template``) with the same
+        ``messages`` and optional ``chat_template_kwargs`` as a completions payload subset.
+
+        Returns ``(prompt, path_used_or_empty, error_or_none)``. On success ``error_or_none`` is None.
+        If both endpoints 404, error explains that this llama-server build has no endpoint.
+        """
+        self.warmup()
+        messages = chat_completions_payload.get("messages")
+        if not isinstance(messages, list) or not messages:
+            return None, "", "invalid_messages_for_apply_template"
+
+        body: dict[str, Any] = {"messages": messages}
+        ctk = chat_completions_payload.get("chat_template_kwargs")
+        if isinstance(ctk, dict) and len(ctk) > 0:
+            body["chat_template_kwargs"] = dict(ctk)
+
+        base_url = self._server_url.rstrip("/")
+        connect_timeout = 15
+        read_timeout = max(45, min(180, self.request_timeout))
+        last_probe = ""
+
+        for path in ("/apply-template", "/v1/apply-template"):
+            url = f"{base_url}{path}"
+            try:
+                r = requests.post(url, json=body, timeout=(connect_timeout, read_timeout))
+                if r.status_code == 404:
+                    last_probe = f"{path}: 404"
+                    logger.info("apply-template probe: %s", last_probe)
+                    continue
+                r.raise_for_status()
+                data = r.json()
+                if not isinstance(data, dict):
+                    return None, path, "apply_template_bad_json_shape"
+                p = data.get("prompt")
+                if isinstance(p, str):
+                    return p, path, None
+                return None, path, "apply_template_missing_prompt_field"
+            except requests.exceptions.HTTPError as e:
+                resp = getattr(e, "response", None)
+                code = getattr(resp, "status_code", None)
+                if code == 404:
+                    last_probe = f"{path}: 404"
+                    continue
+                return None, path or "", str(e)
+            except requests.exceptions.RequestException as e:
+                return None, "", str(e)
+
+        return None, "", f"apply_template_endpoint_unavailable ({last_probe or 'both paths 404'})"
+
+    def process(
+        self,
+        text: str,
+        system_prompt: str,
+        temperature: float = 0.7,
+        max_tokens: int = 1024,
+        **kwargs: Any,
+    ) -> LLMResult:
         self.warmup()
 
         start = time.time()
-        
-        # Construire le payload pour le chat completion
-        messages = [
-            {"role": "system", "content": system_prompt},
-            {"role": "user", "content": text},
-        ]
-        
-        payload = {
-            "messages": messages,
-            "temperature": temperature,
-            "max_tokens": max_tokens,
-            "stream": False,
-        }
-        
+
+        skip_chat_template_kwargs = bool(kwargs.pop("skip_chat_template_kwargs", False))
+        chat_messages = kwargs.pop("chat_messages", None)
+        merged_ctkw = kwargs.get("chat_template_kwargs")
+        if isinstance(merged_ctkw, dict):
+            merged_ctkw = dict(merged_ctkw)
+        else:
+            merged_ctkw = None
+
+        if isinstance(chat_messages, list) and chat_messages:
+            messages = chat_messages
+        else:
+            messages = [
+                {"role": "system", "content": system_prompt},
+                {"role": "user", "content": text},
+            ]
+
+        sampling: dict[str, Any] = {}
+        for key in self._SAMPLING_PAYLOAD_KEYS:
+            if key not in kwargs:
+                continue
+            sampling[key] = kwargs[key]
+
+        payload = self.build_chat_completions_payload(
+            messages,
+            temperature=temperature,
+            max_tokens=max_tokens,
+            sampling=sampling,
+            skip_chat_template_kwargs=skip_chat_template_kwargs,
+            extra_chat_template_kwargs=merged_ctkw,
+        )
+
         # Long system prompts (Help KB, Alt+A history, TTS tag appendix) + slow CPU prefill
         # can exceed a flat 120s read timeout. Add bounded extra time from payload size.
-        approx_chars = len(system_prompt or "") + len(text or "")
+        approx_chars = sum(
+            len((m.get("content") or "")) if isinstance(m, dict) else 0
+            for m in messages
+        )
         read_timeout = self.request_timeout + min(180, max(0, approx_chars // 20))
         read_timeout = min(read_timeout, 360)
         connect_timeout = 15

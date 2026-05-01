@@ -196,7 +196,7 @@
       url: ''
     credit: Dibuat oleh Jérôme Corbiau  ·  Lisensi Apache 2.0
 common:
-  window_title: PerkySue — Beta 0.29.4
+  window_title: PerkySue — Beta 0.29.5
   header_banner:
     free_invite: PerkySue Beta — Gratis · Coba Pro (30 hari, tanpa kartu)
     free_after_trial: PerkySue Beta — Gratis
@@ -404,6 +404,15 @@ settings:
     no_gguf: Tidak ada .gguf di Data/Models/LLM
     auto: Auto
   save_restart: Simpan & Restart
+  advanced:
+    llm_diag_section: Diagnostik model
+    llm_diag_bypass_system: Tanpa instruksi
+    llm_diag_skip_chat_template_kwargs: Izinkan reasoning
+    llm_diag_show_payload: Lihat request mentah
+    llm_diag_hint: Tes Hello cepat. Kombinasikan opsi untuk lihat apa yang memblokir reasoning.
+    llm_diag_run: Jalankan tes
+    llm_diag_running: Tes berjalan…
+    llm_diag_warn_not_server: Hanya tersedia dengan backend llama-server.
   plan_management:
     section_title: Manajemen Paket
     badge_current: Aktif
@@ -689,3 +698,60 @@ header_alerts:
     trial_request:
       newsletter_title: Preferensi newsletter
       newsletter_question: Dapatkan update, bukan spam. Kami hanya akan mengirim email saat ada hal penting — fitur baru, tips & trik, itu saja.
+plugins:
+  brainstorm:
+    nav_label: Brainstorm
+    pill_configuration: Pengaturan
+    pill_session: Sesi
+    config_title: Setup Brainstorm
+    subject: Topik
+    subject_placeholder: "mis. ide"
+    brief: Brief
+    mode: Mode
+    mode_roundtable: Meja
+    mode_debate: Debat
+    cycle: Siklus
+    cycle_auto: Otomatis (acak)
+    debate_language: Bahasa
+    role_assignments: Peran
+    role_strategist: Strategi
+    role_critic: Kritik
+    role_pragmatist: Pragmatis
+    role_narrator: Narator
+    role_arbiter: Arbiter
+    angle_placeholder: "Sudut (ops., sembunyi jika Manusia)"
+    start_session: Mulai
+    status_ready: Siap
+    session_header: Sesi
+    continue: Lanjut
+    stop_session: Berhenti
+    status_idle: Kosong
+    chat_empty: "Belum sesi. Atur, lalu Mulai."
+    synthesis: Ringkasan
+    synthesis_placeholder: Ringkasan muncul di sini
+    input_placeholder: Pesan…
+    send: Kirim
+    status_stopped: Berhenti
+    status_session_stopped: Sesi stop
+    status_done: Selesai
+    err_session_running: Sesi jalan
+    err_subject_brief: Topik & brief wajib
+    status_running: Berjalan…
+    status_stopping: Menghenti…
+    err_one_human: Satu Manusia saja
+    error_label: Error
+    error_with_detail: "Error: {detail}"
+    waiting_line: "Menunggu: {name} ({role})"
+    interjection_reply: "Sisipan — balasan {who}"
+    interjection_cancelled: Sisipan batal
+    interjection_failed: "Sisipan: {err}"
+    interjection_busy: Sisipan jalan
+    interjection_wait: Tunggu ronde atau Stop
+    interjection_no_ai: Tanpa AI
+    interjection_to: "Sisipan → {who}…"
+    msg_stop_relaunch: Ok — henti lalu ulang
+    paused_hint: "Jeda. Lanjut lanjut. Sisip = riwayat+AI"
+    msg_not_sent: Mulai sesi atau (setelah Selesai) @nama
+    mic_error: "Mik: {err}"
+    mic_stt_unavailable: Mik / STT tidak ada
+    synthesis_working: Proses…

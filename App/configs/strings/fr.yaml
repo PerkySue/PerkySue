@@ -196,7 +196,7 @@ about:
       url: ''
     credit: Créé par Jérôme Corbiau  ·  Licence Apache 2.0
 common:
-  window_title: PerkySue — Beta 0.29.4
+  window_title: PerkySue — Beta 0.29.5
   header_banner:
     free_invite: PerkySue Beta — Gratuit · Essai Pro (30 j · sans CB)
     free_after_trial: PerkySue Beta — Gratuit
@@ -369,6 +369,19 @@ settings:
     title: Avancé
     debug_mode: Mode debug
     debug_mode_hint: Si activé, l’onglet Console (Full Console) affiche la transcription STT complète, la sélection, et les messages LLM exacts system/user (après ajustement contexte). Le fichier Data/Logs/perkysue.log ne contient toujours pas ces contenus. Balises TTS brutes au collage ; PreviousAnswersSummary dans l’injection Alt+A si besoin. Pour le diagnostic — sans lien avec l’abonnement.
+    llm_diag_section: Diagnostic modèle
+    llm_diag_bypass_system: Sans instructions
+    llm_diag_skip_chat_template_kwargs: Autoriser raisonnement
+    llm_diag_show_payload: Voir requête brute
+    llm_diag_hint: Test Hello rapide. Combine les options pour voir ce qui bloque le raisonnement.
+    llm_diag_run: Lancer test
+    llm_diag_running: Test en cours…
+    llm_diag_placeholder: ""
+    llm_diag_warn_not_server: Disponible seulement avec llama-server.
+    llm_diag_rendered_heading: Prompt rendu (post-Jinja)
+    llm_diag_rendered_na: "Aucun prompt rendu. Causes typiques : POST /apply-template et /v1/apply-template introuvables (404 sur ce binaire llama-server), erreur réseau, ou réponse inattendue — voir le détail ci-dessous."
+    llm_diag_apply_detail: "Détail apply-template :"
+    llm_diag_no_model: Aucun modèle GGUF — choisis un modèle dans Performance avant ce diagnostic.
   recommended_models:
     title: Modèles recommandés
     more_models: + Plus de modèles
@@ -421,6 +434,13 @@ settings:
     thinking_allow: Autoriser le raisonnement
     thinking_budget: Tokens max raisonnement
     clipboard_paste_delay: Délai collage pr.-papier (s)
+    llm_temperature: Température LLM
+    llm_top_p: LLM top-p
+    llm_top_k: LLM top-k (0 = désactivé)
+    llm_min_p: LLM min-p
+    llm_repeat_penalty: Pénalité de répétition LLM
+    llm_presence_penalty: Pénalité de présence LLM
+    llm_frequency_penalty: Pénalité de fréquence LLM
     no_gguf: Aucun .gguf dans Data/Models/LLM
     auto: Auto
   save_restart: Enregistrer & Redémarrer
@@ -743,3 +763,60 @@ header_alerts:
     chat_context_limit_reached: ⚠️ Limite de contexte ({max_input}) atteinte — entrée et sortie partagent la même enveloppe. Augmente « Entrée max » dans Paramètres → Performance à {suggested} ou plus.
     chat_max_output_reached: '⚠️ Réponse tronquée : limite de sortie ({max_output}) atteinte. Augmente « Sortie max » dans Paramètres → Performance à {suggested} ou plus.'
     chat_empty_reply: — Réponse vide. Reformule ou regarde la console.
+plugins:
+  brainstorm:
+    nav_label: Brainstorm
+    pill_configuration: Configuration
+    pill_session: Session
+    config_title: Réglages Brainstorm
+    subject: Sujet
+    subject_placeholder: "Ex. thème à explorer"
+    brief: Brief
+    mode: Mode
+    mode_roundtable: Table ronde
+    mode_debate: Débat
+    cycle: Cycle
+    cycle_auto: Auto (aléa)
+    debate_language: Langue du débat
+    role_assignments: Rôles
+    role_strategist: Stratège
+    role_critic: Critique
+    role_pragmatist: Pragmatique
+    role_narrator: Narrateur
+    role_arbiter: Arbitre
+    angle_placeholder: "Angle (optionnel, masqué si Humain)"
+    start_session: Lancer
+    status_ready: Prêt
+    session_header: Session
+    continue: Continuer
+    stop_session: Arrêter
+    status_idle: Inactif
+    chat_empty: "Pas de session. Configure, puis Lance."
+    synthesis: Synthèse
+    synthesis_placeholder: Le résumé s’affichera ici.
+    input_placeholder: Votre message…
+    send: Envoyer
+    status_stopped: Arrêté
+    status_session_stopped: Session arrêtée
+    status_done: Terminé
+    err_session_running: Session déjà en cours
+    err_subject_brief: Sujet et brief requis
+    status_running: En cours…
+    status_stopping: Arrêt… (annule LLM si possible)
+    err_one_human: Un seul rôle Humain (MVP)
+    error_label: Erreur
+    error_with_detail: "Erreur : {detail}"
+    waiting_line: "Attente : {name} ({role})"
+    interjection_reply: "Interjection — réponse de {who}"
+    interjection_cancelled: Interjection annulée
+    interjection_failed: "Interjection : {err}"
+    interjection_busy: Interjection en cours
+    interjection_wait: Attendez la fin du round ou Stop
+    interjection_no_ai: Aucun participant IA
+    interjection_to: "Interjection → {who}…"
+    msg_stop_relaunch: "Reçu — arrêt, puis relance…"
+    paused_hint: "En pause. Continuer relance. Interjection = historique + IA ciblée."
+    msg_not_sent: Lancez une session, ou (après Terminé) ciblez un prénom.
+    mic_error: "Micro : {err}"
+    mic_stt_unavailable: Micro / STT indisponible (Audio).
+    synthesis_working: En cours…

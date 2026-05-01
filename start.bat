@@ -14,7 +14,7 @@ set "TOOLS_DIR=%DATA_DIR%\Tools"
 set "ACTIVE_DIR=%TOOLS_DIR%\active"
 
 REM llama.cpp release version (for error messages only)
-set "LLAMA_VER=b8188"
+set "LLAMA_VER=b8860"
 
 REM Cleanup orphaned processes from previous sessions
 taskkill /F /IM llama-server.exe >nul 2>&1

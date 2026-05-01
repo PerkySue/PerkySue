@@ -169,6 +169,22 @@ CONFIGURATION
 
 Edit **`Data/Configs/config.yaml`** (only keys you want to override). Restart after changes for many options. Full factory defaults: **`App/configs/defaults.yaml`** (read-only reference).
 
+### LLM sampling (Performance tab, llama-server)
+
+When **`llm.provider`** is **`llamacpp`** (managed **llama-server**), completions use OpenAI-compatible **`POST /v1/chat/completions`**. The GUI exposes these under **Settings → Performance** (below **Thinking token budget**):
+
+| YAML key (`llm:`)       | Role (short) |
+|-------------------------|---------------|
+| `temperature`           | Randomness vs crispness — higher → more variation. |
+| `top_p`                 | Nucleus sampling — keeps probability mass until cumulative `p`. |
+| `top_k`                 | Restricts each step to the `k` most likely tokens (`0` = server/disabled semantics per backend). |
+| `min_p`                 | Drops very low-probability tail before sampling. |
+| `repeat_penalty`        | **`> 1`** discourages reusing tokens already in context (helps reduce stutter / verbatim loops). |
+| `presence_penalty`      | **`> 0`** pushes the model toward new topical tokens versus already-mentioned ones. |
+| `frequency_penalty`     | Penalizes tokens proportionally to how often they appeared (stronger churn than presence alone when raised). |
+
+All map to **`App/configs/defaults.yaml`** factory values and comments there (oriented toward **instruct-style** chats, not “thinking” presets). Dropdowns snap unknown YAML floats to the closest menu step. **`Save & Restart PerkySue`** is required after changes (same banner as switching STT device or LLM file). Wired in **`App/gui/widget.py`** → saved **`config.yaml`** → **`Orchestrator._llm_sampling_kwargs()`** → **`App/services/llm/llamacpp_server.py`** (`LlamaCppServerLLM.process`).
+
 ---
 
 RTX 50XX AND SERVER MODE
@@ -228,11 +244,11 @@ Use this only when **`install.bat`** could not finish (firewall, partial downloa
 
 ### B. llama-server backend missing (NVIDIA / Vulkan / CPU)
 
-The installer normally downloads **llama.cpp** release **b8188** zips. If you must do it manually:
+The installer normally downloads **llama.cpp** release **b8860** zips. If you must do it manually:
 
-1. Open: https://github.com/ggml-org/llama.cpp/releases/tag/b8188  
+1. Open: https://github.com/ggml-org/llama.cpp/releases/tag/b8860  
 2. For **NVIDIA**, download **both** for **CUDA 12.4** (typical):  
-   - `llama-b8188-bin-win-cuda-12.4-x64.zip`  
+   - `llama-b8860-bin-win-cuda-12.4-x64.zip`  
    - `cudart-llama-bin-win-cuda-12.4-x64.zip`  
 3. Extract **both** into **`Data\Tools\nvidia-cuda-12.4\`** so **`llama-server.exe`** is directly in that folder (adjust if your layout uses a subfolder — match what a successful install looks like on another PC).  
 4. Vulkan / CPU: use the matching **`win-vulkan`** / **`win-cpu`** zips from the same release into **`Data\Tools\vulkan\`** or **`Data\Tools\cpu\`**.

@@ -133,6 +133,42 @@ PerkySue supports two LLM execution modes, auto-detected at startup:
 
 If direct mode fails (missing dependencies, incompatible GPU), PerkySue falls back to server mode automatically. You can force CPU mode with `n_gpu_layers: 0` in `config.yaml`.
 
+### Gemma / non–DeepSeek GGUF outputs look like internal checklists (“Mapped Docs”, “Flow”, stray rubrics)
+
+**Cause (typical):** llama-server was started with **`--reasoning-format deepseek`** while **thinking is OFF**. That splitter is aimed at DeepSeek‑R1‑style completions; pairing it with **Gemma**, **Llama‑Instruct**, etc. can leave odd structure in **`content`** instead of cleanly splitting reasoning.
+
+**Fix (built‑in since this tree):** with **Settings → Performance → Allow thinking = Off**, PerkySue launches **`llama-server`** with **`--reasoning-format none`** and **`--reasoning-budget 0`**, and each **`/v1/chat/completions`** POST body includes **`chat_template_kwargs`** with **`enable_thinking` set to false** so Gemma / Qwen-style Jinja templates do not concatenate a visible “thinking” stream into **`content`** (often shown as **`thoughtTHE PLAN`** / **`thoughtrex_*`**). Restart the app (or reload the LLM) after updating **`App/`**. The Brainstorm plugin also salvage-parses lines after **`# - `** and drops bracket scaffolding when that still leaks through.
+
+If **Allow thinking** is **On**, PerkySue uses **`deepseek`** + your budget and does **not** force **`enable_thinking: false`** on the wire — use thinking only with models that support it.
+
+---
+
+### Chat shows `<think>` / `</think>` tags in bubbles
+
+If Chat/Help shows raw thinking markers, diagnose in this order:
+
+1. Open **Settings → Advanced** and enable **Show JSON request body in results**.
+2. Run **Send Hello test prompt**.
+3. Check whether **`chat_template_kwargs`** is present in the JSON preview.
+
+Then run a bisection pass:
+
+- Turn **Omit chat_template_kwargs** **ON** and rerun Hello.
+- If `chat_template_kwargs` disappears from JSON preview, the request-toggle path is working.
+
+Important scope difference:
+
+- **Request toggles** (`Omit chat_template_kwargs`, JSON preview) are immediate.
+- **`--reasoning-budget`** is a llama-server startup flag; changing it requires restart.
+
+PerkySue now strips `think|thinking|reasoning|redacted_thinking` tags (including empty/partial forms) in the orchestrator and adds an extra Chat/Help display guard, but this diagnostic flow is the fastest way to verify the active layer when testing new reasoning-capable models.
+
+---
+
+### Verbatim loops or overly repetitive completions (server mode)
+
+If answers **parrot phrases** from the prompt or **stall on the same words**, tweak sampling under **Settings → Performance**: raise **`repeat_penalty`** slightly (e.g. toward **1.1–1.2**), and/or **`presence_penalty`** (defaults and notes in **`App/configs/defaults.yaml`** under **`llm:`**). **Save & Restart** after changes. This does not replace good prompts or adequate **Max input** window — see [ARCHITECTURE.md](ARCHITECTURE.md) (chat context limits).
+
 ---
 
 ## 📁 Folder structure

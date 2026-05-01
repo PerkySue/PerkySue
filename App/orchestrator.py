@@ -23,7 +23,7 @@ import yaml
 
 from paths import Paths
 from services.stt import create_stt_provider, STTProvider
-from services.llm import create_llm_provider, LLMProvider
+from services.llm import create_llm_provider, llama_server_reasoning_budget, LLMProvider
 from modes import load_modes, render_prompt, Mode
 from modes.voice_modes import load_voice_mode_overlays
 from utils.audio import AudioRecorder, BaseAudioCapture, build_audio_recorder
@@ -861,6 +861,7 @@ class Orchestrator:
                     system_prompt=system_prompt,
                     temperature=0.0,
                     max_tokens=160,
+                    **self._llm_sampling_kwargs(),
                 )
                 raw = self._strip_thinking_blocks((getattr(result, "text", None) or "").strip())
                 if not raw:
@@ -1012,7 +1013,7 @@ class Orchestrator:
 
     # ─── Help mode (Alt+H) — params + KB collection & injection ──────
 
-    APP_VERSION = "Beta 0.29.4"
+    APP_VERSION = "Beta 0.29.5"
 
     # ─── Plugin extension point ───────────────────────────────────────
 
@@ -1816,6 +1817,7 @@ class Orchestrator:
                 system_prompt=system_prompt,
                 temperature=0.4,
                 max_tokens=80,
+                **self._llm_sampling_kwargs(),
             )
             if result and getattr(result, "text", None):
                 text = self._strip_thinking_blocks((result.text or "").strip())
@@ -1913,7 +1915,7 @@ class Orchestrator:
         except (TypeError, ValueError):
             keep = 2
         llm["answer_context_keep"] = 2 if keep not in (2, 3, 4) else keep
-        v = llm.get("inject_all_modes_in_chat", True)
+        v = llm.get("inject_all_modes_in_chat", False)
         if isinstance(v, str):
             llm["inject_all_modes_in_chat"] = v.strip().lower() in ("1", "true", "yes", "on")
         else:
@@ -1930,7 +1932,7 @@ class Orchestrator:
 
     def _inject_all_modes_in_chat_enabled(self) -> bool:
         llm = (self.config.get("llm") or {})
-        v = llm.get("inject_all_modes_in_chat", True)
+        v = llm.get("inject_all_modes_in_chat", False)
         if isinstance(v, str):
             return v.strip().lower() in ("1", "true", "yes", "on")
         return bool(v)
@@ -1974,6 +1976,158 @@ class Orchestrator:
             return
         if "debug_mode" not in fb:
             fb["debug_mode"] = False
+        if "llm_diag_bypass_system" not in fb:
+            fb["llm_diag_bypass_system"] = False
+        if "llm_diag_skip_chat_template_kwargs" not in fb:
+            fb["llm_diag_skip_chat_template_kwargs"] = False
+        if "llm_diag_show_request_payload" not in fb:
+            fb["llm_diag_show_request_payload"] = False
+
+    def run_llm_chat_template_diagnostic(
+        self, user_message: Optional[str] = None, *, bypass_system: Optional[bool] = None
+    ) -> Dict[str, Any]:
+        """Exercise llama-server with optional bisection toggles from ``feedback.*`` for thinking/template issues."""
+        from services.llm.llamacpp_server import LlamaCppServerLLM
+
+        out: Dict[str, Any] = {"ok": False}
+        fb = self.config.get("feedback") if isinstance(self.config.get("feedback"), dict) else {}
+        llm_any = getattr(self, "llm", None)
+
+        bypass_sys = bypass_system if bypass_system is not None else bool(fb.get("llm_diag_bypass_system", False))
+        skip_ctkw = bool(fb.get("llm_diag_skip_chat_template_kwargs", False))
+        show_payload = bool(fb.get("llm_diag_show_request_payload", False))
+
+        out["feedback_bypass_system"] = bypass_sys
+        out["feedback_skip_chat_template_kwargs"] = skip_ctkw
+        out["feedback_show_request_payload"] = show_payload
+
+        if not isinstance(llm_any, LlamaCppServerLLM):
+            out["error"] = "not_llamacpp_server"
+            out["hint"] = "Requires Settings → Performance → LLM model with llama-server backend."
+            return out
+
+        if not llm_any.is_available():
+            out["error"] = "llm_not_available"
+            return out
+
+        lc = llm_any
+        ut = (user_message or "").strip()
+        if not ut:
+            ut = (
+                "Hello — introduce yourself briefly in one or two sentences, in the same language as this message."
+            )
+
+        diag_system = (
+            "You are a helpful assistant. Reply briefly and directly.\n"
+            "Do not use chain-of-thought, hidden reasoning, XML wrappers for thinking, "
+            "or prefixes like Thinking:, Analysis:, or Reasoning:."
+        )
+        msgs: List[Dict[str, str]]
+        if bypass_sys:
+            msgs = [{"role": "user", "content": ut}]
+            out["prompt_note"] = "user_only_no_system_message"
+        else:
+            msgs = [{"role": "system", "content": diag_system}, {"role": "user", "content": ut}]
+            out["prompt_note"] = "generic_system_plus_user_test"
+
+        llm_cfg = self.config.get("llm") if isinstance(self.config.get("llm"), dict) else {}
+        out["thinking_config_on"] = str(llm_cfg.get("thinking", "off")).strip().lower() in (
+            "on",
+            "true",
+            "1",
+            "yes",
+        )
+        out["llama_server_reasoning_budget_cli"] = llama_server_reasoning_budget(llm_cfg)
+
+        sampling = self._llm_sampling_kwargs()
+        temperature = float(llm_cfg.get("temperature", 0.7) or 0.7)
+        max_tok_diag = min(384, max(128, self._effective_max_output_cap(llm_cfg)))
+
+        try:
+            full_payload = lc.build_chat_completions_payload(
+                msgs,
+                temperature=temperature,
+                max_tokens=max_tok_diag,
+                sampling=sampling,
+                skip_chat_template_kwargs=skip_ctkw,
+                extra_chat_template_kwargs=None,
+            )
+        except Exception as e:
+            out["error"] = f"build_payload_failed: {e}"
+            return out
+
+        rendered_prompt, apply_path_used, apply_err = lc.fetch_rendered_prompt_via_apply_template(full_payload)
+        out["rendered_prompt_post_jinja"] = rendered_prompt
+        out["apply_template_endpoint"] = apply_path_used or ""
+        out["apply_template_lookup_error"] = apply_err
+
+        preview_json = ""
+        if show_payload:
+            try:
+                preview_json = json.dumps(full_payload, ensure_ascii=False, indent=2)
+            except Exception as e:
+                preview_json = f"(payload preview failed: {e})"
+
+        try:
+            result = lc.process(
+                "",
+                "",
+                temperature=temperature,
+                max_tokens=max_tok_diag,
+                chat_messages=msgs,
+                skip_chat_template_kwargs=skip_ctkw,
+                **sampling,
+            )
+        except Exception as e:
+            out["error"] = str(e)
+            if preview_json:
+                out["request_payload_json"] = preview_json
+            out["ok"] = False
+            out["jinja_note"] = (
+                "Responses from POST /v1/chat/completions do not include the post-template prompt string.\n"
+                "POST /apply-template (or /v1/apply-template when supported by your llama-server build) mirrors "
+                "the same structured messages (+ chat_template_kwargs when present): see Rendered prompt block above "
+                "(or the error note if endpoints are unavailable on this binary)."
+            )
+            return out
+
+        raw_txt = (getattr(result, "text", None) or "").strip()
+        stripped = self._strip_thinking_blocks(raw_txt)
+
+        out["ok"] = True
+        out["assistant_raw"] = raw_txt
+        out["assistant_stripped"] = stripped
+        rc = getattr(result, "reasoning_content", None)
+        out["reasoning_content_api"] = (rc or "").strip() if isinstance(rc, str) else ""
+        out["finish_reason"] = getattr(result, "finish_reason", None)
+        out["completion_tokens"] = getattr(result, "completion_tokens", 0)
+        out["tokens_used"] = getattr(result, "tokens_used", 0)
+        out["duration_s"] = round(getattr(result, "duration", 0.0) or 0.0, 2)
+        if preview_json:
+            out["request_payload_json"] = preview_json
+        out["jinja_note"] = (
+            "Responses from POST /v1/chat/completions do not include the post-template prompt.\n"
+            "The Rendered prompt block calls POST /apply-template (or POST /v1/apply-template) with the same "
+            "messages and chat_template_kwargs as this run’s completions request for an exact preview."
+        )
+        return out
+
+    def _effective_max_output_cap(self, llm_cfg: dict) -> int:
+        """Rough max_tokens for diagnostics (reuse Performance auto cap logic without full truncation path)."""
+        try:
+            v = llm_cfg.get("max_output_tokens")
+            if v is None:
+                v = llm_cfg.get("max_tokens")
+            n = int(v) if v is not None else 4096
+        except (TypeError, ValueError):
+            n = 4096
+        if n <= 0:
+            try:
+                n_ctx = int(llm_cfg.get("max_input_tokens") or llm_cfg.get("n_ctx") or 4096)
+            except (TypeError, ValueError):
+                n_ctx = 4096
+            n = max(256, min(2048, n_ctx // 3))
+        return max(128, min(n, 8192))
 
     def _sync_strings_locale_from_config(self) -> None:
         """Load i18n YAML for ui.language so orchestrator can use s() (injection labels, etc.)."""
@@ -2281,7 +2435,7 @@ class Orchestrator:
             llm_result = self._run_llm_on_main_thread(
                 text=summary_input,
                 system_prompt=system_prompt,
-                temperature=self.config.get("llm", {}).get("temperature", 0.3),
+                temperature=self.config.get("llm", {}).get("temperature", 0.7),
                 max_tokens=min(summary_max_tokens, self.get_effective_llm_max_output()),
                 gui_debug_label="answer_previous_summary",
             )
@@ -3195,7 +3349,7 @@ class Orchestrator:
             result = self._run_llm_on_main_thread(
                 text=text,
                 system_prompt=system_prompt,
-                temperature=self.config.get("llm", {}).get("temperature", 0.3),
+                temperature=self.config.get("llm", {}).get("temperature", 0.7),
                 max_tokens=self.get_effective_llm_max_output(),
                 gui_debug_label="mode_prompt_test",
             )
@@ -4312,16 +4466,20 @@ class Orchestrator:
         if not text:
             return text
         t = text
-        block_patterns = [
-            r"<redacted_thinking>.*?</redacted_thinking>\s*",
-            r"<reasoning>.*?</reasoning>\s*",
-            r"<thinking>.*?</thinking>\s*",
-        ]
-        for pat in block_patterns:
-            t = re.sub(pat, "", t, flags=re.DOTALL | re.IGNORECASE)
-        for open_name in ("redacted_thinking", "reasoning", "thinking"):
-            t = re.sub(rf"<{open_name}>.*$", "", t, flags=re.DOTALL | re.IGNORECASE)
-        return t.strip()
+        tag_names = ("think", "redacted_thinking", "reasoning", "thinking")
+        # Remove explicit empty blocks first (common leak: "<think>\n</think>").
+        for tag in tag_names:
+            t = re.sub(rf"<{tag}>\s*</{tag}>", "", t, flags=re.IGNORECASE)
+        # Remove regular closed blocks with content (including multiline).
+        for tag in tag_names:
+            t = re.sub(rf"<{tag}>.*?</{tag}>\s*", "", t, flags=re.DOTALL | re.IGNORECASE)
+        # Remove unterminated opening tags (stream interruption / truncated output).
+        for tag in tag_names:
+            t = re.sub(rf"<{tag}>.*$", "", t, flags=re.DOTALL | re.IGNORECASE)
+        # Remove orphan closing tags that can still leak into UI.
+        for tag in tag_names:
+            t = re.sub(rf"</{tag}>", "", t, flags=re.IGNORECASE)
+        return t.lstrip("\r\n").strip()
 
     def run_answer_text(self, question: str):
         """Run Answer mode with the given text (e.g. from Chat tab). Same pipeline as Alt+A, no STT.
@@ -4686,7 +4844,7 @@ class Orchestrator:
                 llm_result = self._run_llm_on_main_thread(
                     text=text_to_llm,
                     system_prompt=system_prompt,
-                    temperature=self.config.get("llm", {}).get("temperature", 0.3),
+                    temperature=self.config.get("llm", {}).get("temperature", 0.7),
                     max_tokens=max_tokens_req,
                     gui_debug_label=(mode_id or "llm"),
                 )
@@ -5310,6 +5468,31 @@ class Orchestrator:
             )
         return sp, max_out
 
+    def _llm_sampling_kwargs(self) -> Dict[str, Any]:
+        """Extra sampling fields for llama-server (Qwen-style instruct defaults from merged config)."""
+        llm = self.config.get("llm") if isinstance(self.config.get("llm"), dict) else {}
+
+        def _f(key: str, default: float) -> float:
+            try:
+                return float(llm.get(key, default))
+            except (TypeError, ValueError):
+                return float(default)
+
+        def _i(key: str, default: int) -> int:
+            try:
+                return int(llm.get(key, default))
+            except (TypeError, ValueError):
+                return int(default)
+
+        return {
+            "top_p": _f("top_p", 0.8),
+            "top_k": _i("top_k", 20),
+            "min_p": _f("min_p", 0.0),
+            "repeat_penalty": _f("repeat_penalty", 1.0),
+            "presence_penalty": _f("presence_penalty", 1.5),
+            "frequency_penalty": _f("frequency_penalty", 0.0),
+        }
+
     def _run_llm_on_main_thread(
         self,
         text,
@@ -5318,6 +5501,7 @@ class Orchestrator:
         max_tokens,
         *,
         gui_debug_label: Optional[str] = None,
+        sampling_override: Optional[Dict[str, Any]] = None,
     ):
         """Execute LLM on main thread using queue to avoid CUDA threading issues."""
         result_queue = queue.Queue()
@@ -5326,6 +5510,7 @@ class Orchestrator:
         )
         if gui_debug_label:
             self._emit_gui_debug_llm_payload(gui_debug_label, system_prompt, text, max_tokens)
+        sampling = dict(sampling_override) if sampling_override is not None else self._llm_sampling_kwargs()
 
         def llm_task():
             try:
@@ -5334,6 +5519,7 @@ class Orchestrator:
                     system_prompt=system_prompt,
                     temperature=temperature,
                     max_tokens=max_tokens,
+                    **sampling,
                 )
                 result_queue.put(("success", result))
             except Exception as e:

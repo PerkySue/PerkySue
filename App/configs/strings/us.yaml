@@ -196,7 +196,7 @@ about:
       url: ''
     credit: Created by Jérôme Corbiau  ·  Licensed under Apache 2.0
 common:
-  window_title: PerkySue — Beta 0.29.4
+  window_title: PerkySue — Beta 0.29.5
   header_banner:
     free_invite: PerkySue Beta — Free · Try Pro (30 days, no card)
     free_after_trial: PerkySue Beta — Free
@@ -369,6 +369,19 @@ settings:
     title: Advanced
     debug_mode: Debug mode
     debug_mode_hint: When On, Full Console shows full STT, selection, and exact LLM system/user (after context fit). Data/Logs/perkysue.log still has no chat/STT/LLM bodies. Raw TTS [tags] in paste; PreviousAnswersSummary in Alt+A when relevant. For bug reports — not related to your subscription.
+    llm_diag_section: Model diagnostic
+    llm_diag_bypass_system: Skip instructions
+    llm_diag_skip_chat_template_kwargs: Allow reasoning
+    llm_diag_show_payload: Show raw request
+    llm_diag_hint: Quick Hello test. Mix switches to see what blocks reasoning.
+    llm_diag_run: Run test
+    llm_diag_running: Running test…
+    llm_diag_placeholder: ""
+    llm_diag_warn_not_server: Only works with llama-server backend.
+    llm_diag_rendered_heading: Rendered prompt (post-Jinja)
+    llm_diag_rendered_na: "No rendered prompt returned. Typical causes: POST /apply-template and /v1/apply-template are unavailable (404 on this llama-server build); network error; or an unexpected response — see detail below."
+    llm_diag_apply_detail: "apply-template detail:"
+    llm_diag_no_model: No GGUF/model available — select a model under Performance before running diagnostics.
   recommended_models:
     title: Recommended Models
     more_models: + More models
@@ -421,6 +434,13 @@ settings:
     thinking_allow: Allow thinking
     thinking_budget: Thinking token budget
     clipboard_paste_delay: Clipboard paste delay (s)
+    llm_temperature: LLM temperature
+    llm_top_p: LLM top-p
+    llm_top_k: LLM top-k (0 = off)
+    llm_min_p: LLM min-p
+    llm_repeat_penalty: LLM repeat penalty
+    llm_presence_penalty: LLM presence penalty
+    llm_frequency_penalty: LLM frequency penalty
     no_gguf: No .gguf in Data/Models/LLM
     auto: Auto
   save_restart: Save & Restart
@@ -743,3 +763,60 @@ header_alerts:
     chat_context_limit_reached: ⚠️ Context limit ({max_input}) reached — input and output share this budget. Increase 'Max input' in Settings → Performance to {suggested} or higher.
     chat_max_output_reached: '⚠️ Reply was cut off: max output limit ({max_output}) reached. Increase ''Max output'' in Settings → Performance to {suggested} or higher.'
     chat_empty_reply: — Reply was empty. Try rephrasing or check the console.
+plugins:
+  brainstorm:
+    nav_label: Brainstorm
+    pill_configuration: Configuration
+    pill_session: Session
+    config_title: Brainstorm setup
+    subject: Subject
+    subject_placeholder: "E.g. topic to explore"
+    brief: Brief
+    mode: Mode
+    mode_roundtable: Roundtable
+    mode_debate: Debate
+    cycle: Cycle
+    cycle_auto: Auto (random)
+    debate_language: Debate language
+    role_assignments: Role assignments
+    role_strategist: Strategist
+    role_critic: Critic
+    role_pragmatist: Pragmatist
+    role_narrator: Narrator
+    role_arbiter: Arbiter
+    angle_placeholder: "Angle (optional, hidden for Human)"
+    start_session: Start session
+    status_ready: Ready
+    session_header: Session
+    continue: Continue
+    stop_session: Stop
+    status_idle: Idle
+    chat_empty: "No session yet. Set up, then Start session."
+    synthesis: Synthesis
+    synthesis_placeholder: Summary will show up here.
+    input_placeholder: Your message…
+    send: Send
+    status_stopped: Stopped
+    status_session_stopped: Session stopped
+    status_done: Done
+    err_session_running: Session already running
+    err_subject_brief: Subject and brief required
+    status_running: Running…
+    status_stopping: Stopping… (cancelling LLM if possible)
+    err_one_human: One Human role only (MVP)
+    error_label: Error
+    error_with_detail: "Error: {detail}"
+    waiting_line: "Waiting: {name} ({role})"
+    interjection_reply: "Interjection — reply from {who}"
+    interjection_cancelled: Interjection cancelled
+    interjection_failed: "Interjection failed: {err}"
+    interjection_busy: Interjection already running
+    interjection_wait: Wait for the round to end, or press Stop
+    interjection_no_ai: No AI participant in this session
+    interjection_to: "Interjection → {who}…"
+    msg_stop_relaunch: Got it — stopping, then relaunch…
+    paused_hint: "Paused. Use Continue to resume. Interjections need history and a named AI."
+    msg_not_sent: Start a session first, or (after Done) @ someone by name.
+    mic_error: "Mic: {err}"
+    mic_stt_unavailable: Mic / STT unavailable (check Settings → Audio).
+    synthesis_working: Working…

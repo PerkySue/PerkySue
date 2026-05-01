@@ -196,7 +196,7 @@
       url: ''
     credit: صنعه Jérôme Corbiau  ·  رخصة Apache 2.0
 common:
-  window_title: PerkySue — Beta 0.29.4
+  window_title: PerkySue — Beta 0.29.5
   header_banner:
     free_invite: PerkySue Beta — مجاني · جرّب Pro (٣٠ يومًا، بدون بطاقة)
     free_after_trial: PerkySue Beta — مجاني
@@ -404,6 +404,15 @@ settings:
     no_gguf: لا يوجد .gguf في Data/Models/LLM
     auto: تلقائي
   save_restart: حفظ وإعادة التشغيل
+  advanced:
+    llm_diag_section: تشخيص النموذج
+    llm_diag_bypass_system: بدون تعليمات
+    llm_diag_skip_chat_template_kwargs: السماح بالتفكير
+    llm_diag_show_payload: عرض الطلب الخام
+    llm_diag_hint: اختبار Hello سريع. اجمع الخيارات لترى ما الذي يوقف التفكير.
+    llm_diag_run: تشغيل الاختبار
+    llm_diag_running: جارٍ تشغيل الاختبار…
+    llm_diag_warn_not_server: يعمل فقط مع خلفية llama-server.
   plan_management:
     section_title: الاشتراكات
     badge_current: الحالي
@@ -689,3 +698,60 @@ header_alerts:
     trial_request:
       newsletter_title: تفضيل النشرة البريدية
       newsletter_question: احصل على التحديثات بدون إزعاج. سنرسل لك فقط عندما يوجد شيء يستحق المعرفة — ميزات جديدة ونصائح وحيل.
+plugins:
+  brainstorm:
+    nav_label: عصف ذهني
+    pill_configuration: الإعداد
+    pill_session: الجلسة
+    config_title: إعداد العصف
+    subject: الموضوع
+    subject_placeholder: "مثال: فكرة"
+    brief: أطروحة
+    mode: الوضع
+    mode_roundtable: مستدير
+    mode_debate: مناظرة
+    cycle: الدورة
+    cycle_auto: تلقائي (عشوائي)
+    debate_language: اللغة
+    role_assignments: الأدوار
+    role_strategist: استراتيجي
+    role_critic: ناقد
+    role_pragmatist: براغماتي
+    role_narrator: راوٍ
+    role_arbiter: حكَم
+    angle_placeholder: "زاوية (اختياري، يُخفى للبشر)"
+    start_session: ابدأ
+    status_ready: جاهز
+    session_header: الجلسة
+    continue: واصل
+    stop_session: أوقف
+    status_idle: ساكن
+    chat_empty: "لا جلسة. اضبط ثم ابدأ"
+    synthesis: ملخص
+    synthesis_placeholder: الملخص هنا
+    input_placeholder: رسالتك…
+    send: أرسل
+    status_stopped: متوقف
+    status_session_stopped: توقف
+    status_done: تم
+    err_session_running: الجلسة تعمل
+    err_subject_brief: الموضوع والأطروحة لازم
+    status_running: يعمل…
+    status_stopping: يتوقف…
+    err_one_human: بشري واحد فقط
+    error_label: خطأ
+    error_with_detail: "خطأ: {detail}"
+    waiting_line: "انتظار: {name} ({role})"
+    interjection_reply: "تداخل — {who} يرد"
+    interjection_cancelled: أُلغي
+    interjection_failed: "تداخل: {err}"
+    interjection_busy: تداخل جارٍ
+    interjection_wait: انتهاء الجولة أو إيقاف
+    interjection_no_ai: بلا ذكاء
+    interjection_to: "تداخل ← {who}…"
+    msg_stop_relaunch: حسناً—إيقاف ثم إعادة
+    paused_hint: موقوف. واصل=استئناف
+    msg_not_sent: ابدأ جلسة أو (بعد تم) @اسم
+    mic_error: "ميك: {err}"
+    mic_stt_unavailable: ميك/تعرف كلام غير متاح
+    synthesis_working: يعالج…

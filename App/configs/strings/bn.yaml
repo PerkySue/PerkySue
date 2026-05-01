@@ -196,7 +196,7 @@
       url: ''
     credit: তৈরি করেছেন Jérôme Corbiau  ·  Apache 2.0 লাইসেন্স
 common:
-  window_title: PerkySue — Beta 0.29.4
+  window_title: PerkySue — Beta 0.29.5
   header_banner:
     free_invite: PerkySue Beta — ফ্রি · Pro ৩০ দিন, কার্ড ছাড়া
     free_after_trial: PerkySue Beta — ফ্রি
@@ -404,6 +404,15 @@ settings:
     no_gguf: Data/Models/LLM-এ কোনো .gguf নেই
     auto: অটো
   save_restart: সেভ ও রিস্টার্ট
+  advanced:
+    llm_diag_section: মডেল ডায়াগনস্টিক
+    llm_diag_bypass_system: নির্দেশনা ছাড়া
+    llm_diag_skip_chat_template_kwargs: Reasoning অনুমতি
+    llm_diag_show_payload: Raw request দেখাও
+    llm_diag_hint: Quick Hello test. সুইচ মিলিয়ে দেখো কোন স্তর reasoning আটকায়।
+    llm_diag_run: টেস্ট চালাও
+    llm_diag_running: টেস্ট চলছে…
+    llm_diag_warn_not_server: শুধু llama-server backend-এ কাজ করে।
   plan_management:
     section_title: প্ল্যান ম্যানেজমেন্ট
     badge_current: বর্তমান
@@ -689,3 +698,60 @@ header_alerts:
     trial_request:
       newsletter_title: নিউজলেটার পছন্দ
       newsletter_question: আপডেট পাবেন, স্প্যাম নয়। সত্যিই দরকারি কিছু হলে তবেই ইমেইল করব — নতুন ফিচার, টিপস ও ট্রিকস।
+plugins:
+  brainstorm:
+    nav_label: ব্রেইনস্টর্ম
+    pill_configuration: সেটআপ
+    pill_session: সেশন
+    config_title: ব্রেইনস্টর্ম সেটআপ
+    subject: বিষয়
+    subject_placeholder: "উদা. ধারণা"
+    brief: ব্রিফ
+    mode: মোড
+    mode_roundtable: গোলটেবিল
+    mode_debate: বিতর্ক
+    cycle: চক্র
+    cycle_auto: অটো (র‌্যান্ডম)
+    debate_language: ভাষা
+    role_assignments: ভূমিকা
+    role_strategist: কৌশলবিদ
+    role_critic: সমালোচক
+    role_pragmatist: বাস্তববাদী
+    role_narrator: বর্ণনাকারী
+    role_arbiter: সালিস
+    angle_placeholder: "কৌণিক (ঐচ্ছিক, মানুষে লুকায়)"
+    start_session: শুরু
+    status_ready: প্রস্তুত
+    session_header: সেশন
+    continue: চালিয়ে
+    stop_session: থামাও
+    status_idle: খালি
+    chat_empty: "কোনো সেশন নেই। সেট→শুরু"
+    synthesis: সার
+    synthesis_placeholder: সার এখানে
+    input_placeholder: বার্তা…
+    send: পাঠাও
+    status_stopped: থামানো
+    status_session_stopped: সেশন স্টপ
+    status_done: হয়েছে
+    err_session_running: চলतेই আছে
+    err_subject_brief: বিষয়+ব্রিফ দরকার
+    status_running: চলছে…
+    status_stopping: থামছে…
+    err_one_human: একজন মানুষ
+    error_label: ত্রুটি
+    error_with_detail: "ত্রুটি: {detail}"
+    waiting_line: "অপেক্ষা: {name} ({role})"
+    interjection_reply: "ইনজেকশন — {who} উত্তর"
+    interjection_cancelled: বাতিল
+    interjection_failed: "ইনজেকশন: {err}"
+    interjection_busy: চলছে
+    interjection_wait: রাউন্ড শেষ বা স্টপ
+    interjection_no_ai: কোনো AI নেই
+    interjection_to: "ইনজেকশন → {who}…"
+    msg_stop_relaunch: ঠিক—থামিয়ে আবার
+    paused_hint: বিরতি। চালিয়ে=ফিরে
+    msg_not_sent: সেশন চালাও বা (শেষে)@নাম
+    mic_error: "মাইক: {err}"
+    mic_stt_unavailable: মাইক/STT নেই
+    synthesis_working: প্রসেস…

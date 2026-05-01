@@ -156,8 +156,14 @@ class LlamaCppLLM(LLMProvider):
                 return val.strip(), f"message.{key}"
         return "", "none"
 
-    def process(self, text: str, system_prompt: str,
-                temperature: float = 0.3, max_tokens: int = 1024) -> LLMResult:
+    def process(
+        self,
+        text: str,
+        system_prompt: str,
+        temperature: float = 0.7,
+        max_tokens: int = 1024,
+        **kwargs,
+    ) -> LLMResult:
         self._load_model()
         start = time.time()
 

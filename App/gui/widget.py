@@ -1276,6 +1276,13 @@ class PerkySueWidget:
         self._thinking_dot_timers: dict = {"chat": {}, "help": {}}
         # Alt+Q / Échap : un seul after(0) à la fois pour éviter saturation GUI si rafales sur stop.
         self._escape_stop_coalesce_id = None
+        # Startup interaction gate for heavy Settings sub-sections (Appearance / Models).
+        self._startup_ui_ready = False
+        self._startup_ui_ready_after_id = None
+        self._settings_startup_hint_labels = []
+        self._skin_resize_after_id = None
+        self._models_wrap_after_id = None
+        self._models_name_wrap_targets = []
 
         ctk.set_appearance_mode("dark")
         self.root = CTk()
@@ -1298,6 +1305,10 @@ class PerkySueWidget:
         self._last_license_sync_time = None
         self._license_focus_after_id = None
         self._go("settings")
+        try:
+            self.root.after(0, self._schedule_startup_ui_ready)
+        except Exception:
+            pass
         # Alerte micro si l'orchestrateur a détecté un micro virtuel par défaut (ex. Iriun)
         try:
             if getattr(self.orch, "mic_warning", None):
@@ -1470,6 +1481,51 @@ class PerkySueWidget:
                 orch.config.setdefault("skin", {})["active"] = nid
         return nid
 
+    def _main_avatar_skin_id(self):
+        override_sid = str(getattr(self, "_brainstorm_speaker_skin_override", "") or "").strip()
+        if override_sid:
+            return override_sid
+        return self._effective_skin()
+
+    def _brainstorm_actor_for_role(self, role: str) -> str:
+        """Best-effort role->actor lookup from mounted Brainstorm UI runtime maps."""
+        r = str(role or "").strip().lower()
+        if not r:
+            return ""
+        try:
+            ui = getattr(self, "_brainstorm_ui", None)
+            by_role = getattr(ui, "_role_to_actor_runtime", {}) if ui is not None else {}
+            actor = str((by_role or {}).get(r) or "").strip()
+            if actor and actor.lower() != "human":
+                return actor
+        except Exception:
+            pass
+        return ""
+
+    def set_brainstorm_speaker_avatar_skin(self, skin_id: str):
+        """Temporary sidebar avatar override while Brainstorm is speaking."""
+        sid = str(skin_id or "").strip()
+        if not sid:
+            self.clear_brainstorm_speaker_avatar_skin()
+            return
+        # Keep raw actor id from Brainstorm. Normalizing here can collapse some valid
+        # plugin actor ids to an unrelated/default skin in the sidebar.
+        self._brainstorm_speaker_skin_override = sid
+        try:
+            # Refresh avatar art for the override; keep current status id (e.g. speaking).
+            st = getattr(self, "_status_id", "ready")
+            self.set_status(st)
+        except Exception:
+            pass
+
+    def clear_brainstorm_speaker_avatar_skin(self):
+        self._brainstorm_speaker_skin_override = ""
+        try:
+            st = getattr(self, "_status_id", "ready")
+            self.set_status(st)
+        except Exception:
+            pass
+
     def _deep_merge(self, base: dict, override: dict) -> dict:
         """Recursively merge override into base. Override wins."""
         result = dict(base)
@@ -1518,7 +1574,7 @@ class PerkySueWidget:
         return ""
 
     def _default_window_title(self) -> str:
-        return s("common.window_title", default="PerkySue — Beta 0.29.4")
+        return s("common.window_title", default="PerkySue — Beta 0.29.5")
 
     def _ui_flag_stem(self) -> str:
         """Which lang-flags/*.png is selected."""
@@ -1867,7 +1923,7 @@ class PerkySueWidget:
         if answer_context_keep not in (2, 3, 4):
             answer_context_keep = 2
         _iamc_var = getattr(self, "_perf_inject_all_modes_chat", None)
-        inject_all_modes_in_chat = True if _iamc_var is None else bool(_iamc_var.get() == "On")
+        inject_all_modes_in_chat = False if _iamc_var is None else bool(_iamc_var.get() == "On")
         max_in = self._perf_max_input.get().strip()
         n_ctx = 0 if max_in == "Auto" else (int(max_in) if max_in.isdigit() else 0)
         try:
@@ -1908,6 +1964,32 @@ class PerkySueWidget:
                 thinking_budget = int(_tb_raw)
             except (TypeError, ValueError):
                 thinking_budget = 512
+
+        def _parse_menu_float(var, default: float) -> float:
+            v = getattr(self, var, None)
+            raw = (v.get() if v is not None else "") or ""
+            try:
+                return float(str(raw).strip().replace(",", "."))
+            except (TypeError, ValueError, AttributeError):
+                return float(default)
+
+        def _parse_menu_int(var, default: int) -> int:
+            v = getattr(self, var, None)
+            raw = (v.get() if v is not None else "") or ""
+            try:
+                return int(float(str(raw).strip().replace(",", ".")))
+            except (TypeError, ValueError, AttributeError):
+                return int(default)
+
+        llm_temperature = _parse_menu_float("_perf_llm_temperature", 0.7)
+        llm_temperature = max(0.0, min(2.0, llm_temperature))
+        llm_top_p = max(0.0, min(1.0, _parse_menu_float("_perf_llm_top_p", 0.8)))
+        llm_top_k = max(0, min(256, _parse_menu_int("_perf_llm_top_k", 20)))
+        llm_min_p = max(0.0, min(1.0, _parse_menu_float("_perf_llm_min_p", 0.0)))
+        llm_repeat_penalty = max(1.0, min(2.0, _parse_menu_float("_perf_llm_repeat_penalty", 1.0)))
+        llm_presence_penalty = max(0.0, min(2.0, _parse_menu_float("_perf_llm_presence_penalty", 1.5)))
+        llm_frequency_penalty = max(0.0, min(2.0, _parse_menu_float("_perf_llm_frequency_penalty", 0.0)))
+
         inj_prev = dict(self.cfg.get("injection") or {})
         _cbd_om = getattr(self, "_perf_clipboard_paste_delay", None)
         try:
@@ -1951,6 +2033,13 @@ class PerkySueWidget:
                 "thinking_budget": thinking_budget,
                 "answer_context_keep": answer_context_keep,
                 "inject_all_modes_in_chat": inject_all_modes_in_chat,
+                "temperature": llm_temperature,
+                "top_p": llm_top_p,
+                "top_k": llm_top_k,
+                "min_p": llm_min_p,
+                "repeat_penalty": llm_repeat_penalty,
+                "presence_penalty": llm_presence_penalty,
+                "frequency_penalty": llm_frequency_penalty,
             },
             "audio": {
                 "silence_timeout": sil_timeout,
@@ -1969,6 +2058,15 @@ class PerkySueWidget:
         dbg_var = getattr(self, "_feedback_debug_mode_var", None)
         if dbg_var is not None:
             fb["debug_mode"] = dbg_var.get() == "On"
+        _bs = getattr(self, "_llm_diag_bypass_sys_var", None)
+        _sk = getattr(self, "_llm_diag_skip_ctkw_var", None)
+        _pl = getattr(self, "_llm_diag_show_payload_var", None)
+        if _bs is not None:
+            fb["llm_diag_bypass_system"] = _bs.get() == "On"
+        if _sk is not None:
+            fb["llm_diag_skip_chat_template_kwargs"] = _sk.get() == "On"
+        if _pl is not None:
+            fb["llm_diag_show_request_payload"] = _pl.get() == "On"
         out["feedback"] = fb
         return out
 
@@ -2038,7 +2136,7 @@ class PerkySueWidget:
             return t in ("on", "true", "1", "yes")
 
         def _llm_inject_all_modes_chat_on(llm: dict) -> bool:
-            v = llm.get("inject_all_modes_in_chat", True)
+            v = llm.get("inject_all_modes_in_chat", False)
             if isinstance(v, str):
                 return v.strip().lower() in ("on", "true", "1", "yes")
             return bool(v)
@@ -2049,6 +2147,29 @@ class PerkySueWidget:
             except (TypeError, ValueError):
                 return 512
 
+        def _llm_sampling_tuple(llm: dict) -> tuple:
+            def _f(k: str, d: float) -> float:
+                try:
+                    return round(float(llm.get(k, d)), 6)
+                except (TypeError, ValueError):
+                    return round(float(d), 6)
+
+            def _i(k: str, d: int) -> int:
+                try:
+                    return int(llm.get(k, d))
+                except (TypeError, ValueError):
+                    return int(d)
+
+            return (
+                _f("temperature", 0.7),
+                _f("top_p", 0.8),
+                _i("top_k", 20),
+                _f("min_p", 0.0),
+                _f("repeat_penalty", 1.0),
+                _f("presence_penalty", 1.5),
+                _f("frequency_penalty", 0.0),
+            )
+
         llm_changed = (
             str(cur_llm.get("model", "")).strip() != str(new_llm.get("model", "")).strip()
             or int(cur_llm.get("max_input_tokens", cur_llm.get("n_ctx", 0)) or 0) != int(new_llm.get("max_input_tokens", 0) or 0)
@@ -2058,10 +2179,21 @@ class PerkySueWidget:
             or _llm_inject_all_modes_chat_on(cur_llm) != _llm_inject_all_modes_chat_on(new_llm)
             or _llm_thinking_on(cur_llm) != _llm_thinking_on(new_llm)
             or _llm_thinking_budget(cur_llm) != _llm_thinking_budget(new_llm)
+            or _llm_sampling_tuple(cur_llm) != _llm_sampling_tuple(new_llm)
         )
         cur_fb = self.cfg.get("feedback") or {}
         new_fb = updates.get("feedback") or {}
-        feedback_changed = bool(cur_fb.get("debug_mode")) != bool(new_fb.get("debug_mode"))
+        def _fb_bool(keys: tuple[str, ...]) -> bool:
+            return any(bool(cur_fb.get(k)) != bool(new_fb.get(k)) for k in keys)
+
+        feedback_changed = _fb_bool(
+            (
+                "debug_mode",
+                "llm_diag_bypass_system",
+                "llm_diag_skip_chat_template_kwargs",
+                "llm_diag_show_request_payload",
+            )
+        )
         cur_inj = self.cfg.get("injection") or {}
         new_inj = updates.get("injection") or {}
 
@@ -2784,7 +2916,7 @@ class PerkySueWidget:
         af = CTkFrame(self._sidebar_scroll, fg_color="transparent")
         af.pack(fill="x", pady=(40, 0))
         
-        current_skin = self._effective_skin()
+        current_skin = self._main_avatar_skin_id()
         main_path = get_avatar_path(current_skin, paths=self.paths)
         status_color = _STATUS_META["ready"][1]
         self.main_avatar_img = create_avatar_circle(180, "", 0, is_main=True, img_path=main_path, accent_color=status_color)
@@ -2986,8 +3118,8 @@ class PerkySueWidget:
         self._mk_shortcuts()
         self._mk_chat()
         self._mk_voice()
-        if "brainstorm" in getattr(self, "_nav_page_ids", ()):
-            self._mk_brainstorm()
+        # Brainstorm is mounted lazily on first navigation to reduce startup UI pressure.
+        self._brainstorm_page_mounted = False
         if "avatar_editor" in getattr(self, "_nav_page_ids", ()):
             self._mk_avatar_editor()
         self._bind_content_wheel_fast()
@@ -6138,6 +6270,7 @@ class PerkySueWidget:
                         "locale": loc,
                         "display_name": sid,
                         "personality_yaml_path": pers_path,
+                        "avatar_path": get_avatar_path(sid_canon, use_teaser_if_locked=True, paths=paths),
                     }
                 )
         except Exception:
@@ -6159,17 +6292,79 @@ class PerkySueWidget:
             raise PermissionError("Brainstorm is Pro-only")
         if getattr(orch, "_cancel_requested", False):
             raise RuntimeError("brainstorm_llm_cancelled")
+        actor_hint = ""
+        role_hint = ""
+        try:
+            mh = str(mode_hint or "").strip()
+            if mh.startswith("brainstorm:"):
+                parts = mh.split(":", 2)
+                if len(parts) >= 2:
+                    role_hint = str(parts[1] or "").strip().lower()
+                if len(parts) >= 3:
+                    actor_hint = str(parts[2] or "").strip()
+            elif mh == "brainstorm_arbiter":
+                role_hint = "arbiter"
+            elif mh == "brainstorm_synth":
+                # Synthesis is narrated-style wrap-up; prefer narrator avatar if configured.
+                role_hint = "narrator"
+        except Exception:
+            actor_hint = ""
+            role_hint = ""
+        if not actor_hint and role_hint:
+            actor_hint = self._brainstorm_actor_for_role(role_hint)
+        # Invoked from plugin worker thread: status on main thread (processing = LLM).
+        # Do not force Ready here: Brainstorm sets generating/speaking/ready per turn after UI+TTS.
+        try:
+            def _set_processing_state() -> None:
+                if actor_hint:
+                    self.set_brainstorm_speaker_avatar_skin(actor_hint)
+                self.set_status("processing")
+            self.root.after(0, _set_processing_state)
+        except Exception:
+            pass
+        _llm_cfg = ((getattr(orch, "config", {}) or {}).get("llm", {}) or {})
+        try:
+            _plug_temp = float(_llm_cfg.get("temperature", 0.7))
+        except (TypeError, ValueError):
+            _plug_temp = 0.7
         result = orch._run_llm_on_main_thread(
             text=str(user or ""),
             system_prompt=str(system or ""),
-            temperature=0.6,
-            max_tokens=max(64, min(int(max_tokens or 400), 1024)),
+            temperature=_plug_temp,
+            max_tokens=max(64, min(
+                int(max_tokens or 400),
+                int(_llm_cfg.get("max_output_tokens", 1024) or 1024),
+            )),
             gui_debug_label=f"plugin:{mode_hint}",
         )
         if getattr(orch, "_cancel_requested", False):
             raise RuntimeError("brainstorm_llm_cancelled")
         text = getattr(result, "text", "") if result is not None else ""
         return str(text or "").strip()
+
+    def _brainstorm_play_system_sound(self, sound_name: str) -> bool:
+        """Play ``audios/system/<sound_name>.<ext>`` on the main Tk thread (Brainstorm worker calls this)."""
+        orch = getattr(self, "orch", None)
+        sm = getattr(orch, "sound_manager", None) if orch else None
+        if not sm:
+            return False
+        holder: list[bool] = [False]
+        done = threading.Event()
+
+        def _run() -> None:
+            try:
+                holder[0] = bool(sm.play_system_sound(sound_name))
+            except Exception:
+                holder[0] = False
+            finally:
+                done.set()
+
+        try:
+            self.root.after(0, _run)
+        except Exception:
+            return False
+        done.wait(timeout=5.0)
+        return bool(holder[0])
 
     def _mk_brainstorm(self):
         """Brainstorm plugin page — mounted only when plugin is present + enabled + Pro."""
@@ -6192,6 +6387,7 @@ class PerkySueWidget:
                 list_skins=self._brainstorm_list_skins,
                 emit_progress=lambda _event: None,
                 is_effective_pro=lambda: bool(getattr(self, "orch", None) and self.orch.is_effective_pro()),
+                play_system_sound=self._brainstorm_play_system_sound,
             )
             spec = register_gui(ctx) or {}
             factory = spec.get("page_factory")
@@ -6991,13 +7187,15 @@ class PerkySueWidget:
         else:
             self._chat_greeting_loading = False
         text = (result or "").strip() if result else ""
-        if text:
+        visible_text = self._assistant_bubble_visible_text(text) if text else ""
+        if visible_text:
             if tab == "help":
-                self._cached_greeting_help = text
+                self._cached_greeting_help = visible_text
                 self._cached_greeting_key_help = (name, lang)
             else:
-                self._cached_greeting_chat = text
+                self._cached_greeting_chat = visible_text
                 self._cached_greeting_key_chat = (name, lang)
+                self._maybe_autospeak_chat_greeting(visible_text, lang)
         # Always refresh the corresponding tab so that any spinner disappears even if greeting failed.
         if tab == "help":
             if getattr(self, "_refresh_help_tab", None):
@@ -7028,7 +7226,16 @@ class PerkySueWidget:
 
     def _assistant_bubble_visible_text(self, raw_answer: str) -> str:
         """Chat/Help assistant bubble: strip TTS [tags] unless dev plugin is present."""
-        md = self._chat_strip_markdown(raw_answer)
+        txt = raw_answer or ""
+        try:
+            o = getattr(self, "orch", None)
+            if o and getattr(o, "_strip_thinking_blocks", None):
+                txt = o._strip_thinking_blocks(txt)
+        except Exception:
+            pass
+        # Defense-in-depth against any leaked thinking tags that survived upstream stripping.
+        txt = re.sub(r"</?(?:think|thinking|reasoning|redacted_thinking)\b[^>]*>", "", txt, flags=re.IGNORECASE)
+        md = self._chat_strip_markdown(txt).strip()
         if self._orch_show_tts_tags_in_ui():
             return md
         try:
@@ -7037,6 +7244,45 @@ class PerkySueWidget:
             return strip_all_bracket_tags_for_display(md)
         except Exception:
             return md
+
+    def _maybe_autospeak_chat_greeting(self, text: str, lang: str) -> None:
+        """Auto-speak Chat greeting when Pro TTS answer trigger is enabled."""
+        spoken = (text or "").strip()
+        if not spoken:
+            return
+        o = getattr(self, "orch", None)
+        tm = getattr(o, "tts_manager", None) if o else None
+        if not o or not tm:
+            return
+        try:
+            triggers = set(getattr(tm, "trigger_modes", None) or [])
+        except Exception:
+            triggers = set()
+        should_speak = (
+            bool(getattr(o, "is_effective_pro", lambda: False)())
+            and bool(getattr(tm, "enabled", False))
+            and bool(getattr(tm, "auto_speak", False))
+            and "answer" in triggers
+            and bool(getattr(tm, "is_installed", lambda: False)())
+        )
+        if not should_speak:
+            return
+
+        def _tts_worker():
+            try:
+                if not tm.is_loaded():
+                    tm.load_engine()
+                if not tm.is_loaded():
+                    return
+                prepared = tm.prepare_speak(text=spoken, language=lang)
+                if prepared is None:
+                    return
+                if getattr(self, "root", None):
+                    self.root.after(0, lambda p=prepared: tm.play_prepared(p, blocking=False))
+            except Exception:
+                return
+
+        threading.Thread(target=_tts_worker, daemon=True).start()
 
     _THINKING_DOT_FRAMES = ("⚪ ⚫ ⚫", "⚫ ⚪ ⚫", "⚫ ⚫ ⚪")
     # Animated thinking bubble only (not normal chat/help message text).
@@ -9187,6 +9433,14 @@ class PerkySueWidget:
             self._refresh_voice_tab()
         elif name == "brainstorm":
             try:
+                if name not in self.pages:
+                    self._mk_brainstorm()
+                    self._brainstorm_page_mounted = True
+                    # Re-run page packing now that the page exists.
+                    for p in self.pages.values():
+                        p.pack_forget()
+                    if name in self.pages:
+                        self.pages[name].pack(fill="both", expand=True)
                 ui = getattr(self, "_brainstorm_ui", None)
                 if ui is not None and hasattr(ui, "refresh"):
                     ui.refresh()
@@ -9254,7 +9508,7 @@ class PerkySueWidget:
                     cursor="hand2" if status_id in ("listening", "processing", "generating") else "arrow",
                 )
                 try:
-                    main_path = get_avatar_path(self._effective_skin(), paths=self.paths)
+                    main_path = get_avatar_path(self._main_avatar_skin_id(), paths=self.paths)
                     _rd = 0
                     if status_id in ("speaking", "tts_loading", "listening"):
                         _rd = int(round(float(getattr(self, "_main_avatar_ring_offset_smooth", 0.0) or 0.0)))
@@ -9364,7 +9618,7 @@ class PerkySueWidget:
             self._main_avatar_ring_last_offset = ring_off
             try:
                 _, _, color = _status_tuple(getattr(self, "_status_id", "ready"))
-                main_path = get_avatar_path(self._effective_skin(), paths=self.paths)
+                main_path = get_avatar_path(self._main_avatar_skin_id(), paths=self.paths)
                 new_main = create_avatar_circle(
                     180, "", 0, is_main=True, img_path=main_path, accent_color=color, ring_offset_px=ring_off
                 )
@@ -11712,6 +11966,7 @@ class PerkySueWidget:
         patreon_lbl.bind("<Button-1>", lambda e: webbrowser.open("https://patreon.com/PerkySue"))
 
         skin_card = CTkFrame(pg, fg_color=CARD, corner_radius=12, border_width=1, border_color="#3A3A42")
+        self._skin_card = skin_card
         skin_card.pack(fill="x", pady=(0, 20), padx=(0, 28))
         # Filtre langue : présélection = langue UI (évite une grille pleine de doublons « Mike »).
         # Si le skin sauvegardé est dans une autre locale, on bascule le filtre sur cette locale pour le garder visible ; en dernier recours seulement « all ».
@@ -11773,6 +12028,14 @@ class PerkySueWidget:
         self.inner_skin = CTkScrollableFrame(skin_card, fg_color="transparent", height=280)
         self.inner_skin.pack(fill="both", expand=True, pady=(10, 32), padx=(25, 4))
         self.inner_skin.grid_columnconfigure((0, 1, 2), weight=1)
+        self._settings_skin_loading_hint = CTkLabel(
+            skin_card,
+            text=s("settings.loading_ready", default="Preparing this section..."),
+            font=("Segoe UI", 11),
+            text_color=MUTED,
+        )
+        self._settings_skin_loading_hint.pack(anchor="e", padx=(0, 12), pady=(0, 6))
+        self._settings_startup_hint_labels.append(self._settings_skin_loading_hint)
         self._skin_btns = {}
         self._skin_cols = {}
         self._skin_list_filtered = self._filter_skin_list()
@@ -11781,7 +12044,7 @@ class PerkySueWidget:
         self._last_skin_size = 120
         # Scroll spécifique à la zone skins (via inner_skin et ses enfants) ; design de la barre inchangé.
         self.inner_skin.bind("<MouseWheel>", self._on_skin_area_wheel)
-        self.inner_skin.bind("<Configure>", self._on_skin_resize)
+        self._skin_card.bind("<Configure>", self._on_skin_area_layout_configure)
         self.root.after(100, self._skin_scrollregion_update)
 
         # === SECTION 2 : RECOMMENDED MODELS ===
@@ -11854,8 +12117,18 @@ class PerkySueWidget:
         inner_models.pack(fill="both", expand=True, padx=(25, 4), pady=(10, 15))
         inner_models.grid_columnconfigure((0, 1), weight=1, uniform="col")
         inner_models.bind("<MouseWheel>", self._on_models_area_wheel)
+        self._models_card = models_card
+        self._models_card.bind("<Configure>", self._on_models_layout_configure)
         self._inner_models_frame = inner_models
         self.inner_models = inner_models
+        self._settings_models_loading_hint = CTkLabel(
+            models_card,
+            text=s("settings.loading_ready", default="Preparing this section..."),
+            font=("Segoe UI", 11),
+            text_color=MUTED,
+        )
+        self._settings_models_loading_hint.pack(anchor="e", padx=(0, 12), pady=(0, 8))
+        self._settings_startup_hint_labels.append(self._settings_models_loading_hint)
 
         try:
             self._model_filter_search.trace_add("write", lambda *_a, _w=self: _w._refresh_models_grid())
@@ -11863,6 +12136,7 @@ class PerkySueWidget:
             self._model_filter_search_entry.bind("<KeyRelease>", lambda _e: self._refresh_models_grid())
 
         self._refresh_models_grid()
+        self._apply_settings_startup_interaction_state()
 
         # "More models" placeholder removed: models list now has its own scroll area.
 
@@ -11931,7 +12205,7 @@ class PerkySueWidget:
         self._perf_answer_context_keep = tk.StringVar(value=str(_ctx_keep_int))
         answer_context_keep_opts = ["2", "3", "4"]
         _answer_ctx_keep_disabled = not bool(self.orch.is_effective_pro()) if getattr(self, "orch", None) and hasattr(self.orch, "is_effective_pro") else True
-        _inject_all_modes_cfg = llm_cfg.get("inject_all_modes_in_chat", True)
+        _inject_all_modes_cfg = llm_cfg.get("inject_all_modes_in_chat", False)
         if isinstance(_inject_all_modes_cfg, str):
             _inject_all_modes_on = _inject_all_modes_cfg.strip().lower() in ("1", "true", "yes", "on")
         else:
@@ -12039,6 +12313,18 @@ class PerkySueWidget:
         if str(rt_val) not in timeout_opts:
             rt_val = 180
         self._perf_llm_request_timeout = tk.StringVar(value=str(rt_val))
+        _clipboard_paste_delay_opts = ["0", "1", "2", "3", "4", "5", "10", "15", "20", "25", "30", "45", "60"]
+        try:
+            _cbd_cfg = float((self.cfg.get("injection") or {}).get("clipboard_restore_delay_sec", 5))
+        except (TypeError, ValueError):
+            _cbd_cfg = 5.0
+        _cbd_snap = int(round(_cbd_cfg))
+        if str(_cbd_snap) not in _clipboard_paste_delay_opts:
+            _cbd_snap = min(
+                (int(x) for x in _clipboard_paste_delay_opts),
+                key=lambda t: abs(t - _cbd_snap),
+            )
+        self._perf_clipboard_paste_delay = tk.StringVar(value=str(_cbd_snap))
         # Thinking models (llama-server --reasoning-budget); restart serveur / Apply LLM requis
         th_raw = str(llm_for_timeout.get("thinking", "off")).strip().lower()
         self._perf_thinking = tk.StringVar(value="On" if th_raw in ("on", "true", "1", "yes") else "Off")
@@ -12049,6 +12335,52 @@ class PerkySueWidget:
         _thinking_budget_opts = ["256", "512", "1024", "2048", "Unlimited"]
         _tb_disp = "Unlimited" if _tb < 0 else (str(_tb) if str(_tb) in _thinking_budget_opts else "512")
         self._perf_thinking_budget = tk.StringVar(value=_tb_disp)
+        _llm_samp = llm_for_timeout
+        _temp_opts = [
+            "0.0", "0.1", "0.2", "0.3", "0.4", "0.5", "0.6", "0.65", "0.7", "0.75", "0.8", "0.85", "0.9", "1.0", "1.05", "1.2",
+        ]
+        _top_p_opts = ["0.50", "0.60", "0.70", "0.75", "0.80", "0.85", "0.90", "0.95", "1.00"]
+        _top_k_opts = ["0", "10", "15", "20", "40", "80"]
+        _min_p_opts = ["0.00", "0.01", "0.05", "0.10"]
+        _repeat_opts = ["1.00", "1.05", "1.10", "1.15", "1.18", "1.20", "1.25", "1.35", "1.50"]
+        _presence_opts = ["0.0", "0.5", "1.0", "1.2", "1.5", "2.0"]
+        _freq_opts = ["0.0", "0.1", "0.2", "0.5", "1.0"]
+
+        def _snap_str_opt(raw, opts: list, default: str) -> str:
+            try:
+                v = float(raw)
+            except (TypeError, ValueError):
+                return default
+            return min(opts, key=lambda x: abs(float(x) - v))
+
+        self._perf_llm_temperature = tk.StringVar(
+            value=_snap_str_opt(_llm_samp.get("temperature", 0.7), _temp_opts, "0.7")
+        )
+        self._perf_llm_top_p = tk.StringVar(
+            value=_snap_str_opt(_llm_samp.get("top_p", 0.8), _top_p_opts, "0.80")
+        )
+        self._perf_llm_top_k = tk.StringVar(
+            value=_snap_str_opt(_llm_samp.get("top_k", 20), _top_k_opts, "20")
+        )
+        self._perf_llm_min_p = tk.StringVar(
+            value=_snap_str_opt(_llm_samp.get("min_p", 0.0), _min_p_opts, "0.00")
+        )
+        self._perf_llm_repeat_penalty = tk.StringVar(
+            value=_snap_str_opt(_llm_samp.get("repeat_penalty", 1.0), _repeat_opts, "1.00")
+        )
+        self._perf_llm_presence_penalty = tk.StringVar(
+            value=_snap_str_opt(_llm_samp.get("presence_penalty", 1.5), _presence_opts, "1.5")
+        )
+        self._perf_llm_frequency_penalty = tk.StringVar(
+            value=_snap_str_opt(_llm_samp.get("frequency_penalty", 0.0), _freq_opts, "0.0")
+        )
+        self._perf_llm_temp_opts = _temp_opts
+        self._perf_llm_top_p_opts = _top_p_opts
+        self._perf_llm_top_k_opts = _top_k_opts
+        self._perf_llm_min_p_opts = _min_p_opts
+        self._perf_llm_repeat_opts = _repeat_opts
+        self._perf_llm_presence_opts = _presence_opts
+        self._perf_llm_freq_opts = _freq_opts
         llm_files = []
         if self.paths.models_llm.exists():
             try:
@@ -12105,6 +12437,13 @@ class PerkySueWidget:
                 _inject_all_modes_disabled,
             ),
             (s("settings.performance.llm_request_timeout"), "⏲️", self._perf_llm_request_timeout, timeout_opts, False),
+            (
+                s("settings.performance.clipboard_paste_delay", default="Clipboard paste delay (s)"),
+                "📋",
+                self._perf_clipboard_paste_delay,
+                _clipboard_paste_delay_opts,
+                False,
+            ),
         ]
         for label, icon_emoji, var, options, disabled in perf_rows:
             row_f = CTkFrame(perf_box, fg_color="transparent")
@@ -12165,23 +12504,53 @@ class PerkySueWidget:
             False,
         )
 
-        _clipboard_paste_delay_opts = ["0", "1", "2", "3", "4", "5", "10", "15", "20", "25", "30", "45", "60"]
-        try:
-            _cbd_cfg = float((self.cfg.get("injection") or {}).get("clipboard_restore_delay_sec", 5))
-        except (TypeError, ValueError):
-            _cbd_cfg = 5.0
-        _cbd_snap = int(round(_cbd_cfg))
-        if str(_cbd_snap) not in _clipboard_paste_delay_opts:
-            _cbd_snap = min(
-                (int(x) for x in _clipboard_paste_delay_opts),
-                key=lambda t: abs(t - _cbd_snap),
-            )
-        self._perf_clipboard_paste_delay = tk.StringVar(value=str(_cbd_snap))
-        _row_perf_option(
-            s("settings.performance.clipboard_paste_delay", default="Clipboard paste delay (s)"),
-            "📋",
-            self._perf_clipboard_paste_delay,
-            _clipboard_paste_delay_opts,
+        self._perf_llm_temperature_om = _row_perf_option(
+            s("settings.performance.llm_temperature", default="LLM temperature"),
+            "🌡️",
+            self._perf_llm_temperature,
+            self._perf_llm_temp_opts,
+            False,
+        )
+        self._perf_llm_top_p_om = _row_perf_option(
+            s("settings.performance.llm_top_p", default="LLM top-p"),
+            "📐",
+            self._perf_llm_top_p,
+            self._perf_llm_top_p_opts,
+            False,
+        )
+        self._perf_llm_top_k_om = _row_perf_option(
+            s("settings.performance.llm_top_k", default="LLM top-k"),
+            "🔠",
+            self._perf_llm_top_k,
+            self._perf_llm_top_k_opts,
+            False,
+        )
+        self._perf_llm_min_p_om = _row_perf_option(
+            s("settings.performance.llm_min_p", default="LLM min-p"),
+            "📉",
+            self._perf_llm_min_p,
+            self._perf_llm_min_p_opts,
+            False,
+        )
+        self._perf_llm_repeat_penalty_om = _row_perf_option(
+            s("settings.performance.llm_repeat_penalty", default="LLM repeat penalty"),
+            "🔁",
+            self._perf_llm_repeat_penalty,
+            self._perf_llm_repeat_opts,
+            False,
+        )
+        self._perf_llm_presence_penalty_om = _row_perf_option(
+            s("settings.performance.llm_presence_penalty", default="LLM presence penalty"),
+            "✨",
+            self._perf_llm_presence_penalty,
+            self._perf_llm_presence_opts,
+            False,
+        )
+        self._perf_llm_frequency_penalty_om = _row_perf_option(
+            s("settings.performance.llm_frequency_penalty", default="LLM frequency penalty"),
+            "📈",
+            self._perf_llm_frequency_penalty,
+            self._perf_llm_freq_opts,
             False,
         )
 
@@ -12216,8 +12585,15 @@ class PerkySueWidget:
             self._perf_vad_sensitivity,
             self._perf_max_duration,
             self._perf_llm_request_timeout,
-            self._perf_thinking_budget,
             self._perf_clipboard_paste_delay,
+            self._perf_thinking_budget,
+            self._perf_llm_temperature,
+            self._perf_llm_top_p,
+            self._perf_llm_top_k,
+            self._perf_llm_min_p,
+            self._perf_llm_repeat_penalty,
+            self._perf_llm_presence_penalty,
+            self._perf_llm_frequency_penalty,
         ):
             var.trace_add("write", lambda *a: self._trigger_save())
 
@@ -12262,6 +12638,300 @@ class PerkySueWidget:
             anchor="w",
         ).pack(fill="x", padx=(42, 0))
         self._feedback_debug_mode_var.trace_add("write", lambda *a: self._trigger_save())
+
+        CTkLabel(
+            adv_inner,
+            text=s("settings.advanced.llm_diag_section", default="Model diagnostic"),
+            font=("Segoe UI", 14, "bold"),
+            text_color=TXT,
+        ).pack(anchor="w", pady=(16, 6), padx=(0, 0))
+        self._llm_diag_bypass_sys_var = tk.StringVar(
+            value="On" if bool(_fb_cfg.get("llm_diag_bypass_system", False)) else "Off"
+        )
+        row_bs = CTkFrame(adv_inner, fg_color="transparent")
+        row_bs.pack(fill="x", pady=(0, 6))
+        CTkLabel(row_bs, text="🔬", font=("Segoe UI", 14), text_color=TXT2, width=32).pack(side="left", padx=(0, 10))
+        CTkLabel(
+            row_bs,
+            text=s("settings.advanced.llm_diag_bypass_system", default="Skip instructions"),
+            font=("Segoe UI", 14),
+            text_color=TXT,
+            width=260,
+            anchor="w",
+        ).pack(side="left", padx=(0, 12))
+        CTkOptionMenu(
+            row_bs,
+            variable=self._llm_diag_bypass_sys_var,
+            values=["Off", "On"],
+            width=180,
+            font=("Segoe UI", 13),
+            fg_color=INPUT,
+            button_color=SIDEBAR,
+            button_hover_color=SEL_BG,
+        ).pack(side="right")
+        self._llm_diag_skip_ctkw_var = tk.StringVar(
+            value="On" if bool(_fb_cfg.get("llm_diag_skip_chat_template_kwargs", False)) else "Off"
+        )
+        row_sk = CTkFrame(adv_inner, fg_color="transparent")
+        row_sk.pack(fill="x", pady=(0, 6))
+        CTkLabel(row_sk, text="🔬", font=("Segoe UI", 14), text_color=TXT2, width=32).pack(side="left", padx=(0, 10))
+        CTkLabel(
+            row_sk,
+            text=s(
+                "settings.advanced.llm_diag_skip_chat_template_kwargs",
+                default="Allow reasoning",
+            ),
+            font=("Segoe UI", 14),
+            text_color=TXT,
+            width=260,
+            anchor="w",
+        ).pack(side="left", padx=(0, 12))
+        CTkOptionMenu(
+            row_sk,
+            variable=self._llm_diag_skip_ctkw_var,
+            values=["Off", "On"],
+            width=180,
+            font=("Segoe UI", 13),
+            fg_color=INPUT,
+            button_color=SIDEBAR,
+            button_hover_color=SEL_BG,
+        ).pack(side="right")
+        self._llm_diag_show_payload_var = tk.StringVar(
+            value="On" if bool(_fb_cfg.get("llm_diag_show_request_payload", False)) else "Off"
+        )
+        row_pl = CTkFrame(adv_inner, fg_color="transparent")
+        row_pl.pack(fill="x", pady=(0, 6))
+        CTkLabel(row_pl, text="🔬", font=("Segoe UI", 14), text_color=TXT2, width=32).pack(side="left", padx=(0, 10))
+        CTkLabel(
+            row_pl,
+            text=s(
+                "settings.advanced.llm_diag_show_payload",
+                default="Show raw request",
+            ),
+            font=("Segoe UI", 14),
+            text_color=TXT,
+            width=260,
+            anchor="w",
+        ).pack(side="left", padx=(0, 12))
+        CTkOptionMenu(
+            row_pl,
+            variable=self._llm_diag_show_payload_var,
+            values=["Off", "On"],
+            width=180,
+            font=("Segoe UI", 13),
+            fg_color=INPUT,
+            button_color=SIDEBAR,
+            button_hover_color=SEL_BG,
+        ).pack(side="right")
+        CTkLabel(
+            adv_inner,
+            text=s(
+                "settings.advanced.llm_diag_hint",
+                default="Quick Hello test. Mix switches to see what blocks reasoning.",
+            ),
+            font=("Segoe UI", 12),
+            text_color=MUTED,
+            wraplength=500,
+            justify="left",
+            anchor="w",
+        ).pack(fill="x", padx=(42, 0), pady=(0, 8))
+        CTkLabel(
+            adv_inner,
+            text=s(
+                "settings.advanced.llm_diag_warn_not_server",
+                default="Only works with llama-server backend.",
+            ),
+            font=("Segoe UI", 11),
+            text_color=MUTED,
+            wraplength=500,
+            justify="left",
+            anchor="w",
+        ).pack(fill="x", padx=(42, 0), pady=(0, 8))
+        _diag_btns = CTkFrame(adv_inner, fg_color="transparent")
+        _diag_btns.pack(fill="x", pady=(0, 4))
+        self._llm_diag_btn = CTkButton(
+            _diag_btns,
+            text=s("settings.advanced.llm_diag_run", default="Run test"),
+            font=("Segoe UI", 14, "bold"),
+            fg_color=ACCENT,
+            hover_color="#7C3AED",
+            command=lambda: self._run_llm_chat_template_diagnostic(),
+        )
+        self._llm_diag_btn.pack(side="left")
+
+        self._llm_diag_result_textbox = CTkTextbox(
+            adv_inner,
+            height=160,
+            font=("Consolas", 11),
+            fg_color=INPUT,
+            text_color=TXT,
+            wrap="word",
+        )
+        self._llm_diag_result_textbox.pack(fill="both", expand=True, pady=(8, 0), padx=(42, 0))
+        try:
+            self._llm_diag_result_textbox.insert("1.0", s("settings.advanced.llm_diag_placeholder", default=""))
+            self._llm_diag_result_textbox.configure(state="disabled")
+        except Exception:
+            pass
+        for _dv in (
+            self._llm_diag_bypass_sys_var,
+            self._llm_diag_skip_ctkw_var,
+            self._llm_diag_show_payload_var,
+        ):
+            _dv.trace_add("write", lambda *a: self._trigger_save())
+
+    def _run_llm_chat_template_diagnostic(self):
+        orch = getattr(self, "orch", None)
+        tb = getattr(self, "_llm_diag_result_textbox", None)
+        btn = getattr(self, "_llm_diag_btn", None)
+
+        def fail(msg: str):
+            if tb is not None:
+                tb.configure(state="normal")
+                tb.delete("1.0", "end")
+                tb.insert("1.0", msg)
+                tb.configure(state="disabled")
+
+        if orch is None:
+            fail("Orchestrator not ready.")
+            return
+        bypass = getattr(self, "_llm_diag_bypass_sys_var", None)
+        skipkw = getattr(self, "_llm_diag_skip_ctkw_var", None)
+        showpay = getattr(self, "_llm_diag_show_payload_var", None)
+        fb = orch.config.get("feedback")
+        if not isinstance(fb, dict):
+            fb = {}
+            orch.config["feedback"] = fb
+        if bypass is not None:
+            fb["llm_diag_bypass_system"] = bypass.get() == "On"
+        if skipkw is not None:
+            fb["llm_diag_skip_chat_template_kwargs"] = skipkw.get() == "On"
+        if showpay is not None:
+            fb["llm_diag_show_request_payload"] = showpay.get() == "On"
+
+        if btn is not None:
+            try:
+                btn.configure(state="disabled")
+            except Exception:
+                pass
+        running = s("settings.advanced.llm_diag_running", default="Running…")
+        fail(running)
+
+        def work():
+            err = ""
+            res = {}
+            try:
+                res = orch.run_llm_chat_template_diagnostic()
+            except Exception as e:
+                err = str(e)
+                res = {"ok": False, "error": err}
+
+            def ui():
+                if btn is not None:
+                    try:
+                        btn.configure(state="normal")
+                    except Exception:
+                        pass
+                if tb is None:
+                    return
+                lines = []
+                hdr_rendered = s(
+                    "settings.advanced.llm_diag_rendered_heading",
+                    default="Rendered prompt (post-Jinja)",
+                )
+                if res.get("error") == "not_llamacpp_server":
+                    lines.append(
+                        s(
+                            "settings.advanced.llm_diag_warn_not_server",
+                            default=(
+                                "This diagnostic only runs when the LLM backend is llama-server "
+                                "(embedded server mode), not direct llama-cpp."
+                            ),
+                        )
+                    )
+                else:
+                    if str(res.get("error") or "").strip() == "llm_not_available":
+                        lines.append(
+                            s(
+                                "settings.advanced.llm_diag_no_model",
+                                default="No GGUF/model available — load a model under Performance before running diagnostics.",
+                            )
+                        )
+                    ep = str(res.get("apply_template_endpoint") or "").strip()
+                    if str(res.get("error") or "").strip() != "llm_not_available":
+                        lines.append(
+                            f"--- {hdr_rendered}"
+                            + (f" [{ep}]" if ep else "")
+                            + " ---"
+                        )
+                    rp_prompt = res.get("rendered_prompt_post_jinja")
+                    ap_fail = str(res.get("apply_template_lookup_error") or "").strip()
+                    na_msg = s(
+                        "settings.advanced.llm_diag_rendered_na",
+                        default=(
+                            "No rendered prompt returned. Typical causes: POST /apply-template and "
+                            "/v1/apply-template are unavailable (404 on this llama-server build); network error; "
+                            "or probe failed — see detail below."
+                        ),
+                    )
+                    _no_mod = str(res.get("error") or "").strip() != "llm_not_available"
+                    if _no_mod:
+                        if isinstance(rp_prompt, str):
+                            lines.append(rp_prompt if rp_prompt.strip() else "(empty prompt string)")
+                        else:
+                            lines.append(na_msg)
+                            if ap_fail:
+                                lines.append(
+                                    s(
+                                        "settings.advanced.llm_diag_apply_detail",
+                                        default="apply-template detail:",
+                                    )
+                                    + " "
+                                    + ap_fail,
+                                )
+
+                    if res.get("ok"):
+                        lines.append("\n--- assistant_raw ---")
+                        lines.append(res.get("assistant_raw") or "")
+                        lines.append("\n--- assistant_after_strip ---")
+                        lines.append(res.get("assistant_stripped") or "")
+                        rapi = res.get("reasoning_content_api") or ""
+                        if str(rapi).strip():
+                            lines.append("\n--- reasoning_content (API split) ---")
+                            lines.append(str(rapi).strip())
+                        lines.append(
+                            f"\nfinish_reason={res.get('finish_reason')!r} "
+                            f"completion_tokens={res.get('completion_tokens')} "
+                            f"total≈{res.get('tokens_used')} duration={res.get('duration_s')}s"
+                        )
+                        lines.append(
+                            f"thinking_budget_cli={res.get('llama_server_reasoning_budget_cli')} "
+                            f"(off=thinking disabled)"
+                        )
+                    elif res.get("error") and str(res.get("error") or "").strip() != "llm_not_available":
+                        lines.append(
+                            "\n--- completion_error ---"
+                            + f"\n{res.get('error') or err or 'unknown'!s}",
+                        )
+
+                    pj = res.get("request_payload_json")
+                    if pj:
+                        lines.append("\n--- POST /v1/chat/completions (JSON preview) ---")
+                        lines.append(pj)
+                    if res.get("jinja_note"):
+                        lines.append("\n" + str(res["jinja_note"]))
+                blob = "\n".join(lines)
+                tb.configure(state="normal")
+                tb.delete("1.0", "end")
+                tb.insert("1.0", blob)
+                tb.configure(state="disabled")
+
+            try:
+                self.root.after(0, ui)
+            except Exception:
+                ui()
+
+        threading.Thread(target=work, daemon=True).start()
 
     def _refresh_llm_model_choices_from_disk(self):
         """Refresh the LLM dropdown choices from Data/Models/LLM without restart."""
@@ -12376,6 +13046,7 @@ class PerkySueWidget:
         if not getattr(self, "_inner_models_frame", None):
             return
         inner = self._inner_models_frame
+        self._models_name_wrap_targets = []
         self._progress_card_prog_lbl = None
         self._progress_card_prog_img_ref = None
         for w in inner.winfo_children():
@@ -12418,6 +13089,7 @@ class PerkySueWidget:
             card.grid(row=r, column=c, padx=10, pady=10, sticky="nsew")
             if action_btn is not None:
                 Tooltip(card, content_builder=lambda tw, mdl=m: self._build_model_tooltip_content(tw, mdl), bind_widgets=[action_btn])
+        self._schedule_models_wrap_refresh()
 
     def _model_tooltip_text(self, m):
         """Build multi-line tooltip text from catalog entry (fallback)."""
@@ -12554,12 +13226,7 @@ class PerkySueWidget:
             stars_str = "⭐" * n
             if stars_str:
                 CTkLabel(row2, text=stars_str, font=("Segoe UI", 14), text_color=GOLD).pack(side="right")
-        def _model_card_wraplength(_e=None, lbl=name_lbl, c=card):
-            w = c.winfo_width() - 100
-            if w > 80:
-                lbl.configure(wraplength=max(80, w))
-        card.bind("<Configure>", _model_card_wraplength)
-        card.after(50, lambda: _model_card_wraplength(None))
+        self._models_name_wrap_targets.append((card, name_lbl))
         # Sub-scroll binding on card and key children, same pattern as Appearance/Finalized.
         for w in (card, top_f, txt_f, row2, name_lbl):
             try:
@@ -12634,6 +13301,8 @@ class PerkySueWidget:
 
     def _on_models_area_wheel(self, event):
         """Roulette sur Recommended Models : scroll de la zone d'abord, puis page en butée."""
+        if not getattr(self, "_startup_ui_ready", False):
+            return "break"
         inner = getattr(self, "inner_models", None)
         if not inner:
             return
@@ -12654,6 +13323,31 @@ class PerkySueWidget:
         if going_down and not at_bottom:
             canvas.yview("scroll", step, "units")
             return "break"
+
+    def _on_models_layout_configure(self, event):
+        """Avoid per-card Configure storms by batching title wrap updates."""
+        if getattr(self, "_models_card", None) is None or event.widget is not self._models_card:
+            return
+        self._schedule_models_wrap_refresh()
+
+    def _schedule_models_wrap_refresh(self):
+        try:
+            old = getattr(self, "_models_wrap_after_id", None)
+            if old is not None:
+                self.root.after_cancel(old)
+        except Exception:
+            pass
+        self._models_wrap_after_id = self.root.after(120, self._apply_models_name_wraplengths)
+
+    def _apply_models_name_wraplengths(self):
+        self._models_wrap_after_id = None
+        for card, name_lbl in getattr(self, "_models_name_wrap_targets", []):
+            try:
+                w = card.winfo_width() - 100
+                if w > 80:
+                    name_lbl.configure(wraplength=max(80, w))
+            except Exception:
+                pass
 
     def _first_run_maybe_download_default_llm(self):
         """Si aucun .gguf et pas déjà traité, lance hf_hub_download du modèle par défaut (YAML + PERKYSUE_BACKEND + VRAM)."""
@@ -12986,8 +13680,52 @@ class PerkySueWidget:
         except Exception:
             pass
 
+    def _schedule_startup_ui_ready(self):
+        """Marks heavy Settings interactions ready after initial UI paint settles."""
+        if getattr(self, "_startup_ui_ready", False):
+            return
+        try:
+            self.root.update_idletasks()
+        except Exception:
+            pass
+        try:
+            old = getattr(self, "_startup_ui_ready_after_id", None)
+            if old is not None:
+                self.root.after_cancel(old)
+        except Exception:
+            pass
+        self._startup_ui_ready_after_id = self.root.after(2500, self._mark_startup_ui_ready)
+
+    def _mark_startup_ui_ready(self):
+        self._startup_ui_ready_after_id = None
+        self._startup_ui_ready = True
+        self._apply_settings_startup_interaction_state()
+
+    def _apply_settings_startup_interaction_state(self):
+        ready = bool(getattr(self, "_startup_ui_ready", False))
+        for frame_name in ("inner_skin", "inner_models"):
+            frame = getattr(self, frame_name, None)
+            if frame is None:
+                continue
+            sb = getattr(frame, "_scrollbar", None)
+            if sb is not None:
+                try:
+                    sb.configure(state="normal" if ready else "disabled")
+                except Exception:
+                    pass
+        for lbl in getattr(self, "_settings_startup_hint_labels", []):
+            try:
+                if ready:
+                    lbl.pack_forget()
+                elif not lbl.winfo_manager():
+                    lbl.pack(anchor="e", padx=(0, 12), pady=(0, 6))
+            except Exception:
+                pass
+
     def _on_skin_area_wheel(self, event):
         """Roulette sur la zone skins : scroll rapide (40-120 u)."""
+        if not getattr(self, "_startup_ui_ready", False):
+            return "break"
         canvas = getattr(self.inner_skin, "_parent_canvas", None)
         if not canvas:
             return
@@ -13051,19 +13789,41 @@ class PerkySueWidget:
             canvas.yview("scroll", step, "units")
             return "break"
 
-    def _on_skin_resize(self, event):
-        col_width = event.width / 3
+    def _on_skin_area_layout_configure(self, event):
+        """Debounced resize for skin avatars; ignore scroll-driven configure storms."""
+        if getattr(self, "_skin_card", None) is None or event.widget is not self._skin_card:
+            return
+        try:
+            old = getattr(self, "_skin_resize_after_id", None)
+            if old is not None:
+                self.root.after_cancel(old)
+        except Exception:
+            pass
+        self._skin_resize_after_id = self.root.after(120, self._apply_skin_grid_resize)
+
+    def _apply_skin_grid_resize(self):
+        self._skin_resize_after_id = None
+        inner = getattr(self, "inner_skin", None)
+        if not inner:
+            return
+        try:
+            width = inner.winfo_width()
+        except tk.TclError:
+            return
+        if width < 40:
+            return
+        col_width = width / 3.0
         new_size = int(col_width * 0.85)
         new_size = max(100, min(new_size, 175))
-        
         current_size = getattr(self, "_last_skin_size", 0)
-        if abs(new_size - current_size) < 2:
+        if abs(new_size - current_size) < 4:
             return
-            
         self._last_skin_size = new_size
-        for sn, data in self._skin_btns.items():
+        for _sn, data in self._skin_btns.items():
             color = SKIN_SELECTED_BORDER if data["is_sel"] else "#52525B"
-            new_img = create_avatar_circle(new_size, color, 0, is_main=False, img_path=data["path"], show_lock=data.get("locked", False))
+            new_img = create_avatar_circle(
+                new_size, color, 0, is_main=False, img_path=data["path"], show_lock=data.get("locked", False)
+            )
             data["lbl"].configure(image=new_img)
 
     # ── FOOTER (mockup: GitHub + Beta) ─────────────────────────

@@ -13,7 +13,7 @@ Pour ajouter un nouveau provider LLM:
 
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
-from typing import Optional
+from typing import Any, Optional
 
 
 @dataclass
@@ -32,8 +32,14 @@ class LLMProvider(ABC):
     """Interface abstraite pour un provider LLM."""
 
     @abstractmethod
-    def process(self, text: str, system_prompt: str,
-                temperature: float = 0.3, max_tokens: int = 1024) -> LLMResult:
+    def process(
+        self,
+        text: str,
+        system_prompt: str,
+        temperature: float = 0.7,
+        max_tokens: int = 1024,
+        **kwargs: Any,
+    ) -> LLMResult:
         """
         Traite du texte avec un LLM.
 
@@ -42,6 +48,7 @@ class LLMProvider(ABC):
             system_prompt: Instruction système (le mode template)
             temperature: Créativité (0.0 = déterministe)
             max_tokens: Limite de tokens en sortie
+            kwargs: Extra sampling (e.g. top_p, top_k, min_p, repeat_penalty, presence_penalty) — server-specific.
 
         Returns:
             LLMResult avec le texte traité

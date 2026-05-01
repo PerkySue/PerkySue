@@ -41,7 +41,7 @@ REM ============================================================
 REM  llama.cpp release - change this ONE variable to update
 REM  Check https://github.com/ggml-org/llama.cpp/releases   
 REM ============================================================
-set "LLAMA_VER=b8188"
+set "LLAMA_VER=b8860"
 
 echo.
 echo  =============================================
